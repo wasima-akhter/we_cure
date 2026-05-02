@@ -1,6 +1,6 @@
 class ApiEndPoints {
   // static const String baseUrl = 'https://bvh0nlc7-3001.inc1.devtunnels.ms/api';
-  static const String baseUrl = 'https://api.wecurehealth.com';
+  static const String baseUrl = 'https://api.wecurehealth.com/api';
 
   // AUTH ENDPOINTS
   static const String login = '/auth/login';
