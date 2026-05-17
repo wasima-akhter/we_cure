@@ -1,6 +1,7 @@
 part of 'token.dart';
 
 class CustomColors {
+  static const Color logoColor = Color(0xff015887);
   static const Color whiteColor = Color(0xffFFFFFF);
   static const Color blackColor = Color(0xFF000000);
   static const Color blueColor = Color(0xFF2323FF);
