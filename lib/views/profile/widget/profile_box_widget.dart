@@ -55,7 +55,7 @@ class ProfileBoxWidget extends GetView<ProfileController> {
 
           ProfileAvatarWidget(
             imageUrl: controller.userProfileModel?.data.profileImage ?? '',
-            size: 100.sp,
+            size: 100.w,
           ),
           Space.height.v10,
           Wrap(
@@ -63,67 +63,80 @@ class ProfileBoxWidget extends GetView<ProfileController> {
             spacing: Dimensions.widthSize * 0.8,
             children: [
               TextWidget(controller.userProfileModel?.data.name ?? ""),
-              TextButton(
-                style: TextButton.styleFrom(
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Dimensions.defaultHorizontalSize * 0.8,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      Dimensions.radius * 1.5,
-                    ),
-                    side: BorderSide(color: CustomColors.primary),
-                  ),
+              if ((controller.userProfileModel?.data.bloodGroup ?? '')
+                  .isNotEmpty)
+                BloodGroupBox(
+                  bloodGroup:
+                      controller.userProfileModel?.data.bloodGroup ?? '',
                 ),
-                onPressed: () {},
-                child: TextWidget(
-                  controller.userProfileModel?.data.bloodGroup ?? 'N/A',
-                  fontSize: Dimensions.titleSmall * 0.9,
-                  color: CustomColors.primary,
-                ),
-              ),
             ],
           ),
-          TextWidget(
-            controller.userProfileModel?.data.dateOfBirth != null
-                ? DateFormat(
-                    'dd - MMM - yyyy',
-                  ).format(controller.userProfileModel!.data.dateOfBirth!)
-                : 'N/A',
-            fontSize: Dimensions.titleSmall,
-            color: Colors.black.withOpacity(0.7),
+          Builder(
+            builder: (context) {
+              final dob = controller.userProfileModel?.data.dateOfBirth;
+              return TextWidget(
+                dob != null
+                    ? DateFormat(
+                        'dd - MMM - yyyy',
+                      ).format(controller.userProfileModel!.data.dateOfBirth!)
+                    : 'No Date Of Birth is Available',
+                fontSize: Dimensions.titleSmall,
+                color: Colors.black.withOpacity(0.7),
+              );
+            },
           ),
-          TextWidget(
-            controller.userProfileModel?.data.phone ?? '',
-            fontSize: Dimensions.titleSmall,
-            color: Colors.black.withOpacity(0.7),
+          Builder(
+            builder: (context) {
+              final phone = controller.userProfileModel?.data.phone ?? '';
+
+              if (phone.isEmpty) return const SizedBox.shrink();
+              return TextWidget(
+                phone,
+                fontSize: Dimensions.titleSmall,
+                color: Colors.black.withOpacity(0.7),
+              );
+            },
           ),
 
-          Space.height.v20,
+          Space.height.v10,
           Column(
             crossAxisAlignment: crossStart,
             children: [
               TextWidget('Allergies'),
               Space.height.v10,
               Wrap(
+                spacing: Dimensions.spaceBetweenInputBox * 0.4,
+                runSpacing: Dimensions.spaceBetweenInputBox * 0.4,
                 children: List.generate(
                   controller.userProfileModel?.data.allergies?.length ?? 0,
-                  (index) => TextWidget(
-                    padding: EdgeInsetsGeometry.only(
-                      right: Dimensions.widthSize * 2,
-                      bottom: Dimensions.heightSize,
+                  (index) => Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimensions.widthSize,
                     ),
-                    controller.userProfileModel!.data.allergies?[index]
-                            .toString() ??
-                        '',
-                    fontSize: Dimensions.titleSmall,
-                    color: CustomColors.grayShade,
+                    decoration: BoxDecoration(
+                      color: CustomColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(
+                        Dimensions.radius * 2,
+                      ),
+                      border: Border.all(
+                        color: CustomColors.primary.withOpacity(0.3),
+                      ),
+                    ),
+                    child: TextWidget(
+                      padding: EdgeInsetsGeometry.only(
+                        // right: Dimensions.widthSize * 2,
+                        // bottom: Dimensions.heightSize,
+                      ),
+                      controller.userProfileModel!.data.allergies?[index]
+                              .toString() ??
+                          '',
+                      fontSize: Dimensions.titleSmall,
+                      color: CustomColors.grayShade,
+                    ),
                   ),
                 ),
               ),
-              Space.height.v20,
+              Space.height.v30,
               GestureDetector(
                 onTap: () => Get.toNamed(Routes.updateProfileScreen),
                 child: Container(
@@ -348,6 +361,34 @@ class DoctorProfileBox extends GetView<ProfileController> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class BloodGroupBox extends StatelessWidget {
+  final String bloodGroup;
+  const BloodGroupBox({super.key, required this.bloodGroup});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      style: TextButton.styleFrom(
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimensions.defaultHorizontalSize * 0.8,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Dimensions.radius * 1.5),
+          side: BorderSide(color: CustomColors.primary),
+        ),
+      ),
+      onPressed: () {},
+      child: TextWidget(
+        bloodGroup,
+        fontSize: Dimensions.titleSmall * 0.9,
+        color: CustomColors.primary,
       ),
     );
   }

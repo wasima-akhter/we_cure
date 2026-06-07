@@ -5,6 +5,7 @@ class MyAppBarWidget extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    const double actionButtonSize = 45;
     return SafeArea(
       child: Padding(
         padding: EdgeInsetsGeometry.symmetric(
@@ -15,26 +16,29 @@ class MyAppBarWidget extends GetView<HomeController> {
           mainAxisAlignment: mainSpaceBet,
           children: [
             CustomLogoWidget(),
-            Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
+            // Wrap(
+            //   alignment: WrapAlignment.center,
+            //   crossAxisAlignment: WrapCrossAlignment.center,
+            Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 GestureDetector(
                   onTap: () => Get.toNamed(Routes.notificationScreen),
                   child: Container(
-                    padding: EdgeInsets.all(Dimensions.paddingSize * 0.5),
+                    width: actionButtonSize,
+                    height: actionButtonSize,
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: CustomColors.whiteColor,
                       border: Border.all(
                         color: CustomColors.disableColor.withOpacity(0.2),
                       ),
-                      shape: BoxShape.circle,
-                      color: CustomColors.whiteColor,
                     ),
-
                     child: Icon(
                       Icons.notifications_active_outlined,
                       color: CustomColors.primary,
-                      size: Dimensions.iconSizeLarge,
+                      size: actionButtonSize / 2,
                     ),
                   ),
                 ),
@@ -64,15 +68,18 @@ class MyAppBarWidget extends GetView<HomeController> {
                             baseColor: Colors.grey.shade300,
                             highlightColor: Colors.grey.shade100,
                             child: Container(
-                              width: 50.h,
-                              height: 50.h,
+                              width: actionButtonSize,
+                              height: actionButtonSize,
                               decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Colors.white,
                               ),
                             ),
                           )
-                        : ProfileAvatarWidget(size: 50.h, imageUrl: imageUrl),
+                        : ProfileAvatarWidget(
+                            size: actionButtonSize,
+                            imageUrl: imageUrl,
+                          ),
                   );
                 }),
               ],

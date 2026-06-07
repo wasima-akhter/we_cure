@@ -49,13 +49,21 @@ dependencies:
 dev_dependencies:
   change_app_package_name: ^1.5.0
   rename_app: ^1.6.5
-  
+
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: false
+  ios: true
+  image_path: "assets/dummy/logo.png"  # changed to the actual icon path
+
+
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   build_runner:
   flutter_gen_runner:
-  
+
   # dart run rename_app:main all="My App Name"
   # flutter pub run change_app_package_name:main com.clint_name.app_Name
 

@@ -80,7 +80,6 @@ class ApiRequest {
           .post(uri, headers: await _bearerHeaderInfo(), body: jsonEncode(body))
           .timeout(const Duration(seconds: 120));
 
-      log('response: ${response.body}');
       log('|✅|---------[ ✅ HTTP POST REQUEST COMPLETED ]---------|✅|');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -99,20 +98,11 @@ class ApiRequest {
         return result;
       } else {
         _handleUnauthorized(response);
-
-        try {
-          final error = jsonDecode(response.body);
-          final errorMessage = error['message'] ?? 'Request failed';
-
-          log('❌ POST ERROR: $errorMessage');
-
-          _safeFail(errorMessage, url: uri.toString());
-        } catch (_) {
-          log('❌ POST ERROR: ${response.body}');
-          _safeFail('Unexpected server error', url: uri.toString());
-        }
-
-        return fromJson(<String, dynamic>{});
+        final error = jsonDecode(response.body);
+        final errorMessage = error['message'] ?? 'Something went wrong!';
+        log('❌ Error: $errorMessage');
+        CustomSnackBar.error(errorMessage);
+        throw Exception(errorMessage);
       }
     } catch (e) {
       log('🐞🐞🐞 ERROR: ${e.toString()}');
@@ -198,8 +188,8 @@ class ApiRequest {
         final error = jsonDecode(response.body);
         final errorMessage = error['message'] ?? 'Something went wrong!';
         log('❌ Error: $errorMessage');
-        _safeFail(errorMessage);
-        return fromJson(<String, dynamic>{});
+        CustomSnackBar.error(errorMessage);
+        throw Exception(errorMessage);
       }
     } catch (e) {
       log('🐞🐞🐞 ERROR: ${e.toString()}');
@@ -264,8 +254,8 @@ class ApiRequest {
         final error = jsonDecode(response.body);
         final errorMessage = error['message'] ?? 'Something went wrong!';
         log('❌ Error: $errorMessage');
-        _safeFail(errorMessage);
-        return fromJson(<String, dynamic>{});
+        CustomSnackBar.error(errorMessage);
+        throw Exception(errorMessage);
       }
     } catch (e) {
       log('🐞🐞🐞 ERROR: ${e.toString()}');
@@ -322,8 +312,8 @@ class ApiRequest {
         final error = jsonDecode(response.body);
         final errorMessage = error['message'] ?? 'Something went wrong!';
         log('❌ Error: $errorMessage');
-        _safeFail(errorMessage);
-        return fromJson(<String, dynamic>{});
+        CustomSnackBar.error(errorMessage);
+        throw Exception(errorMessage);
       }
     } catch (e) {
       log('🐞🐞🐞 ERROR: ${e.toString()}');
@@ -391,8 +381,8 @@ class ApiRequest {
         final error = jsonDecode(response.body);
         final errorMessage = error['message'] ?? 'Something went wrong!';
         log('❌ Error: $errorMessage');
-        _safeFail(errorMessage);
-        return fromJson(<String, dynamic>{});
+        CustomSnackBar.error(errorMessage);
+        throw Exception(errorMessage);
       }
     } catch (e) {
       log('🐞🐞🐞 ERROR: ${e.toString()}');
@@ -506,8 +496,8 @@ class ApiRequest {
         final error = jsonDecode(response.body);
         final errorMessage = error['message'] ?? 'Something went wrong!';
         log('❌ MULTIPART ERROR: $errorMessage');
-        _safeFail(errorMessage);
-        return fromJson(<String, dynamic>{});
+        CustomSnackBar.error(errorMessage);
+        throw Exception(errorMessage);
       }
     } catch (e) {
       log('🐞 MULTIPART ERROR: $e');
@@ -587,12 +577,4 @@ class ApiRequest {
       return false;
     }
   }
-}
-
-void _safeFail(String message, {String? url}) {
-  log('⚠️ SAFE FAIL: $message | URL: $url');
-
-  // DO NOT throw
-  // DO NOT show snack by default
-  // just silent log
 }
