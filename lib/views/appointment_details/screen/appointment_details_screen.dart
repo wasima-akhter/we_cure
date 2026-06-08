@@ -1,11 +1,15 @@
+import 'dart:developer';
+
 import 'package:glady/core/utils/app_storage.dart';
 import 'package:glady/core/widgets/loading_widget.dart';
+import 'package:glady/views/chat/controller/chat_controller.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/utils/basic_import.dart';
 import '../../../core/widgets/bottom_sheet_dialog_widget.dart';
 import '../../../widgets/doctor_details_card.dart';
 import '../../../widgets/info_pair_row_widget.dart';
+import '../../navigation/controller/navigation_controller.dart';
 import '../controller/appointment_details_controller.dart';
 import '../widget/user_details_profile_card.dart';
 

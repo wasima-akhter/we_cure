@@ -108,10 +108,28 @@ class AppointmentDetailsScreenMobile
                           title: 'Chat',
                           onPressed: currentStatus == 'CANCELLED'
                               ? () {}
-                                : () {
-                                    Get.offAllNamed(Routes.navigationScreen,
-                                        arguments: 3);
-                                  },
+                              : () {
+                                  // Get.offAllNamed(
+                                  //   Routes.navigationScreen,
+                                  //   arguments: 3,
+                                  // );
+
+                                  // Replace both chat button onPressed blocks (user side & doctor side) with this:
+
+                                  // If NavigationScreen is already in the stack, just switch tab
+                                  if (Get.isRegistered<
+                                    NavigationController
+                                  >()) {
+                                    Get.back(); // or pop until navigation screen if needed
+                                    Get.find<NavigationController>()
+                                        .navigateToTab(3);
+                                  } else {
+                                    Get.offAllNamed(
+                                      Routes.navigationScreen,
+                                      arguments: 3,
+                                    );
+                                  }
+                                },
                           buttonColor: currentStatus == 'CANCELLED'
                               ? CustomColors.disableColor
                               : CustomColors.primary,
@@ -420,7 +438,16 @@ class AppointmentDetailsScreenMobile
     return PrimaryButtonWidget(
       title: 'Chat',
       onPressed: () {
-        Get.offAllNamed(Routes.navigationScreen, arguments: 3);
+        // Get.offAllNamed(Routes.navigationScreen, arguments: 3);
+        // Replace both chat button onPressed blocks (user side & doctor side) with this:
+
+        // If NavigationScreen is already in the stack, just switch tab
+        if (Get.isRegistered<NavigationController>()) {
+          Get.back(); // or pop until navigation screen if needed
+          Get.find<NavigationController>().navigateToTab(3);
+        } else {
+          Get.offAllNamed(Routes.navigationScreen, arguments: 3);
+        }
       },
       buttonColor: CustomColors.primary,
     );

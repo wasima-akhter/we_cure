@@ -1,10 +1,12 @@
 import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:glady/core/api/end_point/api_end_points.dart';
 import 'package:glady/core/api/services/api_request.dart';
 import 'package:http/http.dart' hide MultipartFile;
 import 'package:image_picker/image_picker.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+
 import '../../../core/utils/app_storage.dart';
 import '../../../core/utils/basic_import.dart' hide FormData, MultipartFile;
 import '../model/all_conversation_model.dart';
@@ -371,6 +373,7 @@ class InboxController extends GetxController {
     socket.dispose();
     textController.dispose();
     scrollController.dispose();
+
     super.onClose();
   }
 }

@@ -1,5 +1,6 @@
 import 'package:glady/core/widgets/loading_widget.dart';
 import 'package:glady/core/widgets/profile_avater_widget.dart';
+
 import '../../../core/utils/basic_import.dart';
 import '../controller/chat_controller.dart';
 
@@ -12,8 +13,11 @@ class ChatScreenMobile extends GetView<ChatController> {
       appBar: const CommonAppBar(title: 'Chat', isBack: false),
       body: SafeArea(
         child: Obx(() {
-          if (controller.isLoading.value) return const LoadingWidget();
+          if (controller.isLoading.value) {
+            return const Center(child: LoadingWidget());
+          }
           return Column(
+            mainAxisSize: mainMin,
             children: [
               Container(
                 margin: EdgeInsets.symmetric(
@@ -33,8 +37,11 @@ class ChatScreenMobile extends GetView<ChatController> {
                     Icon(Icons.search_rounded, color: CustomColors.primary),
                     Space.width.v10,
                     Expanded(
+                      // height: 80.h,
+                      // width: 1.sw * 0.3,
                       child: TextField(
                         controller: controller.searchController,
+                        focusNode: controller.searchFocusNode,
                         onChanged: controller.onSearchChanged,
                         cursorColor: CustomColors.primary,
                         style: TextStyle(fontSize: Dimensions.titleSmall),
@@ -69,6 +76,7 @@ class ChatScreenMobile extends GetView<ChatController> {
               // List
               Expanded(
                 child: RefreshIndicator(
+                  color: CustomColors.primary,
                   onRefresh: () async {
                     await controller.getAllUserChatPerson();
                   },
@@ -101,8 +109,9 @@ class ChatScreenMobile extends GetView<ChatController> {
                                 ? item.participants.first
                                 : null;
                             final lastMsg = item.lastMessage.text;
-                            final time =
-                                _formatTime(item.lastMessage.createdAt);
+                            final time = _formatTime(
+                              item.lastMessage.createdAt,
+                            );
 
                             return Container(
                               margin: EdgeInsets.only(
@@ -110,8 +119,9 @@ class ChatScreenMobile extends GetView<ChatController> {
                               ),
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color:
-                                      CustomColors.borderColor.withOpacity(0.8),
+                                  color: CustomColors.borderColor.withOpacity(
+                                    0.8,
+                                  ),
                                 ),
                                 borderRadius: BorderRadius.circular(
                                   Dimensions.radius * 1.5,

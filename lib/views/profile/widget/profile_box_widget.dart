@@ -226,28 +226,32 @@ class DoctorProfileBox extends GetView<ProfileController> {
                 controller.doctorProfileModel?.data.userId.name ??
                     "Luna Kellan",
               ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Dimensions.defaultHorizontalSize * 0.5,
-                    vertical: Dimensions.verticalSize * 0.1,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      Dimensions.radius * 1.5,
+              //
+              if (controller.doctorProfileModel?.data.totalExperienceYears !=
+                      null &&
+                  controller.doctorProfileModel?.data.totalExperienceYears != 0)
+                TextButton(
+                  style: TextButton.styleFrom(
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimensions.defaultHorizontalSize * 0.5,
+                      vertical: Dimensions.verticalSize * 0.1,
                     ),
-                    side: BorderSide(color: CustomColors.primary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        Dimensions.radius * 1.5,
+                      ),
+                      side: BorderSide(color: CustomColors.primary),
+                    ),
+                  ),
+                  onPressed: () {},
+                  child: TextWidget(
+                    '${controller.doctorProfileModel?.data.totalExperienceYears.toString() ?? '0'} years',
+                    fontSize: Dimensions.titleSmall * 0.9,
+                    color: CustomColors.primary,
                   ),
                 ),
-                onPressed: () {},
-                child: TextWidget(
-                  '${controller.doctorProfileModel?.data.totalExperienceYears.toString() ?? '0'} years',
-                  fontSize: Dimensions.titleSmall * 0.9,
-                  color: CustomColors.primary,
-                ),
-              ),
             ],
           ),
           TextWidget(
@@ -294,18 +298,34 @@ class DoctorProfileBox extends GetView<ProfileController> {
               TextWidget('Services'),
               Space.height.v10,
               Wrap(
+                spacing: 6,
+                runSpacing: 6,
                 children: List.generate(
                   controller.doctorProfileModel?.data.services.length ?? 0,
-                  (index) => TextWidget(
-                    padding: EdgeInsetsGeometry.only(
-                      right: Dimensions.widthSize * 2,
-                      bottom: Dimensions.heightSize,
+                  (index) => Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(
+                        Dimensions.radius * 5,
+                      ),
+                      border: Border.all(color: CustomColors.primary),
                     ),
-                    controller.doctorProfileModel?.data.services[index].name
-                            .toString() ??
-                        '',
-                    fontSize: Dimensions.titleSmall,
-                    color: CustomColors.grayShade,
+
+                    child: TextWidget(
+                      // padding: EdgeInsetsGeometry.only(
+                      //   right: Dimensions.widthSize * 2,
+                      //   bottom: Dimensions.heightSize,
+                      // ),
+                      padding: EdgeInsetsGeometry.symmetric(
+                        horizontal: Dimensions.horizontalSize / 2,
+                        vertical: 4,
+                      ),
+
+                      controller.doctorProfileModel?.data.services[index].name
+                              .toString() ??
+                          '',
+                      fontSize: Dimensions.titleSmall,
+                      color: CustomColors.grayShade,
+                    ),
                   ),
                 ),
               ),
