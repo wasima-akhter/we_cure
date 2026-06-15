@@ -133,7 +133,6 @@ class Routes {
   static const appointmentScreen = '/appointmentScreen';
   static const findScreen = '/findScreen';
   static const homeScreen = '/homeScreen';
-  static const welcomeScreen = '/welcomeScreen';
   static const verificationScreen = '/verificationScreen';
   static const navigationScreen = '/navigationScreen';
   static const onboardScreen = '/onboardScreen';

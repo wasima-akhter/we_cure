@@ -185,6 +185,9 @@ class AuthService {
       body: inputBody,
       showSuccessSnackBar: false,
       onSuccess: (result) {
+        debugPrint(
+          '   ApiEndPoints.verifyResetOtp result : ${result.message} ',
+        );
         AppStorage.save(
           isLoggedIn: true,
           temporaryToken: result.data?.resetToken,
@@ -276,11 +279,19 @@ class AuthService {
   }
   ──────────────────────────────────────────────────────────────────────────
   */
-  static Future<BasicSuccessModel> resetPasswordService({
+
+  /*
+  static resetPasswordService({
     required RxBool isLoading,
     required String password,
     // required String email,
   }) async {
+    final token = AppStorage.temporaryToken;
+
+    if (token.isEmpty) {
+      throw Exception('Reset token is missing. Please restart the process.');
+    }
+
     Map<String, dynamic> inputBody = {
       // 'email': email.trim(),
       'resetToken': AppStorage.temporaryToken,
@@ -294,12 +305,51 @@ class AuthService {
       body: inputBody,
       showSuccessSnackBar: true,
       onSuccess: (result) {
-        AppStorage.save(temporaryToken: '');
         Get.offAllNamed(Routes.welcomeScreen);
-
+        AppStorage.save(temporaryToken: '');
         log('✅ Password reset successful - Please login with new password');
       },
     );
+  }
+*/
+
+  static Future<BasicSuccessModel> resetPasswordService({
+    required RxBool isLoading,
+    required String password,
+  }) async {
+    final token = AppStorage.temporaryToken;
+
+    if (token.isEmpty) {
+      throw Exception('Reset token is missing. Please restart the process.');
+    }
+
+    final Map<String, dynamic> inputBody = {
+      'resetToken': token,
+      'newPassword': password,
+    };
+
+    final result = await _api.post(
+      fromJson: BasicSuccessModel.fromJson,
+      endPoint: ApiEndPoints.resetPassword,
+      isLoading: isLoading,
+      body: inputBody,
+      showSuccessSnackBar: false, // handle manually
+    );
+
+    // ✅ Show snackbar before navigation
+    if (Get.overlayContext != null) {
+      CustomSnackBar.success(title: Strings.success, message: result.message);
+    }
+
+    AppStorage.save(temporaryToken: '');
+
+    // ✅ Let the finally block in post() finish before disposing controller
+    Future.microtask(() {
+      Get.offAllNamed(Routes.loginScreen);
+    });
+
+    log('✅ Password reset successful');
+    return result;
   }
 
   /// =============================================== ✅ Change Password ================================================== ///

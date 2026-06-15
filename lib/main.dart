@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:glady/views/splash/controller/splash_controller.dart';
+
 import 'core/api/services/push_notification_service.dart';
 import 'core/helpers/network_manager.dart';
 import 'core/utils/app_storage.dart';
@@ -17,7 +18,6 @@ void main() async {
   await Initial.init();
   Get.put(NetworkChecker());
   Get.put(SplashController());
-
 
   final hasInternet = await NetworkManager.hasConnection();
   bool? lastStatus = hasInternet;
@@ -74,7 +74,7 @@ class MyApp extends StatelessWidget {
                     textDirection: Get.locale?.languageCode == 'ar'
                         ? TextDirection.rtl
                         : TextDirection.ltr,
-                    child: widget!,
+                    child: widget ?? const SizedBox.shrink(), // ✅ null-safe
                   );
                 },
               ),

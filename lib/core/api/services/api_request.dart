@@ -14,7 +14,7 @@ import '../end_point/api_end_points.dart';
 class ApiRequest {
   /// ✅ Header Generator
   Future<Map<String, String>> _bearerHeaderInfo([String? token]) async {
-    final authToken = token ?? AppStorage.token;
+    final authToken = token ?? AppStorage.token ?? '';
     return {
       HttpHeaders.acceptHeader: "application/json",
       HttpHeaders.contentTypeHeader: "application/json",
@@ -82,21 +82,37 @@ class ApiRequest {
 
       log('|✅|---------[ ✅ HTTP POST REQUEST COMPLETED ]---------|✅|');
 
+      debugPrint('===== API RESPONSE body START =====');
+      prettyPrintResponse(response.body);
+      debugPrint('===== API RESPONSE bodyEND =====');
+
+      debugPrint(' result:${response.statusCode} ');
+      debugPrint('===== result START =====');
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final Map<String, dynamic> json = jsonDecode(response.body);
         final result = fromJson(json);
+        debugPrint(' result after parse:${result} ');
+        // prettyPrintResponse(jsonEncode(response.bo));
 
         final successMessage =
             json['message'] ?? Strings.requestCompletedSuccessfully;
         if (showSuccessSnackBar) {
-          CustomSnackBar.success(
-            title: Strings.success,
-            message: successMessage,
-          );
+          // ✅ Guard: only show if overlay context is available
+          if (Get.overlayContext != null) {
+            CustomSnackBar.success(
+              title: Strings.success,
+              message: successMessage,
+            );
+          }
         }
-        if (onSuccess != null) onSuccess(result);
+        if (onSuccess != null) {
+          onSuccess(result);
+        }
+        debugPrint(' asfdyuafsdyasydf if 200 true ');
         return result;
       } else {
+        debugPrint(' asfdyuafsdyasydf   not 200   ');
         _handleUnauthorized(response);
         final error = jsonDecode(response.body);
         final errorMessage = error['message'] ?? 'Something went wrong!';
@@ -105,8 +121,9 @@ class ApiRequest {
         throw Exception(errorMessage);
       }
     } catch (e) {
+      debugPrint(' asfdyuafsdyasydf catch ');
       log('🐞🐞🐞 ERROR: ${e.toString()}');
-      throw Exception(e.toString());
+      throw Exception((e).toString());
     } finally {
       isLoading.value = false;
     }
@@ -576,5 +593,15 @@ class ApiRequest {
       onError?.call(errorMessage);
       return false;
     }
+  }
+}
+
+void prettyPrintResponse(String body) {
+  try {
+    final decoded = jsonDecode(body);
+    final pretty = const JsonEncoder.withIndent('  ').convert(decoded);
+    debugPrint(pretty);
+  } catch (e) {
+    debugPrint(body); // fallback
   }
 }

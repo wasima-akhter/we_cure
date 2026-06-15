@@ -76,18 +76,21 @@ class ProfileAvatarWidget extends StatelessWidget {
       imageWidget = Container(
         width: size.w,
         height: size.w,
-        alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: Colors.grey.shade300,
         ),
-        child: Icon(Icons.person, color: Colors.white, size: size),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Icon(Icons.person, color: Colors.white),
+        ),
       );
     }
 
     return Container(
       width: size.w,
       height: size.w,
+      alignment: Alignment.center,
       padding: hasBorder ? EdgeInsets.all(borderWidth) : EdgeInsets.zero,
       decoration: BoxDecoration(
         shape: BoxShape.circle,

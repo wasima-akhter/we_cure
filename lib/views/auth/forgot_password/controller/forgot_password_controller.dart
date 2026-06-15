@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../../core/api/model/basic_success_model.dart';
 import '../../../../core/api/services/auth_services.dart';
 import '../../../../core/utils/basic_import.dart';
@@ -18,5 +20,13 @@ class ForgotPasswordController extends GetxController {
       isLoading: isLoading,
       email: emailController.text,
     );
+  }
+
+  @override
+  void onInit() {
+    if (kDebugMode) {
+      emailController.text = "abcd@yopmail.com";
+    }
+    super.onInit();
   }
 }

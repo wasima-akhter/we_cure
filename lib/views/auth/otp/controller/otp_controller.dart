@@ -14,7 +14,7 @@ class OtpController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _listenForSmsAutoFill();
+    // _listenForSmsAutoFill();
   }
 
   // ✅ SMS Auto-fill listener
