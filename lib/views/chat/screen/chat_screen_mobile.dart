@@ -113,6 +113,10 @@ class ChatScreenMobile extends GetView<ChatController> {
                               item.lastMessage.createdAt,
                             );
 
+                            // print(
+                            //   "result.data. user id from User patient POV: ${item.id.toString()}",
+                            // );
+
                             return Container(
                               margin: EdgeInsets.only(
                                 bottom: Dimensions.heightSize,

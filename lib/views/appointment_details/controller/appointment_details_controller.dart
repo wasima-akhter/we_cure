@@ -61,6 +61,9 @@ class AppointmentDetailsController extends GetxController {
       onSuccess: (result) {
         doctorAppointmentDetailsModel.value = result;
         print('✅ Data loaded: ${result.data.patient.name}');
+
+        //  print("dorctor id: ${result.data.}");
+        print("doctor appointment id: ${result.data.id}");
       },
     );
   }
@@ -76,6 +79,9 @@ class AppointmentDetailsController extends GetxController {
       id: appointmentId,
       onSuccess: (result) {
         userAppointmentDetailsModel.value = result;
+
+        print("user appointment id: ${result.data.id}");
+        print("user appointment id: ${result.data.id}");
       },
     );
   }

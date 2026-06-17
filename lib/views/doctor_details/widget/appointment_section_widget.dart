@@ -38,6 +38,7 @@ class AppointmentSectionWidget extends StatelessWidget {
               crossAxisAlignment: crossStart,
               children: [
                 TextWidget(days, fontSize: Dimensions.titleSmall),
+
                 Row(
                   children: [
                     // Icon(
@@ -46,10 +47,10 @@ class AppointmentSectionWidget extends StatelessWidget {
                     //   color: CustomColors.secondaryDarkText,
                     // ),
                     CircleAvatar(
-                      radius: 8.h,
-                      backgroundColor: CustomColors.secondaryDarkText,
+                      radius: 3.r,
+                      backgroundColor: CustomColors.grayShade,
                     ),
-                    Space.width.v5,
+                    Space.width.v10,
                     //
                     TextWidget(
                       time,
@@ -62,10 +63,15 @@ class AppointmentSectionWidget extends StatelessWidget {
                 Space.height.v5,
                 Row(
                   children: [
-                    Icon(
-                      Icons.payment_outlined,
-                      size: 16.h,
-                      color: CustomColors.grayShade,
+                    // Icon(
+                    //   Icons.payment_outlined,
+                    //   size: 16.h,
+                    //   color: CustomColors.grayShade,
+                    // ),
+                    SafeSvgWidget(
+                      assetPath: Assets.dummy.fee,
+                      height: 14,
+                      color: CustomColors.grayShade.withValues(alpha: 0.6),
                     ),
 
                     Space.width.v5,
@@ -81,6 +87,8 @@ class AppointmentSectionWidget extends StatelessWidget {
             ),
           ],
         ),
+        Space.width.v5,
+
         Column(
           crossAxisAlignment: crossEnd,
           children: [
@@ -88,16 +96,22 @@ class AppointmentSectionWidget extends StatelessWidget {
             Space.width.v5,
             Row(
               children: [
-                Icon(
-                  Icons.timelapse_rounded,
-                  size: 16.h,
-                  color: CustomColors.secondaryDarkText,
-                ),
+                // Icon(
+                //   Icons.timelapse_rounded,
+                //   size: 16.h,
+                //   color: CustomColors.secondaryDarkText,
+                // ),
                 Space.width.v5,
                 TextWidget(
                   duration.shortDuration,
                   fontSize: Dimensions.titleSmall,
                   fontWeight: FontWeight.w400,
+                  color: CustomColors.grayShade,
+                ),
+                Space.width.v5,
+                Icon(
+                  Icons.hourglass_bottom_rounded,
+                  size: 14.h,
                   color: CustomColors.secondaryDarkText,
                 ),
               ],

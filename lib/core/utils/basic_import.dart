@@ -7,6 +7,7 @@ export 'package:flutter_screenutil/flutter_screenutil.dart';
 export 'package:flutter_svg/svg.dart';
 export 'package:get/get.dart';
 export 'package:get_storage/get_storage.dart';
+export 'package:glady/core/widgets/safe_svg_asset.dart';
 
 export '../../../core/utils/space.dart';
 export '../../../gen/assets.gen.dart';

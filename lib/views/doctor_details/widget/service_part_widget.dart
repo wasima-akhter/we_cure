@@ -12,10 +12,7 @@ class ServicePartWidget extends GetView<DoctorDetailsController> {
         children: [
           TextWidget("Services"),
           Space.height.v5,
-          TextWidget(
-            "Services not available",
-            color: CustomColors.secondaryDarkText,
-          ),
+          TextWidget("Services not available", color: CustomColors.grayShade),
         ],
       );
     }
@@ -41,7 +38,10 @@ class ServicePartWidget extends GetView<DoctorDetailsController> {
                         color: const Color(0xff006C93),
                         size: Dimensions.iconSizeDefault * 0.8,
                       ),
-                      TextWidget(service.name, fontWeight: FontWeight.w500),
+                      TextWidget(
+                        service.name.capitalizeSafe,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ],
                   ),
                 )

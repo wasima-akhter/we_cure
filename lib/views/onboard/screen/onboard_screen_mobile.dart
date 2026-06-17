@@ -29,7 +29,7 @@ class OnboardScreenMobile extends GetView<OnboardController> {
         vertical: 20.h,
       ),
       child: Image.asset(
-        Assets.dummy.logo.path,
+        Assets.dummy.logoPng.path,
         color: Colors.white,
         height: 60.h,
       ),
@@ -60,8 +60,8 @@ class OnboardScreenMobile extends GetView<OnboardController> {
           Expanded(
             flex: 3,
             child: Center(
-              child: SvgPicture.asset(
-                item.imagePath,
+              child: SafeSvgWidget(
+                assetPath: item.imagePath,
                 height: 350.h,
                 fit: BoxFit.contain,
               ),

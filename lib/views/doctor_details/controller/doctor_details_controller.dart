@@ -6,42 +6,6 @@ import 'package:glady/views/doctor_details/model/time_model.dart';
 
 import '../../../core/utils/basic_import.dart' hide Data;
 
-class DoctorUiFallback {
-  static const doctorName = 'Doctor Name';
-  static const specialty = 'Specialty';
-  static const organization = 'Hospital / Clinic';
-  static const about = 'Doctor information is currently unavailable.';
-  static const service = 'Service information unavailable';
-  static const experience = 'Experience information unavailable';
-  static const review = 'No reviews yet';
-  static const profileImage = 'https://via.placeholder.com/300';
-}
-
-// extension NullableStringExt on String? {
-//   String orPlaceholder(String placeholder) {
-//     if (this == null || this!.trim().isEmpty) {
-//       return placeholder;
-//     }
-//     return this!;
-//   }
-
-//   bool get hasValue => this != null && this!.trim().isNotEmpty;
-// }
-
-extension NullableStringExt on String? {
-  String orNA([String fallback = "Not available"]) {
-    final value = this?.trim();
-
-    if (value == null || value.isEmpty) {
-      return fallback;
-    }
-
-    return value;
-  }
-
-  bool get hasValue => this != null && this!.trim().isNotEmpty;
-}
-
 class DoctorDetailsController extends GetxController {
   String? doctorId = '';
 

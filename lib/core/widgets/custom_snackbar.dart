@@ -86,8 +86,10 @@ class CustomSnackbarContent extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SvgPicture.asset(
-          type == 'success' ? Assets.icons.success : Assets.icons.reject,
+        SafeSvgWidget(
+          assetPath: type == 'success'
+              ? Assets.icons.success
+              : Assets.icons.reject,
           height: Dimensions.heightSize * 4.5,
         ),
         Space.width.v10,

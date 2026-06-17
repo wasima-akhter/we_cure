@@ -49,23 +49,6 @@ class DoctorDetailsScreenMobile extends GetView<DoctorDetailsController> {
 
             // Doctor Card
             DoctorDetailsCard(
-              // name: (doctor?.userId.name).orPlaceholder(
-              //   DoctorUiFallback.doctorName,
-              // ),
-
-              // specialty: (doctor?.specialtyId.name).orPlaceholder(
-              //   DoctorUiFallback.specialty,
-              // ),
-
-              // clinicName: (doctor?.currentOrganization).orPlaceholder(
-              //   DoctorUiFallback.organization,
-              // ),
-
-              // imageUrl: doctor?.userId.profileImage.hasValue == true
-              //     ? doctor!.userId.profileImage
-              //     : DoctorUiFallback.profileImage,
-
-              //
               imageUrl: doctor?.userId.profileImage.hasValue == true
                   ? doctor!.userId.profileImage
                   : DoctorUiFallback.profileImage,
@@ -109,26 +92,28 @@ class DoctorDetailsScreenMobile extends GetView<DoctorDetailsController> {
                 fontWeight: FontWeight.w600,
               ),
               Space.height.v15,
-              ...availability.map(
-                (slot) => Padding(
+
+              ...availability.map((slot) {
+                debugPrint(' slot.formattedTime,: ${slot.formattedTime} ');
+                return Padding(
                   padding: EdgeInsets.only(
                     bottom: Dimensions.verticalSize * 0.25,
                   ),
                   child: AppointmentSectionWidget(
                     days: slot.dayOfWeek,
-                    time: "${slot.startTime} - ${slot.endTime}",
-                    price: "\$${slot.fee}",
-                    slot:
-                        "${(slot.slotSizeMinutes > 0 ? ((int.tryParse(slot.endTime.split(':')[0]) ?? 0) - (int.tryParse(slot.startTime.split(':')[0]) ?? 0)) * 60 ~/ slot.slotSizeMinutes : 0)} Slot",
-                    duration: "${slot.slotSizeMinutes} Minutes",
+                    time: slot.formattedTime,
+                    price: slot.formattedPrice,
+                    slot: slot.totalSlots,
+                    duration: slot.formattedDuration,
                   ),
-                ),
-              ),
+                );
+              }),
+
               Space.height.v20,
             ] else
               TextWidget(
                 "Consultation schedule not available",
-                color: CustomColors.secondaryDarkText,
+                color: CustomColors.grayShade,
               ),
 
             AboutDesWidget(),
@@ -218,7 +203,7 @@ class _ReviewCard extends StatelessWidget {
               Space.width.v10,
               Expanded(
                 child: TextWidget(
-                  review.userId.name,
+                  review.userId.name.capitalizeSafe,
                   fontWeight: FontWeight.w600,
                   fontSize: Dimensions.titleSmall,
                 ),
@@ -243,7 +228,7 @@ class _ReviewCard extends StatelessWidget {
           ),
           Space.height.v10,
           TextWidget(
-            review.reviewText,
+            review.reviewText.capitalizeFirst ?? '',
             fontWeight: FontWeight.w400,
             fontSize: Dimensions.titleSmall,
             color: CustomColors.secondaryDarkText,

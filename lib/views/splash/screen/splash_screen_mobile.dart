@@ -8,7 +8,7 @@ class SplashScreenMobile extends GetView<SplashController> {
     return Scaffold(
       backgroundColor: CustomColors.logoColor,
       body: Center(
-        child: Image.asset(Assets.dummy.logo.path, fit: BoxFit.cover),
+        child: Image.asset(Assets.dummy.logoPng.path, fit: BoxFit.cover),
       ),
     );
   }

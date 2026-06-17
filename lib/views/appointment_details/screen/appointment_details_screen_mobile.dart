@@ -441,6 +441,16 @@ class AppointmentDetailsScreenMobile
         // Get.offAllNamed(Routes.navigationScreen, arguments: 3);
         // Replace both chat button onPressed blocks (user side & doctor side) with this:
 
+        // Get.toNamed(
+        //   Routes.inboxScreen,
+        //   arguments: {
+        //     'conversationId': item.id,
+        //     'receiverId': participant?.id ?? '',
+        //     'receiverRole': participant?.role ?? '',
+        //     'avatar': participant?.image ?? '',
+        //     'name': participant?.name ?? '',
+        //   },
+        // );
         // If NavigationScreen is already in the stack, just switch tab
         if (Get.isRegistered<NavigationController>()) {
           Get.back(); // or pop until navigation screen if needed

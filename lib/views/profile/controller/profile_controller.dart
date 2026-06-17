@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:glady/core/api/end_point/api_end_points.dart';
 import 'package:glady/core/api/services/api_request.dart';
 import 'package:glady/views/profile/model/doctor_profile_model.dart';
+
 import '../../../core/api/services/auth_services.dart';
 import '../../../core/utils/app_storage.dart';
 import '../../../core/utils/basic_import.dart';
@@ -57,6 +60,9 @@ class ProfileController extends GetxController {
       isLoading: getDoctorProfileLoading,
       onSuccess: (result) {
         doctorProfileModel = result;
+
+        print("doctor user ID from profile: ${result.data.id}");
+        print("doctor token: ${AppStorage.token}");
       },
     );
   }
@@ -70,6 +76,9 @@ class ProfileController extends GetxController {
       isLoading: getUserProfileLoading,
       onSuccess: (result) {
         userProfileModel = result;
+
+        log("userId: ${result.data.id}");
+        log("user patient token: ${AppStorage.token}");
       },
     );
   }

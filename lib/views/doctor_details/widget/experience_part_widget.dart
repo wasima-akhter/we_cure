@@ -29,7 +29,7 @@ class ExperiencePartWidget extends GetView<DoctorDetailsController> {
           Space.height.v5,
           TextWidget(
             "Experience details not available",
-            color: CustomColors.secondaryDarkText,
+            color: CustomColors.grayShade,
           ),
         ],
       );
@@ -131,6 +131,9 @@ class ExperiencePartWidget extends GetView<DoctorDetailsController> {
                     padding: EdgeInsets.symmetric(
                       horizontal: Dimensions.defaultHorizontalSize * 0.5,
                       vertical: Dimensions.defaultHorizontalSize * 0.5,
+                    ),
+                    margin: EdgeInsets.symmetric(
+                      horizontal: Dimensions.defaultHorizontalSize * 0.1,
                     ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(Dimensions.radius),

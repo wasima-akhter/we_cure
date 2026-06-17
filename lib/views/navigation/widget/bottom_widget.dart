@@ -60,7 +60,8 @@ class _BottomBarItem extends StatelessWidget {
     required this.index,
     this.path,
     this.svgSize,
-    this.isCenter = false, this.icon,
+    this.isCenter = false,
+    this.icon,
   });
 
   final IconData? icon;
@@ -151,7 +152,11 @@ class _BottomBarItem extends StatelessWidget {
     }
 
     if (path != null) {
-      return SvgPicture.asset(path!, height: svgSize ?? 22.h, color: color);
+      return SafeSvgWidget(
+        assetPath: path!,
+        height: svgSize ?? 22.h,
+        color: color,
+      );
     }
 
     return const SizedBox.shrink();

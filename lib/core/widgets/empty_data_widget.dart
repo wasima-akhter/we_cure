@@ -15,7 +15,7 @@ class EmptyDataWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(Assets.icons.empty),
+            SafeSvgWidget(assetPath: Assets.icons.empty),
             Space.height.v5,
             TextWidget(
               maxLines: 2,

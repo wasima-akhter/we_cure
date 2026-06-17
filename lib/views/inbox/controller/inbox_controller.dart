@@ -131,6 +131,10 @@ class InboxController extends GetxController {
 
   void sendMessage() {
     if (textController.text.trim().isEmpty && multipleImages.isEmpty) return;
+
+    print(
+      "receiver:  args.receiverId : ${args.receiverId},  args.receiverRole : ${args.receiverRole}},",
+    );
     if (multipleImages.isNotEmpty) {
       sendMessageWithImages();
     } else {
@@ -156,6 +160,10 @@ class InboxController extends GetxController {
       "receiver": {"id": args.receiverId, "role": args.receiverRole},
       "text": textController.text.trim(),
     };
+
+    log(
+      "receiver:  args.receiverId : ${args.receiverId},  args.receiverRole : ${args.receiverRole}},",
+    );
 
     log("📤 Emitting: $body");
     socket.emit('send_message', body);
@@ -211,6 +219,10 @@ class InboxController extends GetxController {
       "text": messageText,
       "images": uploadedImagePaths,
     };
+
+    log(
+      "receiver:  args.receiverId : ${args.receiverId},  args.receiverRole : ${args.receiverRole}},",
+    );
     socket.emit('send_message', body);
   }
 
@@ -304,7 +316,7 @@ class InboxController extends GetxController {
     final double previousOffset = isPagination && scrollController.hasClients
         ? scrollController.position.maxScrollExtent
         : 0.0;
-
+    log("AppStorage.token: ${AppStorage.token}");
     await ApiRequest().get(
       fromJson: AllConversationModel.fromJson,
       endPoint:
@@ -316,7 +328,6 @@ class InboxController extends GetxController {
         final newMessages = (result.conversation ?? [])
             .map((conversion) {
               return ChatMessageModel(
-                id: conversion.id,
                 isMe: conversion.sender.id == myId,
                 type: conversion.images.isNotEmpty
                     ? MessageType.image

@@ -125,64 +125,66 @@ class _DonationBottomSheetState extends State<_DonationBottomSheet> {
             top: Radius.circular(Dimensions.radius * 1.5),
           ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: crossStart,
-          children: [
-            Align(
-              alignment: Alignment.center,
-              child: Container(
-                width: Dimensions.widthSize * 4.2,
-                height: Dimensions.heightSize * 0.6,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.radius),
-                  color: Colors.black,
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: crossStart,
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: Container(
+                  width: Dimensions.widthSize * 4.2,
+                  height: Dimensions.heightSize * 0.6,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(Dimensions.radius),
+                    color: Colors.black,
+                  ),
                 ),
               ),
-            ),
-            Space.height.v10,
-            TextWidget(
-              "Make a Donation",
-              fontWeight: FontWeight.bold,
-              fontSize: Dimensions.titleMedium * 1.1,
-            ),
-            Space.height.v15,
-            PrimaryInputFieldWidget(
-              controller: widget.controller.donationEmailController,
-              hintText: "Enter email",
-              label: "Email",
-              isEmail: true,
-              keyBoardType: TextInputType.emailAddress,
-            ),
-            Space.height.betweenInputBox,
-            PrimaryInputFieldWidget(
-              controller: widget.controller.donationAmountController,
-              hintText: "Enter amount",
-              label: "Donation Amount",
-              keyBoardType: TextInputType.number,
-            ),
-            Space.height.v15,
-            PrimaryButtonWidget(
-              title: "Donate Now",
-              onPressed: () async {
-                if (widget.controller.donationEmailController.text
-                    .trim()
-                    .isEmpty) {
-                  CustomSnackBar.error("Please enter your email");
-                  return;
-                }
-                if (widget.controller.donationAmountController.text
-                    .trim()
-                    .isEmpty) {
-                  CustomSnackBar.error("Please enter a donation amount");
-                  return;
-                }
-                await widget.controller.donationProcess();
-                Get.back();
-              },
-            ),
-            Space.height.v5,
-          ],
+              Space.height.v10,
+              TextWidget(
+                "Make a Donation",
+                fontWeight: FontWeight.bold,
+                fontSize: Dimensions.titleMedium * 1.1,
+              ),
+              Space.height.v15,
+              PrimaryInputFieldWidget(
+                controller: widget.controller.donationEmailController,
+                hintText: "Enter email",
+                label: "Email",
+                isEmail: true,
+                keyBoardType: TextInputType.emailAddress,
+              ),
+              Space.height.betweenInputBox,
+              PrimaryInputFieldWidget(
+                controller: widget.controller.donationAmountController,
+                hintText: "Enter amount",
+                label: "Donation Amount",
+                keyBoardType: TextInputType.number,
+              ),
+              Space.height.v15,
+              PrimaryButtonWidget(
+                title: "Donate Now",
+                onPressed: () async {
+                  if (widget.controller.donationEmailController.text
+                      .trim()
+                      .isEmpty) {
+                    CustomSnackBar.error("Please enter your email");
+                    return;
+                  }
+                  if (widget.controller.donationAmountController.text
+                      .trim()
+                      .isEmpty) {
+                    CustomSnackBar.error("Please enter a donation amount");
+                    return;
+                  }
+                  await widget.controller.donationProcess();
+                  Get.back();
+                },
+              ),
+              Space.height.v5,
+            ],
+          ),
         ),
       ),
     );

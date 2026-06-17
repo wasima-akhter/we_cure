@@ -70,7 +70,7 @@ class DoctorDetailsCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: TextWidget(
-                          name,
+                          name.capitalizeSafe,
                           fontWeight: FontWeight.w600,
                           maxLines: 1,
                           textOverflow: TextOverflow.ellipsis,
@@ -99,7 +99,7 @@ class DoctorDetailsCard extends StatelessWidget {
                   ),
 
                   TextWidget(
-                    specialty,
+                    specialty.capitalizeSafe,
                     fontSize: Dimensions.bodyMedium,
                     fontWeight: FontWeight.w400,
                     color: CustomColors.blackColor.withOpacity(0.7),
@@ -108,7 +108,7 @@ class DoctorDetailsCard extends StatelessWidget {
                   ),
 
                   TextWidget(
-                    clinicName,
+                    clinicName.capitalizeSafe,
                     fontSize: Dimensions.bodyMedium,
                     fontWeight: FontWeight.w400,
                     color: CustomColors.blackColor.withOpacity(0.7),

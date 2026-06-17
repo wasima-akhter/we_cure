@@ -30,7 +30,7 @@ class ConfirmationWidget extends StatelessWidget {
           if (icon != null)
             icon!
           else if (iconPath != null)
-            SvgPicture.asset(iconPath!),
+            SafeSvgWidget(assetPath: iconPath!),
 
           TextWidget(
             padding: EdgeInsets.only(
