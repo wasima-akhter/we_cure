@@ -44,15 +44,15 @@ class BottomImagePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final ImagePicker picker = ImagePicker();
 
-    return SafeArea(
-      child: Container(
-        padding: EdgeInsets.all(Dimensions.paddingSize * 0.25),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(Dimensions.radius),
-          ),
+    return Container(
+      padding: EdgeInsets.all(Dimensions.paddingSize * 0.25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(Dimensions.radius),
         ),
+      ),
+      child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

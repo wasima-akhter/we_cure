@@ -65,3 +65,79 @@ class Helpers {
     return 0.0;
   }
 }
+
+//
+class JsonHelper {
+  static String getString(dynamic value, [String fallback = '']) {
+    return value?.toString() ?? fallback;
+  }
+
+  static int getInt(dynamic value, [int fallback = 0]) {
+    if (value is int) return value;
+    return int.tryParse(value?.toString() ?? '') ?? fallback;
+  }
+
+  static double getDouble(dynamic value, [double fallback = 0.0]) {
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? fallback;
+  }
+
+  static bool getBool(dynamic value, [bool fallback = false]) {
+    if (value is bool) return value;
+    return fallback;
+  }
+
+  static DateTime getDateTime(dynamic value) {
+    if (value == null) return DateTime(1970);
+    return DateTime.tryParse(value.toString()) ?? DateTime(1970);
+  }
+
+  static Map<String, dynamic> getMap(dynamic value) {
+    return value is Map<String, dynamic> ? value : {};
+  }
+
+  static List<dynamic> getList(dynamic value) {
+    return value is List ? value : [];
+  }
+}
+
+String timeAgo(DateTime date) {
+  final now = DateTime.now();
+  final difference = now.difference(date);
+
+  if (difference.isNegative) {
+    return 'Just now';
+  }
+
+  if (difference.inSeconds < 60) {
+    return 'Just now';
+  }
+
+  if (difference.inMinutes < 60) {
+    final minutes = difference.inMinutes;
+    return '$minutes minute${minutes > 1 ? 's' : ''} ago';
+  }
+
+  if (difference.inHours < 24) {
+    final hours = difference.inHours;
+    return '$hours hour${hours > 1 ? 's' : ''} ago';
+  }
+
+  if (difference.inDays == 1) {
+    return 'Yesterday';
+  }
+
+  if (difference.inDays < 30) {
+    final days = difference.inDays;
+    return '$days day${days > 1 ? 's' : ''} ago';
+  }
+
+  if (difference.inDays < 365) {
+    final months = (difference.inDays / 30).floor();
+    return '$months month${months > 1 ? 's' : ''} ago';
+  }
+
+  final years = (difference.inDays / 365).floor();
+  return '$years year${years > 1 ? 's' : ''} ago';
+}

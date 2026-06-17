@@ -36,102 +36,156 @@ class DoctorDetailsScreenMobile extends GetView<DoctorDetailsController> {
     final availability =
         controller.doctorDetailsInfoModel?.data.availability ?? [];
 
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
-      children: [
-        Space.height.v10,
+    return SafeArea(
+      child: RefreshIndicator(
+        color: CustomColors.primary,
 
-        // Doctor Card
-        DoctorDetailsCard(
-          imageUrl: doctor?.userId.profileImage.isNotEmpty == true
-              ? doctor!.userId.profileImage
-              : 'https://raw.githubusercontent.com/ai-py-auto/souce/refs/heads/main/Rectangle%202.png',
-          name: doctor?.userId.name ?? '',
-          specialty: doctor?.specialtyId.name ?? '',
-          clinicName: doctor?.currentOrganization ?? '',
-          rating: controller.doctorDetailsInfoModel?.data.rating.average ?? 0.0,
-          yearsOfExperience: doctor?.totalExperienceYears ?? 0,
-          startingPrice: (doctor?.consultationFee ?? 0).toDouble(),
-          onTap: () {},
-        ),
+        onRefresh: () => controller.refreshDoctorDetails(),
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
+          children: [
+            Space.height.v10,
 
-        Space.height.v15,
+            // Doctor Card
+            DoctorDetailsCard(
+              // name: (doctor?.userId.name).orPlaceholder(
+              //   DoctorUiFallback.doctorName,
+              // ),
 
-        // Availability
-        if (availability.isNotEmpty) ...[
-          TextWidget(
-            "Appointment Consultation Time",
-            fontSize: Dimensions.titleMedium,
-            fontWeight: FontWeight.w600,
-          ),
-          Space.height.v15,
-          ...availability.map(
-            (slot) => Padding(
-              padding: EdgeInsets.only(bottom: Dimensions.verticalSize * 0.25),
-              child: AppointmentSectionWidget(
-                days: slot.dayOfWeek,
-                time: "${slot.startTime} - ${slot.endTime}",
-                price: "\$${slot.fee}",
-                slot:
-                    "${(slot.slotSizeMinutes > 0 ? ((int.tryParse(slot.endTime.split(':')[0]) ?? 0) - (int.tryParse(slot.startTime.split(':')[0]) ?? 0)) * 60 ~/ slot.slotSizeMinutes : 0)} Slot",
-                duration: "${slot.slotSizeMinutes} Minutes",
+              // specialty: (doctor?.specialtyId.name).orPlaceholder(
+              //   DoctorUiFallback.specialty,
+              // ),
+
+              // clinicName: (doctor?.currentOrganization).orPlaceholder(
+              //   DoctorUiFallback.organization,
+              // ),
+
+              // imageUrl: doctor?.userId.profileImage.hasValue == true
+              //     ? doctor!.userId.profileImage
+              //     : DoctorUiFallback.profileImage,
+
+              //
+              imageUrl: doctor?.userId.profileImage.hasValue == true
+                  ? doctor!.userId.profileImage
+                  : DoctorUiFallback.profileImage,
+
+              name: (doctor?.userId.name).orNA(DoctorUiFallback.doctorName),
+
+              specialty: (doctor?.specialtyId.name).orNA(
+                DoctorUiFallback.specialty,
               ),
+
+              clinicName: (doctor?.currentOrganization).orNA(
+                DoctorUiFallback.organization,
+              ),
+
+              rating:
+                  controller.doctorDetailsInfoModel?.data.rating.average ?? 0.0,
+
+              yearsOfExperience: doctor?.totalExperienceYears ?? 0,
+
+              startingPrice: (doctor?.consultationFee ?? 0).toDouble(),
+              // prev values
+              // imageUrl: doctor?.userId.profileImage.isNotEmpty == true
+              //     ? doctor!.userId.profileImage
+              //     : 'https://raw.githubusercontent.com/ai-py-auto/souce/refs/heads/main/Rectangle%202.png',
+              // name: doctor?.userId.name ?? '',
+              // specialty: doctor?.specialtyId.name ?? '',
+              // clinicName: doctor?.currentOrganization ?? '',
+              // rating: controller.doctorDetailsInfoModel?.data.rating.average ?? 0.0,
+              // yearsOfExperience: doctor?.totalExperienceYears ?? 0,
+              // startingPrice: (doctor?.consultationFee ?? 0).toDouble(),
+              onTap: () {},
             ),
-          ),
-          Space.height.v15,
-        ],
 
-        AboutDesWidget(),
-        Space.height.v15,
+            Space.height.v15,
 
-        ServicePartWidget(),
-        Space.height.v15,
-
-        ExperiencePartWidget(),
-
-        ReviewRatingPartWidget(),
-        Space.height.v15,
-
-        // Reviews List
-        ...(controller.doctorDetailsInfoModel?.data.reviews
-                .take(2)
-                .map(
-                  (review) => Padding(
-                    padding: EdgeInsets.only(
-                      bottom: Dimensions.verticalSize * 0.5,
-                    ),
-                    child: _ReviewCard(review: review),
+            // Availability
+            if (availability.isNotEmpty) ...[
+              TextWidget(
+                "Appointment Consultation Time",
+                fontSize: Dimensions.titleMedium,
+                fontWeight: FontWeight.w600,
+              ),
+              Space.height.v15,
+              ...availability.map(
+                (slot) => Padding(
+                  padding: EdgeInsets.only(
+                    bottom: Dimensions.verticalSize * 0.25,
                   ),
-                )
-                .toList() ??
-            []),
+                  child: AppointmentSectionWidget(
+                    days: slot.dayOfWeek,
+                    time: "${slot.startTime} - ${slot.endTime}",
+                    price: "\$${slot.fee}",
+                    slot:
+                        "${(slot.slotSizeMinutes > 0 ? ((int.tryParse(slot.endTime.split(':')[0]) ?? 0) - (int.tryParse(slot.startTime.split(':')[0]) ?? 0)) * 60 ~/ slot.slotSizeMinutes : 0)} Slot",
+                    duration: "${slot.slotSizeMinutes} Minutes",
+                  ),
+                ),
+              ),
+              Space.height.v20,
+            ] else
+              TextWidget(
+                "Consultation schedule not available",
+                color: CustomColors.secondaryDarkText,
+              ),
 
-        // Read All Reviews Button
-        if ((controller.doctorDetailsInfoModel?.data.reviews.length ?? 0) > 0)
-          GestureDetector(
-            onTap: () => Get.toNamed(
-              Routes.allReviewScreen,
-              arguments: controller.doctorDetailsInfoModel?.data.doctor.id,
-            ),
-            child: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(
-                vertical: Dimensions.verticalSize * 0.6,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xffF8F8F8),
-                borderRadius: BorderRadius.circular(Dimensions.radius * 1.5),
-              ),
-              child: TextWidget(
-                "Read all reviews",
-                color: CustomColors.primary,
-              ),
-            ),
-          ),
+            AboutDesWidget(),
+            Space.height.v20,
 
-        Space.height.v15,
-      ],
+            ServicePartWidget(),
+            Space.height.v20,
+
+            ExperiencePartWidget(),
+            Space.height.v15,
+            ReviewRatingPartWidget(),
+            Space.height.v15,
+
+            // Reviews List
+            ...(controller.doctorDetailsInfoModel?.data.reviews
+                    .take(2)
+                    .map(
+                      (review) => Padding(
+                        padding: EdgeInsets.only(
+                          bottom: Dimensions.verticalSize * 0.5,
+                        ),
+                        child: _ReviewCard(review: review),
+                      ),
+                    )
+                    .toList() ??
+                []),
+
+            // Read All Reviews Button
+            if ((controller.doctorDetailsInfoModel?.data.reviews.length ?? 0) >
+                0)
+              GestureDetector(
+                onTap: () => Get.toNamed(
+                  Routes.allReviewScreen,
+                  arguments: controller.doctorDetailsInfoModel?.data.doctor.id,
+                ),
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(
+                    vertical: Dimensions.verticalSize * 0.6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xffF8F8F8),
+                    borderRadius: BorderRadius.circular(
+                      Dimensions.radius * 1.5,
+                    ),
+                  ),
+                  child: TextWidget(
+                    "Read all reviews",
+                    color: CustomColors.primary,
+                  ),
+                ),
+              ),
+
+            Space.height.v15,
+          ],
+        ),
+      ),
     );
   }
 }
@@ -140,17 +194,6 @@ class _ReviewCard extends StatelessWidget {
   final Review review;
 
   const _ReviewCard({required this.review});
-
-  String _timeAgo(DateTime date) {
-    final diff = DateTime.now().difference(date);
-    if (diff.inDays >= 1) {
-      return '${diff.inDays} Day${diff.inDays > 1 ? 's' : ''} Ago';
-    }
-    if (diff.inHours >= 1) {
-      return '${diff.inHours} Hour${diff.inHours > 1 ? 's' : ''} Ago';
-    }
-    return '${diff.inMinutes} Min Ago';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +224,7 @@ class _ReviewCard extends StatelessWidget {
                 ),
               ),
               TextWidget(
-                _timeAgo(review.createdAt),
+                timeAgo(review.createdAt),
                 fontSize: Dimensions.labelSmall,
                 color: CustomColors.secondaryDarkText,
               ),

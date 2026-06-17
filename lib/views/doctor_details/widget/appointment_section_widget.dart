@@ -29,6 +29,7 @@ class AppointmentSectionWidget extends StatelessWidget {
               padding: EdgeInsets.only(top: 2.h),
               child: const Icon(
                 Icons.circle_outlined,
+                size: 22,
                 color: Color(0xff006C93),
               ),
             ),
@@ -37,15 +38,40 @@ class AppointmentSectionWidget extends StatelessWidget {
               crossAxisAlignment: crossStart,
               children: [
                 TextWidget(days, fontSize: Dimensions.titleSmall),
-                TextWidget(
-                  time,
-                  fontSize: Dimensions.titleSmall,
-                  fontWeight: FontWeight.w400,
+                Row(
+                  children: [
+                    Icon(
+                      Icons.hourglass_bottom_rounded,
+                      size: 16.h,
+                      color: CustomColors.secondaryDarkText,
+                    ),
+                    Space.width.v5,
+                    //
+                    TextWidget(
+                      time,
+                      fontSize: Dimensions.titleSmall,
+                      fontWeight: FontWeight.w400,
+                      color: CustomColors.grayShade,
+                    ),
+                  ],
                 ),
-                TextWidget(
-                  price,
-                  fontSize: Dimensions.titleSmall,
-                  fontWeight: FontWeight.w400,
+                Space.height.v5,
+                Row(
+                  children: [
+                    Icon(
+                      Icons.payment_outlined,
+                      size: 16.h,
+                      color: CustomColors.grayShade,
+                    ),
+
+                    Space.width.v5,
+                    TextWidget(
+                      price,
+                      fontSize: Dimensions.titleSmall,
+                      fontWeight: FontWeight.w600,
+                      color: CustomColors.grayShade,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -56,10 +82,21 @@ class AppointmentSectionWidget extends StatelessWidget {
           children: [
             TextWidget(slot, fontSize: Dimensions.titleSmall),
             Space.width.v5,
-            TextWidget(
-              duration,
-              fontSize: Dimensions.titleSmall,
-              fontWeight: FontWeight.w400,
+            Row(
+              children: [
+                Icon(
+                  Icons.timelapse_rounded,
+                  size: 16.h,
+                  color: CustomColors.secondaryDarkText,
+                ),
+                Space.width.v5,
+                TextWidget(
+                  duration.shortDuration,
+                  fontSize: Dimensions.titleSmall,
+                  fontWeight: FontWeight.w400,
+                  color: CustomColors.secondaryDarkText,
+                ),
+              ],
             ),
           ],
         ),

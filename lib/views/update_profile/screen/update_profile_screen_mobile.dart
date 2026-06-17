@@ -110,12 +110,20 @@ class UpdateProfileScreenMobile extends GetView<UpdateProfileController> {
                 Space.height.betweenInputBox,
 
                 if (isUser) ...[
-                  PrimaryInputFieldWidget(
-                    controller: controller.bloodController,
-                    hintText: 'Blood Group (e.g. A+)',
-                    label: 'Blood Group',
+                  // PrimaryInputFieldWidget(
+                  //   controller: controller.bloodController,
+                  //   hintText: 'Blood Group (e.g. A+)',
+                  //   label: 'Blood Group',
+                  // ),
+                  Obx(
+                    () => CustomDropDownWidget(
+                      label: 'Blood Group',
+                      hint: 'Select Blood Group',
+                      items: BloodGroup.values.map((e) => e.value).toList(),
+                      initialValue: controller.selectedBloodGroup.value?.value,
+                      onChanged: controller.setBloodGroup,
+                    ),
                   ),
-
                   Space.height.betweenInputBox,
 
                   // Allergies Field

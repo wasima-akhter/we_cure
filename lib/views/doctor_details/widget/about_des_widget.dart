@@ -15,7 +15,8 @@ class AboutDesWidget extends GetView<DoctorDetailsController> {
         TextWidget("About"),
         Space.height.v10,
         TextWidget(
-          about,
+          about.orNA("Doctor description not available"),
+
           fontSize: Dimensions.titleSmall,
           color: CustomColors.blackColor.withOpacity(0.7),
           fontWeight: FontWeight.w400,

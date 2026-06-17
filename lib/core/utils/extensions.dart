@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 extension SupperEdgeInsets on num {
   /// EdgeInsets
@@ -15,4 +16,23 @@ extension SupperEdgeInsets on num {
     topLeft: Radius.circular(toDouble()),
     topRight: Radius.circular(toDouble()),
   );
+}
+
+extension StringsExtension on String {
+  String get capitalizeSafe {
+    if (trim().isEmpty) return '';
+
+    return GetUtils.capitalize(trim()) ?? '';
+  }
+
+  String get shortDuration {
+    final value = trim();
+
+    if (value.isEmpty) return '';
+
+    return value
+        .replaceAll(RegExp(r'\bMinutes?\b', caseSensitive: false), 'min')
+        .replaceAll(RegExp(r'\bHours?\b', caseSensitive: false), 'hr')
+        .replaceAll(RegExp(r'\bSeconds?\b', caseSensitive: false), 'sec');
+  }
 }

@@ -5,28 +5,31 @@ class LikedTipsScreenMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<TipsController>();
+    final tipsController = Get.find<TipsController>();
+    final likedController = Get.find<LikedTipsController>(); // 👈 add this
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.refreshLikedTips();
+      tipsController.refreshLikedTips();
     });
 
     return Scaffold(
       appBar: CommonAppBar(title: "Liked Tips"),
       body: SafeArea(
         child: Obx(
-          () => controller.isLoadingWellnessTips.value
+          () => tipsController.isLoadingWellnessTips.value
               ? LoadingWidget()
-              : controller.wellnessLickedTipsList.isEmpty
+              : tipsController.wellnessLickedTipsList.isEmpty
               ? EmptyDataWidget(massage: 'No liked tips found.')
               : ListView.builder(
-                  itemCount: controller.wellnessLickedTipsList.length,
+                  itemCount: tipsController.wellnessLickedTipsList.length,
                   physics: BouncingScrollPhysics(),
                   padding: EdgeInsetsGeometry.symmetric(
                     horizontal: Dimensions.defaultHorizontalSize,
                     vertical: Dimensions.verticalSize,
                   ),
                   itemBuilder: (context, index) {
+                    final tip = tipsController.wellnessLickedTipsList[index];
+
                     return Container(
                       margin: EdgeInsets.only(bottom: Dimensions.heightSize),
                       decoration: BoxDecoration(
@@ -45,30 +48,31 @@ class LikedTipsScreenMobile extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             TextWidget(
-                              controller.wellnessLickedTipsList[index].content,
+                              tip.content,
                               fontWeight: FontWeight.w500,
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: CustomColors.disableColor,
-                                shape: BoxShape.circle,
+                            GestureDetector(
+                              // 👈 wrap here
+                              onTap: () =>
+                                  likedController.toggleFavorite(tip.id, index),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: CustomColors.disableColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                padding: EdgeInsets.all(
+                                  Dimensions.paddingSize * 0.4,
+                                ),
+                                child: tip.isFavourite == false
+                                    ? Icon(
+                                        Icons.favorite_border,
+                                        color: CustomColors.whiteColor,
+                                      )
+                                    : Icon(
+                                        Icons.favorite,
+                                        color: Colors.redAccent,
+                                      ),
                               ),
-                              padding: EdgeInsets.all(
-                                Dimensions.paddingSize * 0.4,
-                              ),
-                              child:
-                                  controller
-                                          .wellnessLickedTipsList[index]
-                                          .isFavourite ==
-                                      false
-                                  ? Icon(
-                                      Icons.favorite_border,
-                                      color: CustomColors.whiteColor,
-                                    )
-                                  : Icon(
-                                      Icons.favorite,
-                                      color: Colors.redAccent,
-                                    ),
                             ),
                           ],
                         ),

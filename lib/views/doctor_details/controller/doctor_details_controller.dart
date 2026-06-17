@@ -3,7 +3,44 @@ import 'package:glady/core/api/services/api_request.dart';
 import 'package:glady/views/doctor_details/model/all_date_model.dart';
 import 'package:glady/views/doctor_details/model/doctor_details_model.dart';
 import 'package:glady/views/doctor_details/model/time_model.dart';
-import '../../../core/utils/basic_import.dart';
+
+import '../../../core/utils/basic_import.dart' hide Data;
+
+class DoctorUiFallback {
+  static const doctorName = 'Doctor Name';
+  static const specialty = 'Specialty';
+  static const organization = 'Hospital / Clinic';
+  static const about = 'Doctor information is currently unavailable.';
+  static const service = 'Service information unavailable';
+  static const experience = 'Experience information unavailable';
+  static const review = 'No reviews yet';
+  static const profileImage = 'https://via.placeholder.com/300';
+}
+
+// extension NullableStringExt on String? {
+//   String orPlaceholder(String placeholder) {
+//     if (this == null || this!.trim().isEmpty) {
+//       return placeholder;
+//     }
+//     return this!;
+//   }
+
+//   bool get hasValue => this != null && this!.trim().isNotEmpty;
+// }
+
+extension NullableStringExt on String? {
+  String orNA([String fallback = "Not available"]) {
+    final value = this?.trim();
+
+    if (value == null || value.isEmpty) {
+      return fallback;
+    }
+
+    return value;
+  }
+
+  bool get hasValue => this != null && this!.trim().isNotEmpty;
+}
 
 class DoctorDetailsController extends GetxController {
   String? doctorId = '';
@@ -30,6 +67,48 @@ class DoctorDetailsController extends GetxController {
   RxBool isLoading = false.obs;
   DoctorDetailsInfoModel? doctorDetailsInfoModel;
 
+  final doctorDetailsInfoModelEmpty = DoctorDetailsInfoModel(
+    success: false,
+    statusCode: 0,
+    message: '',
+    data: Data(
+      doctor: Doctor(
+        id: '',
+        userId: UserId(id: '', email: null, name: '', profileImage: ''),
+        currentOrganization: '',
+        specialtyId: SpecialtyId(id: '', name: ''),
+        about: '',
+        consultationFee: null,
+        verificationStatus: '',
+        isVerified: false,
+        createdAt: DateTime(1970),
+        updatedAt: DateTime(1970),
+        v: 0,
+        verificationNote: '',
+        accountName: 'N/A',
+        accountNumber: 'N/A',
+        bankName: 'N/A',
+        paystackRecipientCode: 'N/A',
+        pendingPayouts: 0,
+        recipientCreatedAt: null,
+        totalEarnings: 0,
+        totalPayouts: 0,
+        dateOfBirth: '',
+        experienceYears: 0,
+        totalExperienceYears: 0,
+      ),
+      services: [],
+      experiences: [],
+      rating: Rating(
+        average: 0.0,
+        total: 0,
+        breakdown: {'1': 0, '2': 0, '3': 0, '4': 0, '5': 0},
+      ),
+      reviews: [],
+      availability: [],
+    ),
+  );
+
   Future<DoctorDetailsInfoModel> getDoctorDetailsInfo(String doctorId) async {
     return ApiRequest().get(
       fromJson: DoctorDetailsInfoModel.fromJson,
@@ -37,6 +116,7 @@ class DoctorDetailsController extends GetxController {
       isLoading: isLoading,
       onSuccess: (result) {
         doctorDetailsInfoModel = result;
+        // doctorDetailsInfoModel = doctorDetailsInfoModelEmpty;
       },
     );
   }
@@ -79,5 +159,23 @@ class DoctorDetailsController extends GetxController {
         },
       );
     } catch (_) {}
+  }
+
+  Future<void> refreshDoctorDetails() async {
+    try {
+      // reset booking selections
+      selectedDate.value = '';
+      selectedTime.value = '';
+      selectedDateIndex.value = -1;
+      selectedTimeIndex.value = -1;
+
+      timeList.clear();
+      datesDayList.clear();
+
+      // reload APIs together
+      await Future.wait([getDoctorDetailsInfo(doctorId ?? ''), fetchAllDate()]);
+    } catch (e) {
+      debugPrint("Doctor refresh error: $e");
+    }
   }
 }

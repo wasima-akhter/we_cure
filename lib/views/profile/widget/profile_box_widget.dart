@@ -99,43 +99,50 @@ class ProfileBoxWidget extends GetView<ProfileController> {
           ),
 
           Space.height.v10,
+
           Column(
             crossAxisAlignment: crossStart,
             children: [
               TextWidget('Allergies'),
               Space.height.v10,
-              Wrap(
-                spacing: Dimensions.spaceBetweenInputBox * 0.4,
-                runSpacing: Dimensions.spaceBetweenInputBox * 0.4,
-                children: List.generate(
-                  controller.userProfileModel?.data.allergies?.length ?? 0,
-                  (index) => Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Dimensions.widthSize,
-                    ),
-                    decoration: BoxDecoration(
-                      color: CustomColors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(
-                        Dimensions.radius * 2,
+              if ((controller.userProfileModel?.data.allergies ?? []).isEmpty)
+                TextWidget(
+                  'No Allergies added yet.',
+                  color: CustomColors.grayShade,
+                )
+              else
+                Wrap(
+                  spacing: Dimensions.spaceBetweenInputBox * 0.4,
+                  runSpacing: Dimensions.spaceBetweenInputBox * 0.4,
+                  children: List.generate(
+                    controller.userProfileModel?.data.allergies?.length ?? 0,
+                    (index) => Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Dimensions.widthSize,
                       ),
-                      border: Border.all(
-                        color: CustomColors.primary.withOpacity(0.3),
+                      decoration: BoxDecoration(
+                        color: CustomColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.radius * 2,
+                        ),
+                        border: Border.all(
+                          color: CustomColors.primary.withOpacity(0.3),
+                        ),
                       ),
-                    ),
-                    child: TextWidget(
-                      padding: EdgeInsetsGeometry.only(
-                        // right: Dimensions.widthSize * 2,
-                        // bottom: Dimensions.heightSize,
+                      child: TextWidget(
+                        padding: EdgeInsetsGeometry.only(
+                          // right: Dimensions.widthSize * 2,
+                          // bottom: Dimensions.heightSize,
+                        ),
+                        controller.userProfileModel!.data.allergies?[index]
+                                .toString() ??
+                            '',
+                        fontSize: Dimensions.titleSmall,
+                        color: CustomColors.grayShade,
                       ),
-                      controller.userProfileModel!.data.allergies?[index]
-                              .toString() ??
-                          '',
-                      fontSize: Dimensions.titleSmall,
-                      color: CustomColors.grayShade,
                     ),
                   ),
                 ),
-              ),
               Space.height.v30,
               GestureDetector(
                 onTap: () => Get.toNamed(Routes.updateProfileScreen),

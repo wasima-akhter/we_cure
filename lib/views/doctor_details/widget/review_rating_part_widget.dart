@@ -19,13 +19,12 @@ class ReviewRatingPartWidget extends GetView<DoctorDetailsController> {
           'What others think about This Doctor',
           fontWeight: FontWeight.w400,
           maxLines: 1,
-          fontSize: Dimensions.titleLarge,
+          // fontSize: Dimensions.titleLarge,
         ),
         Space.height.v10,
 
-        TextWidget('Review & Rating', fontSize: Dimensions.titleMedium * 1.2),
-        Space.height.v10,
-
+        // TextWidget('Review & Rating', fontSize: Dimensions.titleMedium * 1.2),
+        // Space.height.v10,
         Row(
           mainAxisAlignment: mainSpaceBet,
           children: [

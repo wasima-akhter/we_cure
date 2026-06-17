@@ -6,6 +6,7 @@ class Space {
       height: Dimensions.spaceBetweenInputTitleAndBox,
     ),
     betweenInputBox: SizedBox(height: Dimensions.spaceBetweenInputBox),
+    v3: SizedBox(height: Dimensions.heightSize * 0.3),
     v5: SizedBox(height: Dimensions.heightSize * 0.5),
     v10: SizedBox(height: Dimensions.heightSize),
     v15: SizedBox(height: Dimensions.heightSize * 1.5),
@@ -17,6 +18,7 @@ class Space {
   );
 
   static SizeWidthModel width = SizeWidthModel(
+    v3: SizedBox(width: Dimensions.widthSize * 0.3),
     v5: SizedBox(width: Dimensions.widthSize * 0.5),
     v10: SizedBox(width: Dimensions.widthSize),
     v15: SizedBox(width: Dimensions.widthSize * 1.5),
@@ -31,6 +33,7 @@ class SizeHeightModel {
   final SizedBox btnInputTitleAndBox;
   final SizedBox betweenInputBox;
   final SizedBox v5;
+  final SizedBox v3;
   final SizedBox v10;
   final SizedBox v15;
   final SizedBox v20;
@@ -52,11 +55,13 @@ class SizeHeightModel {
     required this.v30,
     required this.v40,
     required this.v100,
+    required this.v3,
   });
 }
 
 class SizeWidthModel {
   final SizedBox v5;
+  final SizedBox v3;
   final SizedBox v10;
   final SizedBox v15;
   final SizedBox v20;
@@ -74,6 +79,7 @@ class SizeWidthModel {
     required this.v25,
     required this.v30,
     required this.v40,
+    required this.v3,
   });
 }
 
