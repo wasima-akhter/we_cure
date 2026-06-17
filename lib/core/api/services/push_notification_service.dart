@@ -1,11 +1,12 @@
 /*
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:glady/core/api/model/basic_success_model.dart';
 import 'package:glady/core/api/services/api_request.dart';
 import 'package:glady/core/utils/basic_import.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseBackgroundHandler(RemoteMessage message) async {
-  debugPrint('Background: ${message.notification?.title}');
+  debugPrint('Background: \${message.notification?.title}');
 }
 
 class NotificationService {
@@ -22,19 +23,16 @@ class NotificationService {
 
     FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundHandler);
 
-    // ✅ App OPEN থাকলে
     FirebaseMessaging.onMessage.listen((message) {
       final notification = message.notification;
       if (notification == null) return;
       _showCustomNotification(message);
     });
 
-    // ✅ App BACKGROUND এ tap করলে
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       _handleNavigation(message);
     });
 
-    // ✅ App KILLED থাকলে tap করলে
     final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
       Future.delayed(const Duration(seconds: 1), () {
@@ -43,7 +41,7 @@ class NotificationService {
     }
 
     final token = await getToken();
-    debugPrint('✅ FCM Token: $token');
+    debugPrint('✅ FCM Token: \$token');
 
     _messaging.onTokenRefresh.listen((token) {
       sendTokenToServer(token);
@@ -66,7 +64,20 @@ class NotificationService {
   }
 
   static Future<String?> getToken() async {
-    return await _messaging.getToken();
+    try {
+      if (defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS) {
+        final apnsToken = await _messaging.getAPNSToken();
+        if (apnsToken == null) {
+          debugPrint('⚠️ APNS token not available (simulator). Skipping FCM token fetch.');
+          return null;
+        }
+      }
+      return await _messaging.getToken();
+    } catch (e) {
+      debugPrint('⚠️ FCM token error: \$e');
+      return null;
+    }
   }
 
   static Future<BasicSuccessModel> sendTokenToServer(String token) async {
@@ -76,18 +87,11 @@ class NotificationService {
       endPoint: '/users/fcm-token',
       isLoading: false.obs,
       onSuccess: (result) {
-        debugPrint(
-          '✅---------------------------------------------------------------------',
-        );
-        debugPrint('✅ FCM Token: $token');
-        debugPrint(
-          '✅---------------------------------------------------------------------',
-        );
+        debugPrint('✅ FCM Token: \$token');
       },
     );
   }
 
-  //In app notification style
   static void _showCustomNotification(RemoteMessage message) {
     final notification = message.notification;
     if (notification == null) return;
