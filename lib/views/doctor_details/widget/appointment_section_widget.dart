@@ -40,10 +40,14 @@ class AppointmentSectionWidget extends StatelessWidget {
                 TextWidget(days, fontSize: Dimensions.titleSmall),
                 Row(
                   children: [
-                    Icon(
-                      Icons.hourglass_bottom_rounded,
-                      size: 16.h,
-                      color: CustomColors.secondaryDarkText,
+                    // Icon(
+                    //   Icons.hourglass_bottom_rounded,
+                    //   size: 16.h,
+                    //   color: CustomColors.secondaryDarkText,
+                    // ),
+                    CircleAvatar(
+                      radius: 8.h,
+                      backgroundColor: CustomColors.secondaryDarkText,
                     ),
                     Space.width.v5,
                     //
