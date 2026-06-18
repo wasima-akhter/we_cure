@@ -14,14 +14,14 @@ class AppointmentDetailsScreenMobile
 
         // ✅ Get current status (uppercase for comparison)
         final currentStatus = isUser
-            ? controller.userAppointmentDetailsModel.value?.data.status
+            ? controller.userAppointmentDetailsModel.value?.data?.status
                   .toUpperCase()
             : controller.doctorAppointmentDetailsModel.value?.data.status
                   .toUpperCase();
 
         // ✅ Get appointment ID
         final appointmentId = isUser
-            ? controller.userAppointmentDetailsModel.value?.data.id
+            ? controller.userAppointmentDetailsModel.value?.data?.id
             : controller.doctorAppointmentDetailsModel.value?.data.id;
 
         return SafeArea(
@@ -164,7 +164,7 @@ class AppointmentDetailsScreenMobile
               );
             }
 
-            final doctor = appointmentData.data.doctorInfo;
+            final doctor = appointmentData.data?.doctorInfo;
             final data = appointmentData.data;
 
             return ListView(
@@ -173,13 +173,13 @@ class AppointmentDetailsScreenMobile
               children: [
                 Space.height.v15,
                 DoctorDetailsCard(
-                  imageUrl: doctor.profileImage,
-                  name: doctor.name,
-                  specialty: doctor.specialty,
-                  clinicName: doctor.organization,
-                  rating: doctor.rating.toDouble(),
-                  yearsOfExperience: doctor.experienceYears,
-                  startingPrice: data.consultationFee.toDouble(),
+                  imageUrl: doctor?.profileImage ?? '',
+                  name: doctor?.name ?? '',
+                  specialty: doctor?.specialty ?? '',
+                  clinicName: doctor?.organization ?? '',
+                  rating: doctor?.rating.toDouble() ?? 0,
+                  yearsOfExperience: doctor?.experienceYears.toInt() ?? 0,
+                  startingPrice: data?.consultationFee.toDouble(),
                   onTap: () {},
                 ),
                 TextWidget(
@@ -192,11 +192,11 @@ class AppointmentDetailsScreenMobile
                 ),
                 InfoPairRow(
                   leftTitle: 'Reason',
-                  leftValue: data.reasonTitle,
+                  leftValue: data?.reasonTitle ?? '',
                   rightTitle: 'Booking Date',
                   rightValue: DateFormat(
                     "dd MMM yyyy",
-                  ).format(data.appointmentDate.toLocal()),
+                  ).format((data?.appointmentDate ?? DateTime.now()).toLocal()),
                 ),
                 Space.height.v15,
                 TextWidget(
@@ -212,25 +212,25 @@ class AppointmentDetailsScreenMobile
                   textAlign: TextAlign.justify,
                   fontSize: Dimensions.titleSmall,
                   fontWeight: FontWeight.w400,
-                  data.reasonDetails,
+                  data?.reasonDetails ?? '',
                 ),
                 Space.height.v15,
                 InfoPairRow(
                   leftTitle: 'Visiting Date',
                   leftValue:
-                      '${DateFormat("dd MMM yyyy").format(data.appointmentDate.toLocal())}\n${data.appointmentTime}',
+                      '${DateFormat("dd MMM yyyy").format((data?.appointmentDate ?? DateTime.now()).toLocal())}\n${data?.appointmentTime}',
                   rightTitle: 'Status',
-                  rightValue: data.status,
+                  rightValue: data?.status ?? '',
                 ),
                 Space.height.v15,
                 TextWidget("Appointment Fee", fontWeight: FontWeight.w400),
                 TextWidget(
-                  '₦${data.consultationFee}',
+                  '₦${data?.consultationFee}',
                   fontWeight: FontWeight.bold,
                   fontSize: Dimensions.titleLarge,
                 ),
                 Space.height.v15,
-                if (data.attachments.isNotEmpty) ...[
+                if ((data?.attachments ?? []).isNotEmpty) ...[
                   TextWidget(
                     padding: EdgeInsets.only(bottom: Dimensions.heightSize),
                     "Attachment",
@@ -240,7 +240,7 @@ class AppointmentDetailsScreenMobile
                     spacing: Dimensions.widthSize,
                     runSpacing: Dimensions.heightSize,
                     children: List.generate(
-                      data.attachments.length,
+                      (data?.attachments ?? []).length,
                       (index) => Container(
                         height: 100.h,
                         width: 100.w,
@@ -257,7 +257,7 @@ class AppointmentDetailsScreenMobile
                             Dimensions.radius,
                           ),
                           child: CachedNetworkImage(
-                            imageUrl: data.attachments[index].url,
+                            imageUrl: data?.attachments[index].url ?? '',
                             fit: BoxFit.cover,
                             errorWidget: (context, url, error) => Icon(
                               Icons.image_not_supported,
@@ -435,31 +435,52 @@ class AppointmentDetailsScreenMobile
     }
 
     // UPCOMING, COMPLETED - Chat button
-    return PrimaryButtonWidget(
-      title: 'Chat',
-      onPressed: () {
-        // Get.offAllNamed(Routes.navigationScreen, arguments: 3);
-        // Replace both chat button onPressed blocks (user side & doctor side) with this:
+    return Obx(() {
+      final isLoadingChat = controller.isLoadingChatDetails.value;
+      final isLoadingAppoint = controller.isLoading.value;
 
-        // Get.toNamed(
-        //   Routes.inboxScreen,
-        //   arguments: {
-        //     'conversationId': item.id,
-        //     'receiverId': participant?.id ?? '',
-        //     'receiverRole': participant?.role ?? '',
-        //     'avatar': participant?.image ?? '',
-        //     'name': participant?.name ?? '',
-        //   },
-        // );
-        // If NavigationScreen is already in the stack, just switch tab
-        if (Get.isRegistered<NavigationController>()) {
-          Get.back(); // or pop until navigation screen if needed
-          Get.find<NavigationController>().navigateToTab(3);
-        } else {
-          Get.offAllNamed(Routes.navigationScreen, arguments: 3);
-        }
-      },
-      buttonColor: CustomColors.primary,
-    );
+      return PrimaryButtonWidget(
+        title: 'Chat',
+        isLoading: isLoadingAppoint || isLoadingChat,
+        disable: isLoadingChat,
+        onPressed: isLoadingChat
+            ? () {}
+            : () async {
+                final userDetails =
+                    controller.userAppointmentDetailsModel.value;
+
+                if (userDetails == null) {
+                  CustomSnackBar.error('Appointment details not loaded yet.');
+                  return;
+                }
+
+                // 👇 fetch on button tap, then navigate
+                await controller.fetchUserAppointedChatDetails(
+                  userId: userDetails.data?.doctorInfo?.userId ?? '',
+                  appointmentId: appointmentId,
+                );
+
+                final chatDetails =
+                    controller.userAppointChatDetailsModel.value;
+
+                if (chatDetails == null) {
+                  CustomSnackBar.error('Could not load chat details.');
+                  return;
+                }
+
+                Get.toNamed(
+                  Routes.inboxScreen,
+                  arguments: {
+                    'conversationId': chatDetails.conversationId,
+                    'receiverId': chatDetails.recipient.id,
+                    'receiverRole': chatDetails.recipient.role.toUpperCase(),
+                    'avatar': chatDetails.recipient.image,
+                    'name': chatDetails.recipient.name,
+                  },
+                );
+              },
+        buttonColor: CustomColors.primary,
+      );
+    });
   }
 }

@@ -58,7 +58,7 @@ class InboxController extends GetxController {
 
   void _initSocket() {
     socket = IO.io(
-      "https://api.wecurehealth.com"
+      "${ApiEndPoints.base}"
       "?token=${AppStorage.token}",
       IO.OptionBuilder()
           .setTransports(['websocket'])

@@ -154,7 +154,7 @@ class _BottomBarItem extends StatelessWidget {
     if (path != null) {
       return SafeSvgWidget(
         assetPath: path!,
-        height: svgSize ?? 22.h,
+        height: svgSize ?? 25.h,
         color: color,
       );
     }

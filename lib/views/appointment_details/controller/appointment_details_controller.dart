@@ -1,11 +1,15 @@
+import 'dart:developer';
+
 import 'package:glady/core/api/end_point/api_end_points.dart';
 import 'package:glady/core/api/model/basic_success_model.dart';
 import 'package:glady/core/api/services/api_request.dart';
 import 'package:glady/core/utils/app_storage.dart';
+import 'package:glady/views/profile/controller/profile_controller.dart';
 
 import '../../../core/utils/basic_import.dart';
 import '../model/appoinment_details_model.dart';
 import '../model/user_appoinment_details_model.dart';
+import '../model/user_appoint_chat_details.dart';
 
 class AppointmentDetailsController extends GetxController {
   late String appointmentId = '';
@@ -80,11 +84,46 @@ class AppointmentDetailsController extends GetxController {
       onSuccess: (result) {
         userAppointmentDetailsModel.value = result;
 
-        print("user appointment id: ${result.data.id}");
-        print("user appointment id: ${result.data.id}");
+        print("user appointment id: ${result.data?.id}");
+        print("user appointment id: ${result.data?.id}");
+
+        if (Get.isRegistered<ProfileController>()) {
+          final profCtrl = Get.find<ProfileController>();
+        }
+        // fetchUserAppointedChatDetails(
+        //   userId: result.data.doctorInfo.userId,
+        //   appointmentId: appointmentId,
+        // );
       },
     );
   }
+
+  RxBool isLoadingChatDetails = false.obs;
+  Rx<UserAppointChatDetailsModel?> userAppointChatDetailsModel =
+      Rx<UserAppointChatDetailsModel?>(null);
+
+  Future<void> fetchUserAppointedChatDetails({
+    required String userId,
+    required String appointmentId,
+  }) async {
+    await ApiRequest().get(
+      fromJson: UserAppointChatDetailsModel.fromJson,
+      // endPoint: '${ApiEndPoints.userAppointmentDetails}/$userId',
+      endPoint:
+          '${ApiEndPoints.userAppointedChatDetails}/696472aa51ce4bd422d0e5e9',
+      isLoading: isLoadingChatDetails,
+      showResponse: true,
+      queryParams: {'appointmentId': '6a31fe95016d4b96fde5a5d2'},
+      onSuccess: (result) {
+        userAppointChatDetailsModel.value = result;
+        log('conversationId : ${result.conversationId}');
+        log('recipient name : ${result.recipient.name}');
+        log('total messages : ${result.meta.total}');
+      },
+    );
+  }
+
+  //{{baseUrl}}/api/chat/messages-by-user/696472aa51ce4bd422d0e5e9?appointmentId=6a31fe95016d4b96fde5a5d2
 
   RxBool isDeleting = false.obs;
 

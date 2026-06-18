@@ -92,7 +92,7 @@ class ApiRequest {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final Map<String, dynamic> json = jsonDecode(response.body);
         final result = fromJson(json);
-        debugPrint(' result after parse:${result} ');
+        debugPrint(' result after parse:$result ');
         // prettyPrintResponse(jsonEncode(response.bo));
 
         final successMessage =
@@ -111,13 +111,36 @@ class ApiRequest {
         }
         debugPrint(' asfdyuafsdyasydf if 200 true ');
         return result;
-      } else {
+      }
+      //  else {
+      //   debugPrint(' asfdyuafsdyasydf   not 200   ');
+      //   _handleUnauthorized(response);
+      //   final error = jsonDecode(response.body);
+      //   final errorMessage = error['message'] ?? 'Something went wrong!';
+      //   log('❌ Error: $errorMessage');
+      //   CustomSnackBar.error(errorMessage);
+      //   throw Exception(errorMessage);
+      // }
+      else {
         debugPrint(' asfdyuafsdyasydf   not 200   ');
         _handleUnauthorized(response);
-        final error = jsonDecode(response.body);
-        final errorMessage = error['message'] ?? 'Something went wrong!';
+
+        String errorMessage = 'Something went wrong!';
+
+        if (response.body.isNotEmpty) {
+          try {
+            final error = jsonDecode(response.body);
+            errorMessage = error['message'] ?? errorMessage;
+          } catch (_) {
+            errorMessage = response.body; // fallback if not JSON
+          }
+        } else {
+          errorMessage = 'Empty response from server (${response.statusCode})';
+        }
+
         log('❌ Error: $errorMessage');
         CustomSnackBar.error(errorMessage);
+
         throw Exception(errorMessage);
       }
     } catch (e) {

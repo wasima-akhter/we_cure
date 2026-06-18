@@ -4,6 +4,7 @@ import 'package:glady/views/chat/model/chat_person_model.dart';
 import '../../../core/utils/basic_import.dart';
 
 class ChatController extends GetxController {
+  static ChatController get to => Get.find<ChatController>();
   RxBool isLoading = false.obs;
 
   ChatPersonListModel? chatPersonListModel;
@@ -53,6 +54,8 @@ class ChatController extends GetxController {
       isLoading: isLoading,
       onSuccess: (result) {
         chatPersonListModel = result;
+
+        debugPrint(' item.lastMessage: ${result.data.first.lastMessage} ');
         filteredList.assignAll(result.data);
       },
     );

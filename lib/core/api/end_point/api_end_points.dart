@@ -1,6 +1,7 @@
 class ApiEndPoints {
-  // static const String baseUrl = 'https://bvh0nlc7-3001.inc1.devtunnels.ms/api';
-  static const String baseUrl = 'https://api.wecurehealth.com/api';
+  static const String base = 'http://10.10.28.196:3010';
+  static const String baseUrl = '$base/api';
+  // static const String baseUrl = 'https://api.wecurehealth.com/api';
 
   // AUTH ENDPOINTS
   static const String login = '/auth/login';
@@ -30,6 +31,10 @@ class ApiEndPoints {
   static const String addUserBankAccount = '/users/me/bank-details';
   static const String doctorAppointmentDetails = '/appointments/doctor';
   static const String userAppointmentDetails = '/appointments/me';
+
+  //New api
+  static const String userAppointedChatDetails = '/chat/messages-by-user';
+
   static const String appointments = '/appointments/me';
   static const String donationPayment = '/payments/donations/initialize';
   static const String appointmentsBook = '/appointments/me';

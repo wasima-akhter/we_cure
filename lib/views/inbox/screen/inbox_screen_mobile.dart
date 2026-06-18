@@ -38,7 +38,17 @@ class InboxScreenMobile extends GetView<InboxController> {
         centerTitle: false,
         automaticallyImplyLeading: false,
         leading: GestureDetector(
-          onTap: () => Get.back(),
+          onTap: () {
+            if (Get.isRegistered<NavigationController>()) {
+              Get.back(); // or pop until navigation screen if needed
+              Get.find<NavigationController>().navigateToTab(3);
+              if (Get.isRegistered<ChatController>()) {
+                ChatController.to.getAllUserChatPerson();
+              }
+            } else {
+              Get.back();
+            }
+          },
           child: Container(
             margin: EdgeInsets.only(left: Dimensions.widthSize),
             padding: const EdgeInsets.only(left: 8),

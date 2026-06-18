@@ -10,7 +10,15 @@ class ChatScreenMobile extends GetView<ChatController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CommonAppBar(title: 'Chat', isBack: false),
+      appBar: CommonAppBar(
+        title: 'Chat',
+        isBack: false,
+        onTap: () {
+          //
+
+          print("to chat");
+        },
+      ),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value) {
@@ -109,6 +117,11 @@ class ChatScreenMobile extends GetView<ChatController> {
                                 ? item.participants.first
                                 : null;
                             final lastMsg = item.lastMessage.text;
+                            final lastMsgImages = item.lastMessage.images;
+                            debugPrint(
+                              ' item.lastMessage: ${item.lastMessage} ',
+                            );
+
                             final time = _formatTime(
                               item.lastMessage.createdAt,
                             );
@@ -153,15 +166,54 @@ class ChatScreenMobile extends GetView<ChatController> {
                                   fontWeight: FontWeight.w600,
                                   fontSize: Dimensions.titleSmall,
                                 ),
-                                subtitle: TextWidget(
-                                  lastMsg.isNotEmpty
-                                      ? lastMsg
-                                      : 'No messages yet',
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: Dimensions.labelMedium,
-                                  color: CustomColors.secondaryDarkText,
-                                  textOverflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
+                                subtitle: Builder(
+                                  builder: (_) {
+                                    if (lastMsg.trim().isNotEmpty) {
+                                      return TextWidget(
+                                        lastMsg,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: Dimensions.labelMedium,
+                                        color: CustomColors.secondaryDarkText,
+                                        textOverflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      );
+                                    }
+
+                                    if (lastMsgImages.isNotEmpty &&
+                                        lastMsgImages.first
+                                            .toString()
+                                            .isNotEmpty) {
+                                      return Row(
+                                        children: [
+                                          Icon(
+                                            Icons.image,
+                                            size: 20.h,
+                                            color: CustomColors.grayShade,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          TextWidget(
+                                            lastMsgImages.length > 1
+                                                ? "${lastMsgImages.length}"
+                                                      ' images'
+                                                : 'image',
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: Dimensions.labelMedium,
+                                            color:
+                                                CustomColors.secondaryDarkText,
+                                          ),
+                                        ],
+                                      );
+                                    }
+
+                                    return TextWidget(
+                                      'No messages yet',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: Dimensions.labelMedium,
+                                      color: CustomColors.secondaryDarkText,
+                                      textOverflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    );
+                                  },
                                 ),
                                 trailing: Column(
                                   mainAxisAlignment: mainCenter,

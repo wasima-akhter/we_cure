@@ -12,7 +12,7 @@ class TypeSectionWidget extends GetView<InboxController> {
       decoration: BoxDecoration(color: Colors.white),
       child: SafeArea(
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: TextField(

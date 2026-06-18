@@ -9,6 +9,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isPrimary;
   final bool isSkip;
   final List<Widget>? actions;
+  final VoidCallback? onTap;
 
   const CommonAppBar({
     super.key,
@@ -20,6 +21,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.iconColor,
     this.isSkip = false,
     this.actions,
+    this.onTap,
   });
 
   @override
@@ -38,7 +40,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               hoverColor: Colors.transparent,
-              onTap: () => Get.back(),
+              onTap: onTap ?? () => Get.back(),
               child: Container(
                 margin: EdgeInsets.only(left: Dimensions.widthSize),
                 padding: EdgeInsets.only(left: 8),
