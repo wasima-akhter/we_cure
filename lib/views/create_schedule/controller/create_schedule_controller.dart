@@ -1,6 +1,8 @@
-import '../../../core/utils/basic_import.dart';
+import 'package:flutter/foundation.dart';
+
 import '../../../core/api/end_point/api_end_points.dart';
 import '../../../core/api/services/api_request.dart';
+import '../../../core/utils/basic_import.dart';
 import '../../schedule/controller/schedule_controller.dart';
 import '../../schedule/model/schedule_model.dart';
 
@@ -11,6 +13,15 @@ class CreateScheduleController extends GetxController {
   Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
   RxString startTime = ''.obs;
   RxString endTime = ''.obs;
+
+  @override
+  void onInit() {
+    if (kDebugMode) {
+      durationController.text = "30";
+      feeController.text = "1";
+    }
+    super.onInit();
+  }
 
   List<String> dayList = [];
   RxBool isLoading = false.obs;

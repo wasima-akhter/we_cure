@@ -99,6 +99,8 @@ class DoctorDetailsController extends GetxController {
           allDateModel = result;
           datesDayList.clear();
           datesDayList.assignAll(result.data);
+
+          debugPrint(result.data.toString());
         },
       );
     } catch (_) {}

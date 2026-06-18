@@ -38,4 +38,14 @@ class AllDates {
     availableSlots: json["availableSlots"],
     totalSlots: json["totalSlots"],
   );
+
+  @override
+  String toString() {
+    return 'AllDates('
+        'date: $date, '
+        'day: $day, '
+        'availableSlots: $availableSlots, '
+        'totalSlots: $totalSlots'
+        ')';
+  }
 }

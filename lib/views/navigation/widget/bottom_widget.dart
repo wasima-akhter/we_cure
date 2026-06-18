@@ -26,7 +26,7 @@ class BottomNavWidget extends StatelessWidget {
               path: Assets.icons.hh,
               label: '',
               index: 0,
-              svgSize: 21.h,
+              svgSize: 25.h,
             ),
 
             // 2. Find/Schedule
