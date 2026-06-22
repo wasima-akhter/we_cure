@@ -49,6 +49,8 @@ class ApiEndPoints {
 
   static const String getALlSchedule = '/doctors/me/availability';
   static const String createSchedule = '/doctors/me/availability';
+  static const String editSchedule = '/doctors/me/availability/edit';
+  static const String deleteSchedule = '/doctors/me/availability';
 
   // PROFILE
   static const String doctorProfile = '/doctors/me/profile';

@@ -95,6 +95,8 @@ class DoctorDetailsScreenMobile extends GetView<DoctorDetailsController> {
 
               ...availability.map((slot) {
                 debugPrint(' slot.formattedTime,: ${slot.formattedTime} ');
+                debugPrint(' slot.totalSlots,: ${slot.totalSlots} ');
+
                 return Padding(
                   padding: EdgeInsets.only(
                     bottom: Dimensions.verticalSize * 0.25,

@@ -63,12 +63,13 @@ class _InfoColumn extends StatelessWidget {
         TextWidget(
           title,
           fontSize: Dimensions.titleSmall,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w600,
         ),
         Space.height.v5,
         TextWidget(
           value,
           color: _getValueColor(),
+          fontSize: Dimensions.titleSmall,
           fontWeight:
               value.toUpperCase() == 'CANCELLED' ||
                   value.toUpperCase() == 'UPCOMING' ||

@@ -167,6 +167,9 @@ class AppointmentDetailsScreenMobile
             final doctor = appointmentData.data?.doctorInfo;
             final data = appointmentData.data;
 
+            debugPrint(' data?.appointmentDate: ${data?.appointmentDate} ');
+            //I/flutter ( 6343):  data?.appointmentDate: 2026-06-21 00:00:00.000Z
+
             return ListView(
               padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
               physics: BouncingScrollPhysics(),
@@ -182,21 +185,21 @@ class AppointmentDetailsScreenMobile
                   startingPrice: data?.consultationFee.toDouble(),
                   onTap: () {},
                 ),
-                TextWidget(
-                  padding: EdgeInsets.symmetric(
-                    vertical: Dimensions.verticalSize,
-                  ),
-                  'Appointment Details',
-                  fontWeight: FontWeight.bold,
-                  fontSize: Dimensions.titleMedium,
-                ),
+
+                22.verticalSpace,
+                // TextWidget(
+                //   padding: EdgeInsets.symmetric(
+                //     vertical: Dimensions.verticalSize,
+                //   ),
+                //   'Appointment Details',
+                //   fontWeight: FontWeight.bold,
+                //   fontSize: Dimensions.titleMedium,
+                // ),
                 InfoPairRow(
                   leftTitle: 'Reason',
                   leftValue: data?.reasonTitle ?? '',
                   rightTitle: 'Booking Date',
-                  rightValue: DateFormat(
-                    "dd MMM yyyy",
-                  ).format((data?.appointmentDate ?? DateTime.now()).toLocal()),
+                  rightValue: formatAppointmentDate(data?.appointmentDate),
                 ),
                 Space.height.v15,
                 TextWidget(
@@ -218,16 +221,17 @@ class AppointmentDetailsScreenMobile
                 InfoPairRow(
                   leftTitle: 'Visiting Date',
                   leftValue:
-                      '${DateFormat("dd MMM yyyy").format((data?.appointmentDate ?? DateTime.now()).toLocal())}\n${data?.appointmentTime}',
+                      '${formatAppointmentDate(data?.appointmentDate)}\n'
+                      '${formatTimeToAmPm(data?.appointmentTime)}',
                   rightTitle: 'Status',
                   rightValue: data?.status ?? '',
                 ),
                 Space.height.v15,
-                TextWidget("Appointment Fee", fontWeight: FontWeight.w400),
+                TextWidget("Appointment Fee", fontWeight: FontWeight.w600),
                 TextWidget(
                   '₦${data?.consultationFee}',
                   fontWeight: FontWeight.bold,
-                  fontSize: Dimensions.titleLarge,
+                  fontSize: Dimensions.titleLarge - 1,
                 ),
                 Space.height.v15,
                 if ((data?.attachments ?? []).isNotEmpty) ...[

@@ -54,10 +54,14 @@ class DoctorAppointmentSectionWidget extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.swap_calls_sharp),
+                      Icon(
+                        Icons.swap_calls_sharp, 
+                        color: CustomColors.grayShade.withValues(alpha: 0.5),
+                      ),
                       TextWidget(
                         " Manage",
                         fontWeight: FontWeight.w500,
+                        color: CustomColors.primary,
                         fontSize: Dimensions.titleSmall,
                       ),
                     ],

@@ -6,46 +6,104 @@ class CreateScheduleScreenMobile extends GetView<CreateScheduleController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "New Schedule"),
+      appBar: CommonAppBar(
+        title: controller.isEditMode ? "Edit Schedule" : "New Schedule",
+      ),
       body: SafeArea(
         child: ListView(
           padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           children: [
             Space.height.v20,
-            MultiSelectDropDownWidget(
-              hint: 'Day of week',
-              items: [
-                'Saturday',
-                'Sunday',
-                'Monday',
-                'Tuesday',
-                'Wednesday',
-                'Thursday',
-                'Friday',
-              ],
-              onChanged: (value) {
-                controller.dayList = value;
-              },
-            ),
+
+            // Create → multi-select days | Edit → single day (pre-filled, locked)
+            if (controller.isEditMode)
+              PrimaryInputFieldWidget(
+                controller:
+                    controller.dayDisplayController, // 👈 pre-filled controller
+                hintText: 'Day of week',
+                label: 'Day',
+                readOnly: true, // 👈 locks it visually
+              )
+            else
+              MultiSelectDropDownWidget(
+                hint: 'Day of week',
+                items: const [
+                  'Saturday',
+                  'Sunday',
+                  'Monday',
+                  'Tuesday',
+                  'Wednesday',
+                  'Thursday',
+                  'Friday',
+                ],
+                onChanged: (value) {
+                  controller.dayList = value;
+                },
+              ),
+
             Space.height.v20,
             Row(
               children: [
                 Expanded(
-                  child: TimePickerWidget(
-                    hint: "Starting Time",
-                    onTimeSelected: (time) {
-                      controller.startTime.value = time;
-                    },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextWidget(
+                        "Starting Time",
+                        maxLines: 2,
+                        textOverflow: TextOverflow.ellipsis,
+                        fontSize: Dimensions.titleMedium * 0.9,
+                        fontWeight: FontWeight.w500,
+                        color: CustomColors.blackColor,
+                      ),
+                      6.verticalSpace,
+
+                      TimePickerWidget(
+                        hint: "Starting Time",
+                        initialTime: parseTimeOfDay(
+                          controller.isEditMode
+                              ? controller.editingSchedule!.startTime
+                              : null,
+                        ),
+                        onTimeSelected: (time) {
+                          controller.startTime.value = time; // "HH:mm"
+
+                          // controller.calculateDuration();
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 Space.width.v15,
+
                 Expanded(
-                  child: TimePickerWidget(
-                    hint: "Ending Time",
-                    onTimeSelected: (time) {
-                      controller.endTime.value = time;
-                    },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextWidget(
+                        "Ending Time",
+                        maxLines: 2,
+                        textOverflow: TextOverflow.ellipsis,
+                        fontSize: Dimensions.titleMedium * 0.9,
+                        fontWeight: FontWeight.w500,
+                        color: CustomColors.blackColor,
+                      ),
+                      6.verticalSpace,
+                      TimePickerWidget(
+                        hint: "Ending Time",
+                        initialTime: parseTimeOfDay(
+                          controller.isEditMode
+                              ? controller.editingSchedule!.endTime
+                              : null,
+                        ),
+                        onTimeSelected: (time) {
+                          controller.endTime.value = time;
+
+                          // controller.calculateDuration();
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -57,7 +115,8 @@ class CreateScheduleScreenMobile extends GetView<CreateScheduleController> {
                   child: PrimaryInputFieldWidget(
                     controller: controller.durationController,
                     hintText: 'Duration (min)',
-                    label: 'Duration',
+                    label: 'Duration (min)',
+                    keyBoardType: TextInputType.number,
                   ),
                 ),
                 Space.width.v15,
@@ -65,8 +124,7 @@ class CreateScheduleScreenMobile extends GetView<CreateScheduleController> {
                   child: PrimaryInputFieldWidget(
                     controller: controller.feeController,
                     hintText: 'Fee (₦)',
-                    label: 'Fee',
-
+                    label: 'Fee   (Min. ₦50)',
                     keyBoardType: TextInputType.number,
                   ),
                 ),
@@ -76,7 +134,7 @@ class CreateScheduleScreenMobile extends GetView<CreateScheduleController> {
             Obx(
               () => PrimaryButtonWidget(
                 isLoading: controller.isLoading.value,
-                title: 'Continue',
+                title: controller.isEditMode ? 'Save Changes' : 'Continue',
                 onPressed: () => controller.createSchedule(),
               ),
             ),
@@ -84,6 +142,17 @@ class CreateScheduleScreenMobile extends GetView<CreateScheduleController> {
           ],
         ),
       ),
+    );
+  }
+
+  TimeOfDay? parseTimeOfDay(String? time) {
+    if (time == null || time.isEmpty) return null;
+    final parts = time.split(':');
+    if (parts.length < 2) return null;
+
+    return TimeOfDay(
+      hour: int.tryParse(parts[0]) ?? 0,
+      minute: int.tryParse(parts[1]) ?? 0,
     );
   }
 }

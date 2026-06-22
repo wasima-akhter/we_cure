@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Helpers {
@@ -352,5 +353,32 @@ class SafeParser {
     }
 
     return fallback;
+  }
+}
+
+String formatTimeToAmPm(String? time) {
+  if (time == null || time.trim().isEmpty) {
+    return '--:--';
+  }
+
+  try {
+    final parsedTime = DateFormat('HH:mm').parseStrict(time);
+    return DateFormat('hh:mm a').format(parsedTime);
+  } catch (e) {
+    debugPrint('Invalid time format: $time');
+    return '--:--';
+  }
+}
+
+String formatAppointmentDate(DateTime? date) {
+  if (date == null) {
+    return '-- --- ----';
+  }
+
+  try {
+    return DateFormat('dd MMM yyyy').format(date.toLocal());
+  } catch (e) {
+    debugPrint('Invalid date: $date');
+    return '-- --- ----';
   }
 }

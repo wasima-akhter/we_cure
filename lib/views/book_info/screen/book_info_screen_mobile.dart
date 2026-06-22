@@ -13,7 +13,7 @@ class BookInfoScreenMobile extends GetView<BookInfoController> {
           vertical: Dimensions.verticalSize,
         ),
         child: PrimaryButtonWidget(
-          title: 'Book Appointment',
+          title: 'Book Appointment & Pay',
           onPressed: () => controller.bookAppointment(),
         ),
       ),

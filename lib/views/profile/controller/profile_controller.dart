@@ -10,6 +10,7 @@ import '../../../core/utils/basic_import.dart';
 import '../model/user_profile_model.dart';
 
 class ProfileController extends GetxController {
+  static ProfileController get to => Get.find<ProfileController>();
   List<Map<String, dynamic>> profileList = [
     {
       'title': 'Account Settings',

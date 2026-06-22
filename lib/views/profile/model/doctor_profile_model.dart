@@ -152,12 +152,14 @@ class UserId {
   final String name;
   final String? phone;
   final String profileImage;
+  final String? email;
 
   UserId({
     required this.id,
     required this.name,
     this.phone,
     required this.profileImage,
+    this.email,
   });
 
   factory UserId.fromJson(Map<String, dynamic> json) => UserId(
@@ -165,5 +167,6 @@ class UserId {
     name: json["name"],
     phone: json["phone"],
     profileImage: json["profileImage"] ?? '',
+    email: json["email"] ?? '',
   );
 }

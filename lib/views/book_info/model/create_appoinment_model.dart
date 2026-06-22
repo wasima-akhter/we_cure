@@ -15,12 +15,14 @@ class CreateAppoinmentModel {
   final int statusCode;
   final String message;
   final Data data;
+  final PaymentInfo? payment;
 
   CreateAppoinmentModel({
     required this.success,
     required this.statusCode,
     required this.message,
     required this.data,
+    this.payment,
   });
 
   factory CreateAppoinmentModel.fromJson(Map<String, dynamic> json) =>
@@ -29,6 +31,11 @@ class CreateAppoinmentModel {
         statusCode: json["statusCode"],
         message: json["message"],
         data: Data.fromJson(json["data"]),
+        payment:
+            json['payment'] !=
+                null // 👈 parse payment
+            ? PaymentInfo.fromJson(json['payment'])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -37,6 +44,20 @@ class CreateAppoinmentModel {
     "message": message,
     "data": data.toJson(),
   };
+}
+
+class PaymentInfo {
+  final String authorizationUrl;
+  final String reference;
+
+  PaymentInfo({required this.authorizationUrl, required this.reference});
+
+  factory PaymentInfo.fromJson(Map<String, dynamic> json) {
+    return PaymentInfo(
+      authorizationUrl: json['authorization_url'] ?? '',
+      reference: json['reference'] ?? '',
+    );
+  }
 }
 
 class Data {
