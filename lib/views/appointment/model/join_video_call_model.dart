@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 class JoinVideoCallModel {
   final bool success;
   final int statusCode;
@@ -26,10 +28,16 @@ class Data {
   final String token;
 
   Data({required this.appId, required this.channel, required this.token});
+  factory Data.fromJson(Map<String, dynamic> json) {
+    log("Data raw json: $json");
+    log("appId type: ${json["appId"].runtimeType}");
+    log("channel type: ${json["channel"].runtimeType}");
+    log("token type: ${json["token"].runtimeType}");
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-    appId: json["appId"],
-    channel: json["channel"],
-    token: json["token"],
-  );
+    return Data(
+      appId: json["appId"].toString(),
+      channel: json["channel"].toString(),
+      token: json["token"].toString(),
+    );
+  }
 }

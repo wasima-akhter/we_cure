@@ -81,6 +81,7 @@ class AppointmentDetailsController extends GetxController {
       endPoint: ApiEndPoints.userAppointmentDetails,
       isLoading: isLoading,
       id: appointmentId,
+      showResponse: true,
       onSuccess: (result) {
         userAppointmentDetailsModel.value = result;
 

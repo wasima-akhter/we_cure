@@ -628,3 +628,17 @@ void prettyPrintResponse(String body) {
     debugPrint(body); // fallback
   }
 }
+void printPrettyResponse(String body) {
+  try {
+    final decoded = jsonDecode(body);
+    final pretty = const JsonEncoder.withIndent('  ').convert(decoded);
+
+    log('|📤|---------[ RESPONSE BODY ]---------|📤|');
+    log(pretty);
+    log('|📤|----------------------------------|📤|');
+  } catch (e) {
+    log('|📤|---------[ RAW RESPONSE ]---------|📤|');
+    log(body);
+    log('|📤|---------------------------------|📤|');
+  }
+}

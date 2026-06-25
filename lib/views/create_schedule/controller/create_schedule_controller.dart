@@ -75,16 +75,16 @@ class CreateScheduleController extends GetxController {
 
   RxInt calculatedDuration = 0.obs;
 
-  void calculateDuration() {
+  int calculateDuration() {
     final start = startTime.value;
     final end = endTime.value;
 
-    if (start.isEmpty || end.isEmpty) return;
+    if (start.isEmpty || end.isEmpty) return 0;
 
     final startParts = start.split(':');
     final endParts = end.split(':');
 
-    if (startParts.length < 2 || endParts.length < 2) return;
+    if (startParts.length < 2 || endParts.length < 2) return 0;
 
     final startHour = int.tryParse(startParts[0]) ?? 0;
     final startMin = int.tryParse(startParts[1]) ?? 0;
@@ -96,6 +96,8 @@ class CreateScheduleController extends GetxController {
     final endMinutes = endHour * 60 + endMin;
 
     final diff = endMinutes - startMinutes;
+
+    return diff;
 
     // if (diff > 0) {
     //   calculatedDuration.value = diff;
@@ -210,6 +212,10 @@ class CreateScheduleController extends GetxController {
 
     if (duration == null || duration <= 0) {
       return 'Duration must be greater than 0';
+    }
+
+    if (calculateDuration() < duration) {
+      return 'Duration Time range is too small for slot size';
     }
 
     return null;
