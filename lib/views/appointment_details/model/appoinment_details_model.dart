@@ -90,6 +90,7 @@ class Attachment {
 
 class Patient {
   final String id;
+  final String userId;
   final String name;
   final DateTime dateOfBirth;
   final String phone;
@@ -105,6 +106,7 @@ class Patient {
     required this.profileImage,
     required this.bloodGroup,
     required this.allergies,
+    required this.userId,
   });
 
   factory Patient.fromJson(Map<String, dynamic> json) => Patient(
@@ -115,5 +117,6 @@ class Patient {
     profileImage: json["profileImage"],
     bloodGroup: json["bloodGroup"],
     allergies: List<String>.from(json["allergies"].map((x) => x)),
+    userId: json['userId'],
   );
 }

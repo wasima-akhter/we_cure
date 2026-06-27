@@ -21,7 +21,8 @@ class VideoCallScreenMobile extends GetView<VideoCallController> {
               Obx(
                 () => _buildControlButton(
                   icon: controller.isCameraFlipped.value
-                      ? Icons.videocam_off
+                      ? Icons
+                            .videocam_off // shown when "flipped" = actually OFF
                       : Icons.videocam,
                   onTap: controller.toggleCamera,
                   backgroundColor: controller.isCameraFlipped.value
@@ -71,16 +72,34 @@ class VideoCallScreenMobile extends GetView<VideoCallController> {
               () =>
                   controller.isRemoteUserJoined.value &&
                       controller.remoteUid != null
-                  ? AgoraVideoView(
-                      controller: VideoViewController.remote(
-                        rtcEngine: controller.agoraEngine,
-                        canvas: VideoCanvas(uid: controller.remoteUid),
-                        connection: RtcConnection(
-                          channelId: controller.channelName,
+                  ? Stack(
+                      children: [
+                        AgoraVideoView(
+                          controller: VideoViewController.remote(
+                            rtcEngine: controller.agoraEngine,
+                            canvas: VideoCanvas(uid: controller.remoteUid),
+                            connection: RtcConnection(
+                              channelId: controller.channelName,
+                            ),
+                          ),
                         ),
-                      ),
+                        Obx(
+                          () => controller.isRemoteCameraOff.value
+                              ? _buildRemoteCameraOffOverlay()
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
                     )
                   : _buildWaitingState(),
+            ),
+          ), // ── Remote mic-off badge ──────────────────────
+          Positioned(
+            bottom: 160, // ← was 90, which overlapped with local control area
+            left: 16,
+            child: Obx(
+              () => controller.isRemoteMuted.value
+                  ? _buildRemoteMutedBadge()
+                  : const SizedBox.shrink(),
             ),
           ),
 
@@ -94,7 +113,16 @@ class VideoCallScreenMobile extends GetView<VideoCallController> {
                   : SizedBox.shrink(),
             ),
           ),
-
+          // Your own mic badge — shift up when remote is also muted
+          // Obx(() {
+          //   final extraOffset = controller.isRemoteMuted.value ? 36.h : 0.0;
+          //   return Positioned(
+          //     bottom: 90 + extraOffset,
+          //     left: 0,
+          //     right: 0,
+          //     child: _buildLocalPreview(), // existing centered badge
+          //   );
+          // }),
           // ── Call duration timer ───────────────────────────────────────────
           Positioned(
             top: 70,
@@ -205,14 +233,10 @@ class VideoCallScreenMobile extends GetView<VideoCallController> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.mic_off,
-                          color: Colors.redAccent,
-                          size: 14.sp,
-                        ),
+                        Icon(Icons.mic_off, color: Colors.redAccent, size: 14),
                         SizedBox(width: 6.w),
                         Text(
-                          'Your mic is off',
+                          'Your mic is off', // LOCAL — you muted yourself
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12.sp,
@@ -226,7 +250,6 @@ class VideoCallScreenMobile extends GetView<VideoCallController> {
               return SizedBox.shrink();
             }),
           ),
-
           // ── Camera off overlay on local pip ──────────────────────────────
           Positioned(
             top: 60,
@@ -251,7 +274,7 @@ class VideoCallScreenMobile extends GetView<VideoCallController> {
                       ),
                       SizedBox(height: 6.h),
                       Text(
-                        'Camera off',
+                        'Camera off', // LOCAL — you turned your own camera off
                         style: TextStyle(
                           color: Colors.white54,
                           fontSize: 10.sp,
@@ -264,7 +287,6 @@ class VideoCallScreenMobile extends GetView<VideoCallController> {
               return SizedBox.shrink();
             }),
           ),
-
           // ── Remote user left banner ───────────────────────────────────────
           Positioned(
             top: 160,
@@ -295,6 +317,49 @@ class VideoCallScreenMobile extends GetView<VideoCallController> {
               }
               return SizedBox.shrink();
             }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Remote camera-off full-screen overlay ──────────────────────────────
+  Widget _buildRemoteCameraOffOverlay() {
+    return Positioned.fill(
+      child: Container(
+        color: Colors.black87,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.videocam_off, color: Colors.white54, size: 52.sp),
+            SizedBox(height: 12.h),
+            Text(
+              "Peer's camera is off", // REMOTE — peer turned their camera off
+              style: TextStyle(color: Colors.white54, fontSize: 15.sp),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Remote user mic-off badge (bottom-left) ───────────────────────────
+  Widget _buildRemoteMutedBadge() {
+    return Container(
+      margin: EdgeInsets.only(left: 16.w, bottom: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.55),
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.mic_off, color: Colors.orangeAccent, size: 13.sp),
+          SizedBox(width: 5.w),
+          Text(
+            "Peer's mic is off", // REMOTE — peer muted themselves
+            style: TextStyle(color: Colors.white, fontSize: 11.sp),
           ),
         ],
       ),

@@ -39,12 +39,26 @@ class InboxController extends GetxController {
   int limit = 10;
   int skip = 0;
 
+  String _conversationId = '';
   @override
   void onInit() {
     super.onInit();
+    _conversationId = args.conversationId; // may be empty
     scrollController.addListener(_onScroll);
+
+    //
+    // ✅ Fetch old messages immediately — no socket dependency
+    if (_conversationId.isNotEmpty) {
+      getOldMessages();
+    } else {
+      // New conversation — nothing to load, just stop loading spinner
+      isLoading.value = false;
+    }
+    //
     _initSocket();
   }
+
+  // Add this field
 
   void _onScroll() {
     if (scrollController.position.pixels >=
@@ -80,11 +94,6 @@ class InboxController extends GetxController {
       log("✅ connection_confirmed: $data");
       myId = data['data']?['userId']?.toString() ?? '';
       log("✅ myId set: $myId");
-
-      // ✅ myId set হওয়ার পরে old messages load
-      if (args.conversationId.isNotEmpty) {
-        getOldMessages();
-      }
     });
 
     socket.on('message_new', (data) {
@@ -159,13 +168,11 @@ class InboxController extends GetxController {
       "sender": {"id": myId, "role": AppStorage.isUser},
       "receiver": {"id": args.receiverId, "role": args.receiverRole},
       "text": textController.text.trim(),
+
+      // ✅ include conversationId only if it exists
+      if (_conversationId.isNotEmpty) "conversationId": _conversationId,
     };
 
-    log(
-      "receiver:  args.receiverId : ${args.receiverId},  args.receiverRole : ${args.receiverRole}},",
-    );
-
-    log("📤 Emitting: $body");
     socket.emit('send_message', body);
     textController.clear();
   }

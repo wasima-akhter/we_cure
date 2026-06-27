@@ -14,11 +14,13 @@ class InboxArgsModel {
     required this.name,
     required this.isOnline,
   });
+  // in InboxArgsModel
+  bool get isNewConversation => conversationId.isEmpty;
 
   factory InboxArgsModel.fromMap(Map<String, dynamic>? arg) {
     arg ??= {};
     return InboxArgsModel(
-      conversationId: arg['conversationId'] ?? '0',
+      conversationId: arg['conversationId'] ?? '',
       receiverId: arg['receiverId'] ?? '',
       receiverRole: arg['receiverRole'] ?? '', // ✅ added
       avatar: arg['avatar'] ?? '',

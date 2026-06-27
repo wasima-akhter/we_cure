@@ -1,8 +1,10 @@
-import 'package:glady/core/api/services/api_request.dart';
-import '../../../core/utils/basic_import.dart';
 import 'dart:async';
+
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:glady/core/api/services/api_request.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../../../core/utils/basic_import.dart';
 import '../../appointment/model/join_video_call_model.dart';
 
 class VideoCallController extends GetxController {
@@ -19,17 +21,38 @@ class VideoCallController extends GetxController {
   final RxBool isLocalUserJoined = false.obs;
   final RxBool isRemoteUserJoined = false.obs;
 
+  final RxBool isRemoteCameraOff = false.obs;
+  final RxBool isRemoteMuted = false.obs;
+
   int? localUid;
   int? remoteUid;
 
   Timer? _durationTimer;
   int _seconds = 0;
 
+  //
+
+  String? appointmentId;
+  String? userId;
   @override
   void onInit() {
     super.onInit();
-    final appointmentId = Get.arguments as String;
-    _loadAndInitialize(appointmentId);
+
+    final args = Get.arguments;
+
+    if (args is String) {
+      appointmentId = args;
+    } else if (args is Map) {
+      appointmentId = args['appointmentId']?.toString();
+      userId = args['userId']?.toString();
+    }
+
+    if (appointmentId == null || appointmentId!.isEmpty) {
+      Get.snackbar('Error', 'Appointment ID is missing');
+      return;
+    }
+
+    _loadAndInitialize(appointmentId!);
   }
 
   @override
@@ -86,29 +109,140 @@ class VideoCallController extends GetxController {
     agoraEngine.registerEventHandler(
       RtcEngineEventHandler(
         onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-          print('Local user joined: ${connection.localUid}');
+          print('=== onJoinChannelSuccess ===');
+          print('Local UID: ${connection.localUid}');
+          print('Elapsed: $elapsed');
+
           localUid = connection.localUid;
           isLocalUserJoined.value = true;
           isConnected.value = true;
           _startDurationTimer();
         },
+
         onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-          print('Remote user joined: $remoteUid');
+          print('=== onUserJoined ===');
+          print('Remote UID: $remoteUid');
+          print('Elapsed: $elapsed');
+
           this.remoteUid = remoteUid;
           isRemoteUserJoined.value = true;
+          isRemoteCameraOff.value = false;
         },
+
+        onFirstRemoteVideoDecoded:
+            (
+              RtcConnection connection,
+              int uid,
+              int width,
+              int height,
+              int elapsed,
+            ) {
+              print('=== onFirstRemoteVideoDecoded ===');
+              print('UID: $uid');
+              print('Resolution: ${width}x$height');
+              print('Elapsed: $elapsed');
+
+              remoteUid = uid;
+              isRemoteUserJoined.value = true;
+              isRemoteCameraOff.value = false;
+            },
+
+        onUserMuteVideo: (RtcConnection connection, int uid, bool muted) {
+          print('=== onUserMuteVideo ===');
+          print('UID: $uid');
+          print('Muted: $muted');
+
+          isRemoteCameraOff.value = muted;
+        },
+
         onUserOffline:
             (
               RtcConnection connection,
               int remoteUid,
               UserOfflineReasonType reason,
             ) {
-              print('Remote user left: $remoteUid');
+              print('=== onUserOffline ===');
+              print('Remote UID: $remoteUid');
+              print('Reason: $reason');
+
               this.remoteUid = null;
               isRemoteUserJoined.value = false;
+              isRemoteCameraOff.value = false;
+              isRemoteMuted.value = false;
             },
+        onRemoteVideoStateChanged: (connection, uid, state, reason, elapsed) {
+          print('Video state: $state, reason: $reason');
+
+          switch (state) {
+            case RemoteVideoState.remoteVideoStateStarting:
+            case RemoteVideoState.remoteVideoStateDecoding:
+            case RemoteVideoState.remoteVideoStateFrozen:
+              isRemoteCameraOff.value = false;
+              break;
+
+            case RemoteVideoState.remoteVideoStateStopped:
+              isRemoteCameraOff.value = true;
+              break;
+
+            case RemoteVideoState.remoteVideoStateFailed:
+              isRemoteCameraOff.value = true;
+              break;
+          }
+        },
+
+        // onRemoteVideoStateChanged:
+        //     (
+        //       RtcConnection connection,
+        //       int uid,
+        //       RemoteVideoState state,
+        //       RemoteVideoStateReason reason,
+        //       int elapsed,
+        //     ) {
+        //       print('=== onRemoteVideoStateChanged ===');
+        //       print('UID: $uid');
+        //       print('State: $state');
+        //       print('Reason: $reason');
+        //       print('Elapsed: $elapsed');
+
+        //       if (reason ==
+        //           RemoteVideoStateReason.remoteVideoStateReasonRemoteMuted) {
+        //         isRemoteCameraOff.value = true;
+        //         print('Remote camera OFF');
+        //       } else if (reason ==
+        //           RemoteVideoStateReason.remoteVideoStateReasonRemoteUnmuted) {
+        //         isRemoteCameraOff.value = false;
+        //         print('Remote camera ON');
+        //       }
+        //     },
+        onRemoteAudioStateChanged:
+            (
+              RtcConnection connection,
+              int uid,
+              RemoteAudioState state,
+              RemoteAudioStateReason reason,
+              int elapsed,
+            ) {
+              print('=== onRemoteAudioStateChanged ===');
+              print('UID: $uid');
+              print('State: $state');
+              print('Reason: $reason');
+              print('Elapsed: $elapsed');
+
+              if (reason ==
+                  RemoteAudioStateReason.remoteAudioReasonRemoteMuted) {
+                isRemoteMuted.value = true;
+                print('Remote microphone MUTED');
+              } else if (reason ==
+                  RemoteAudioStateReason.remoteAudioReasonRemoteUnmuted) {
+                isRemoteMuted.value = false;
+                print('Remote microphone UNMUTED');
+              }
+            },
+
         onError: (ErrorCodeType err, String msg) {
-          print('Agora Error: $err - $msg');
+          print('=== Agora Error ===');
+          print('Code: $err');
+          print('Message: $msg');
         },
       ),
     );

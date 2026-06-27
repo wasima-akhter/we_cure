@@ -1,3 +1,7 @@
+import 'package:glady/views/appointment/controller/appointment_controller.dart';
+import 'package:glady/views/navigation/controller/navigation_controller.dart';
+
+import '../utils/app_storage.dart';
 import '../utils/basic_import.dart';
 
 class ConfirmationWidget extends StatelessWidget {
@@ -60,7 +64,18 @@ class ConfirmationWidget extends StatelessWidget {
               vertical: Dimensions.verticalSize,
             ),
             title: "Okay",
-            onPressed: onTap ?? () => Get.offAllNamed(Routes.navigationScreen),
+            onPressed:
+                onTap ??
+                () {
+                  Get.offAllNamed(Routes.navigationScreen);
+                  NavigationController.to.selectedIndex.value = 2;
+
+                  if (Get.isRegistered<AppointmentController>()) {
+                    if (AppStorage.isUser == 'USER') {
+                      AppointmentController.to.fetchUserAppointments();
+                    }
+                  }
+                },
           ),
         ],
       ),

@@ -106,34 +106,13 @@ class AppointmentDetailsScreenMobile
                       Expanded(
                         child: PrimaryButtonWidget(
                           title: 'Chat',
-                          onPressed: currentStatus == 'CANCELLED'
-                              ? () {}
-                              : () {
-                                  // Get.offAllNamed(
-                                  //   Routes.navigationScreen,
-                                  //   arguments: 3,
-                                  // );
-
-                                  // Replace both chat button onPressed blocks (user side & doctor side) with this:
-
-                                  // If NavigationScreen is already in the stack, just switch tab
-                                  if (Get.isRegistered<
-                                    NavigationController
-                                  >()) {
-                                    Get.back(); // or pop until navigation screen if needed
-                                    Get.find<NavigationController>()
-                                        .navigateToTab(3);
-                                  } else {
-                                    Get.offAllNamed(
-                                      Routes.navigationScreen,
-                                      arguments: 3,
-                                    );
-                                  }
-                                },
+                          disable: currentStatus == 'CANCELLED',
                           buttonColor: currentStatus == 'CANCELLED'
                               ? CustomColors.disableColor
                               : CustomColors.primary,
-                          disable: currentStatus == 'CANCELLED',
+                          onPressed: currentStatus == 'CANCELLED'
+                              ? () {}
+                              : () => controller.openChatAsDoctor(), // ✅ clean
                         ),
                       ),
                     ],
@@ -144,7 +123,7 @@ class AppointmentDetailsScreenMobile
           ),
         );
       }),
-      appBar: CommonAppBar(title: "Details"),
+      appBar: CommonAppBar(title: "appointment Details"),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value) {
@@ -472,6 +451,8 @@ class AppointmentDetailsScreenMobile
                   return;
                 }
 
+                debugPrint(' to inbox screen ');
+
                 Get.toNamed(
                   Routes.inboxScreen,
                   arguments: {
@@ -480,6 +461,7 @@ class AppointmentDetailsScreenMobile
                     'receiverRole': chatDetails.recipient.role.toUpperCase(),
                     'avatar': chatDetails.recipient.image,
                     'name': chatDetails.recipient.name,
+                    'isOnline': false, // ✅ add this — API doesn't return it
                   },
                 );
               },

@@ -1,6 +1,7 @@
 import 'package:glady/core/widgets/empty_data_widget.dart';
 import 'package:glady/views/inbox/widget/text_buble.dart';
 import 'package:shimmer/shimmer.dart';
+
 import '../../../core/helpers/helpers.dart';
 import '../../../core/utils/basic_import.dart';
 import '../../../core/widgets/profile_avater_widget.dart';
@@ -16,127 +17,138 @@ class MessageBodyWidget extends GetView<InboxController> {
     final width = MediaQuery.of(context).size.width;
 
     return Expanded(
-      child: Obx(() {
-        if (controller.isLoading.value) return const InboxShimmerWidget();
-        if (!controller.isLoading.value && controller.messagesList.isEmpty) {
-          return EmptyDataWidget();
-        }
+      child: RefreshIndicator(
+        onRefresh: () => controller.getOldMessages(),
+        color: CustomColors.primary,
+        child: Obx(() {
+          if (controller.isLoading.value) return const InboxShimmerWidget();
+          if (!controller.isLoading.value && controller.messagesList.isEmpty) {
+            return ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: const [
+                SizedBox(height: 150),
+                Center(child: EmptyDataWidget()),
+              ],
+            );
+          }
 
-        return Stack(
-          children: [
-            ListView.builder(
-              controller: controller.scrollController,
-              reverse: true,
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.symmetric(
-                horizontal: Dimensions.horizontalSize * 0.5,
-                vertical: Dimensions.verticalSize * 0.3,
-              ),
-              itemCount: controller.messagesList.length + 1, // ✅ +1 for loader
-              itemBuilder: (context, index) {
-                // ✅ সবার উপরে pagination loader
-                if (index == controller.messagesList.length) {
-                  return Obx(
-                    () => controller.isPaginationLoading.value
-                        ? Padding(
-                            padding: EdgeInsets.symmetric(vertical: 12.h),
-                            child: Center(
-                              child: SizedBox(
-                                width: 24.w,
-                                height: 24.h,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.w,
-                                  color: CustomColors.primary,
+          return Stack(
+            children: [
+              ListView.builder(
+                controller: controller.scrollController,
+                reverse: true,
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(
+                  horizontal: Dimensions.horizontalSize * 0.5,
+                  vertical: Dimensions.verticalSize * 0.3,
+                ),
+                itemCount:
+                    controller.messagesList.length + 1, // ✅ +1 for loader
+                itemBuilder: (context, index) {
+                  // ✅ সবার উপরে pagination loader
+                  if (index == controller.messagesList.length) {
+                    return Obx(
+                      () => controller.isPaginationLoading.value
+                          ? Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12.h),
+                              child: Center(
+                                child: SizedBox(
+                                  width: 24.w,
+                                  height: 24.h,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.w,
+                                    color: CustomColors.primary,
+                                  ),
                                 ),
                               ),
+                            )
+                          : const SizedBox.shrink(),
+                    );
+                  }
+
+                  final msg = controller
+                      .messagesList[controller.messagesList.length - 1 - index];
+                  final MessageType messageType = msg.type;
+                  final bool isUploading = msg.isUploading ?? false;
+
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: 8.h),
+                    child: Row(
+                      mainAxisAlignment: msg.isMe
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        if (!msg.isMe)
+                          Padding(
+                            padding: EdgeInsets.only(right: 8.0.w),
+                            child: ProfileAvatarWidget(
+                              size: 40.r,
+                              imageUrl: controller.args.avatar,
                             ),
-                          )
-                        : const SizedBox.shrink(),
-                  );
-                }
-
-                final msg = controller
-                    .messagesList[controller.messagesList.length - 1 - index];
-                final MessageType messageType = msg.type;
-                final bool isUploading = msg.isUploading ?? false;
-
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 8.h),
-                  child: Row(
-                    mainAxisAlignment: msg.isMe
-                        ? MainAxisAlignment.end
-                        : MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      if (!msg.isMe)
-                        Padding(
-                          padding: EdgeInsets.only(right: 8.0.w),
-                          child: ProfileAvatarWidget(
-                            size: 40.r,
-                            imageUrl: controller.args.avatar,
+                          ),
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: msg.isMe
+                                ? CrossAxisAlignment.end
+                                : CrossAxisAlignment.start,
+                            children: [
+                              if (messageType == MessageType.image &&
+                                  msg.images != null &&
+                                  msg.images!.isNotEmpty)
+                                ImageViewGridWidget.imageViewGrid(
+                                  images: msg.images!,
+                                  width: width,
+                                  isUploading: isUploading,
+                                  isMe: msg.isMe,
+                                ),
+                              if (messageType == MessageType.image &&
+                                  msg.images != null &&
+                                  msg.message.isNotEmpty)
+                                Space.height.v5,
+                              if (msg.message.isNotEmpty)
+                                TextBubbleWidget(index: index),
+                              Space.height.v5,
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    TextWidget(
+                                      Helpers.formatTimestamp(
+                                        msg.createdAt.toIso8601String(),
+                                      ), // ✅ DateFormat → Helpers
+                                      color: Colors.grey[500],
+                                      fontSize: 11.sp,
+                                    ),
+                                    if (msg.isMe)
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 4.w),
+                                        child: Icon(
+                                          msg.isSeen
+                                              ? Icons.done_all
+                                              : Icons.done_all,
+                                          size: 14.sp,
+                                          color: msg.isSeen
+                                              ? Colors.blue[600]
+                                              : Colors.blue[600],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: msg.isMe
-                              ? CrossAxisAlignment.end
-                              : CrossAxisAlignment.start,
-                          children: [
-                            if (messageType == MessageType.image &&
-                                msg.images != null &&
-                                msg.images!.isNotEmpty)
-                              ImageViewGridWidget.imageViewGrid(
-                                images: msg.images!,
-                                width: width,
-                                isUploading: isUploading,
-                                isMe: msg.isMe,
-                              ),
-                            if (messageType == MessageType.image &&
-                                msg.images != null &&
-                                msg.message.isNotEmpty)
-                              Space.height.v5,
-                            if (msg.message.isNotEmpty)
-                              TextBubbleWidget(index: index),
-                            Space.height.v5,
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.w),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  TextWidget(
-                                    Helpers.formatTimestamp(
-                                      msg.createdAt.toIso8601String(),
-                                    ), // ✅ DateFormat → Helpers
-                                    color: Colors.grey[500],
-                                    fontSize: 11.sp,
-                                  ),
-                                  if (msg.isMe)
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 4.w),
-                                      child: Icon(
-                                        msg.isSeen
-                                            ? Icons.done_all
-                                            : Icons.done_all,
-                                        size: 14.sp,
-                                        color: msg.isSeen
-                                            ? Colors.blue[600]
-                                            : Colors.blue[600],
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
-        );
-      }),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        }),
+      ),
     );
   }
 }

@@ -52,6 +52,7 @@ class NavigationController extends GetxController {
 }
 */
 class NavigationController extends GetxController {
+  static NavigationController get to => Get.find<NavigationController>();
   RxInt selectedIndex = 0.obs;
   late List<Widget> bodyScreen;
 

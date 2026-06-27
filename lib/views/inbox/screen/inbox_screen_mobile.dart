@@ -43,7 +43,7 @@ class InboxScreenMobile extends GetView<InboxController> {
               Get.back(); // or pop until navigation screen if needed
               Get.find<NavigationController>().navigateToTab(3);
               if (Get.isRegistered<ChatController>()) {
-                ChatController.to.getAllUserChatPerson();
+                // ChatController.to.getAllUserChatPerson();
               }
             } else {
               Get.back();

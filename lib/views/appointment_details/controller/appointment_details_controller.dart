@@ -124,6 +124,31 @@ class AppointmentDetailsController extends GetxController {
     );
   }
 
+  // From DoctorProfileController or wherever you trigger chat
+  // In AppointmentDetailsController
+
+  void openChatAsDoctor() {
+    final data = doctorAppointmentDetailsModel.value?.data;
+    if (data == null) {
+      CustomSnackBar.error('Appointment details not loaded yet.');
+      return;
+    }
+
+    final patient = data.patient;
+
+    Get.toNamed(
+      Routes.inboxScreen,
+      arguments: {
+        'conversationId': '', // new or let backend handle
+        'receiverId': patient.id, // patient's userId
+        'receiverRole': 'USER',
+        'avatar': patient.profileImage,
+        'name': patient.name,
+        'isOnline': false,
+      },
+    );
+  }
+
   //{{baseUrl}}/api/chat/messages-by-user/696472aa51ce4bd422d0e5e9?appointmentId=6a31fe95016d4b96fde5a5d2
 
   RxBool isDeleting = false.obs;
