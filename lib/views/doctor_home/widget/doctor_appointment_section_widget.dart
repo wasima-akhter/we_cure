@@ -55,7 +55,7 @@ class DoctorAppointmentSectionWidget extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.swap_calls_sharp, 
+                        Icons.swap_calls_sharp,
                         color: CustomColors.grayShade.withValues(alpha: 0.5),
                       ),
                       TextWidget(
@@ -219,7 +219,9 @@ class DoctorAppointmentSectionWidget extends StatelessWidget {
                             ),
                             SizedBox(height: 2.h),
                             TextWidget(
-                              formattedNextSchedule,
+                              formattedNextSchedule.isEmpty
+                                  ? 'N/A'
+                                  : formattedNextSchedule,
                               fontWeight: FontWeight.w500,
                             ),
                           ],

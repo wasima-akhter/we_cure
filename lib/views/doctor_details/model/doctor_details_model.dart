@@ -328,6 +328,7 @@ class Service {
 
 */
 import '../../../core/helpers/helpers.dart';
+import '../../../core/helpers/safe_parser_helper.dart';
 
 class DoctorDetailsInfoModel {
   final bool success;
@@ -341,13 +342,18 @@ class DoctorDetailsInfoModel {
     required this.message,
     required this.data,
   });
-  factory DoctorDetailsInfoModel.fromJson(Map<String, dynamic>? json) =>
-      DoctorDetailsInfoModel(
-        success: JsonHelper.getBool(json?['success']),
-        statusCode: JsonHelper.getInt(json?['statusCode']),
-        message: JsonHelper.getString(json?['message']),
-        data: Data.fromJson(JsonHelper.getMap(json?['data'])),
-      );
+  factory DoctorDetailsInfoModel.fromJson(Map<String, dynamic>? json) {
+    final map = json ?? <String, dynamic>{};
+
+    return DoctorDetailsInfoModel(
+      success: SafeParser.boolVal(map['success']),
+      statusCode: SafeParser.intVal(map['statusCode']),
+      message: SafeParser.str(map['message']),
+      data:
+          SafeParser.object<Data>(map['data'], (e) => Data.fromJson(e)) ??
+          Data.fallback(),
+    );
+  }
 }
 
 class Data {
@@ -370,23 +376,36 @@ class Data {
   factory Data.fromJson(Map<String, dynamic>? json) => Data(
     doctor: Doctor.fromJson(JsonHelper.getMap(json?['doctor'])),
 
-    services: JsonHelper.getList(
-      json?['services'],
-    ).map((e) => Service.fromJson(JsonHelper.getMap(e))).toList(),
-
-    experiences: JsonHelper.getList(
-      json?['experiences'],
-    ).map((e) => Experience.fromJson(JsonHelper.getMap(e))).toList(),
-
     rating: Rating.fromJson(JsonHelper.getMap(json?['rating'])),
 
-    reviews: JsonHelper.getList(
-      json?['reviews'],
-    ).map((e) => Review.fromJson(JsonHelper.getMap(e))).toList(),
+    services: SafeParser.list<Service>(
+      json?['services'],
+      (e) => Service.fromJson(e),
+    ),
 
-    availability: JsonHelper.getList(
+    experiences: SafeParser.list<Experience>(
+      json?['experiences'],
+      (e) => Experience.fromJson(e),
+    ),
+
+    reviews: SafeParser.list<Review>(
+      json?['reviews'],
+      (e) => Review.fromJson(e),
+    ),
+
+    availability: SafeParser.list<Availability>(
       json?['availability'],
-    ).map((e) => Availability.fromJson(JsonHelper.getMap(e))).toList(),
+      (e) => Availability.fromJson(e),
+    ),
+  );
+
+  static Data fallback() => Data(
+    doctor: Doctor.fallback(),
+    services: const [],
+    experiences: const [],
+    rating: Rating.fallback(),
+    reviews: const [],
+    availability: const [],
   );
 }
 
@@ -429,6 +448,19 @@ class Availability {
     slotSizeMinutes: JsonHelper.getInt(json?['slotSizeMinutes']),
     startTime: JsonHelper.getString(json?['startTime']),
     updatedAt: JsonHelper.getDateTime(json?['updatedAt']),
+  );
+  static Availability fallback() => Availability(
+    id: '',
+    dayOfWeek: '',
+    doctorId: '',
+    v: 0,
+    createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+    endTime: '',
+    fee: 0,
+    isActive: false,
+    slotSizeMinutes: 0,
+    startTime: '',
+    updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
   );
 }
 
@@ -489,7 +521,8 @@ class Doctor {
     currentOrganization: JsonHelper.getString(json?['currentOrganization']),
     specialtyId: SpecialtyId.fromJson(JsonHelper.getMap(json?['specialtyId'])),
     about: JsonHelper.getString(json?['about']),
-    consultationFee: json?['consultationFee'],
+    // consultationFee: SafeParser.intVal(map['consultationFee']),
+    consultationFee: SafeParser.nullableDouble(json?['consultationFee']),
     verificationStatus: JsonHelper.getString(json?['verificationStatus']),
     isVerified: JsonHelper.getBool(json?['isVerified']),
     createdAt: JsonHelper.getDateTime(json?['createdAt']),
@@ -513,6 +546,32 @@ class Doctor {
     experienceYears: JsonHelper.getInt(json?['experienceYears']),
     totalExperienceYears: JsonHelper.getInt(json?['totalExperienceYears']),
   );
+
+  static Doctor fallback() => Doctor(
+    id: '',
+    userId: UserId.fallback(),
+    currentOrganization: '',
+    specialtyId: SpecialtyId.fallback(),
+    about: '',
+    consultationFee: 0,
+    verificationStatus: '',
+    isVerified: false,
+    createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+    updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    v: 0,
+    verificationNote: '',
+    accountName: 'N/A',
+    accountNumber: 'N/A',
+    bankName: 'N/A',
+    paystackRecipientCode: 'N/A',
+    pendingPayouts: 0,
+    recipientCreatedAt: null,
+    totalEarnings: 0,
+    totalPayouts: 0,
+    dateOfBirth: '',
+    experienceYears: 0,
+    totalExperienceYears: 0,
+  );
 }
 
 class SpecialtyId {
@@ -524,6 +583,8 @@ class SpecialtyId {
     id: JsonHelper.getString(json?['_id']),
     name: JsonHelper.getString(json?['name']),
   );
+
+  static SpecialtyId fallback() => SpecialtyId(id: '', name: '');
 }
 
 class UserId {
@@ -541,10 +602,13 @@ class UserId {
 
   factory UserId.fromJson(Map<String, dynamic>? json) => UserId(
     id: JsonHelper.getString(json?['_id']),
-    email: json?['email']?.toString(),
+    email: SafeParser.nullableString(json?['email']),
     name: JsonHelper.getString(json?['name']),
     profileImage: JsonHelper.getString(json?['profileImage']),
   );
+
+  static UserId fallback() =>
+      UserId(id: '', email: null, name: '', profileImage: '');
 }
 
 class Experience {
@@ -584,6 +648,19 @@ class Experience {
     updatedAt: JsonHelper.getDateTime(json?['updatedAt']),
     v: JsonHelper.getInt(json?['__v']),
   );
+
+  static Experience fallback() => Experience(
+    id: '',
+    doctorId: '',
+    organizationName: '',
+    designation: '',
+    startDate: DateTime.fromMillisecondsSinceEpoch(0),
+    endDate: DateTime.fromMillisecondsSinceEpoch(0),
+    isCurrent: false,
+    createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+    updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    v: 0,
+  );
 }
 
 class Rating {
@@ -604,6 +681,9 @@ class Rating {
           )
         : {},
   );
+
+  static Rating fallback() =>
+      Rating(average: 0.0, total: 0, breakdown: const {});
 }
 
 class Review {
@@ -640,6 +720,18 @@ class Review {
     updatedAt: JsonHelper.getDateTime(json?['updatedAt']),
     v: JsonHelper.getInt(json?['__v']),
   );
+
+  static Review fallback() => Review(
+    id: '',
+    appointmentId: '',
+    userId: UserId.fallback(),
+    doctorId: '',
+    rating: 0,
+    reviewText: '',
+    createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+    updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    v: 0,
+  );
 }
 
 class Service {
@@ -666,5 +758,14 @@ class Service {
     createdAt: JsonHelper.getDateTime(json?['createdAt']),
     updatedAt: JsonHelper.getDateTime(json?['updatedAt']),
     v: JsonHelper.getInt(json?['__v']),
+  );
+
+  static Service fallback() => Service(
+    id: '',
+    doctorId: '',
+    name: '',
+    createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+    updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    v: 0,
   );
 }

@@ -1,4 +1,5 @@
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
+import 'package:glady/core/widgets/loading_widget.dart';
 
 import '../utils/basic_import.dart';
 
@@ -16,37 +17,35 @@ class AppRefreshIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomMaterialIndicator(
       onRefresh: onRefresh,
+
       indicatorBuilder: (context, controller) {
-        return SizedBox(
-          height: 80,
-          child: Center(
-            child: AnimatedScale(
-              duration: const Duration(milliseconds: 150),
-              scale: controller.isLoading
-                  ? 1
-                  : (0.5 + (controller.value * 0.5)),
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: CustomColors.primary,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: CustomColors.primary.withOpacity(0.2),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
+        return Container(
+          padding: EdgeInsets.all(8.0),
+          child: const Center(child: LoadingWidget()),
+          //   Center(
+          //     child: AnimatedScale(
+          //       duration: const Duration(milliseconds: 150),
+          //       scale: controller.isLoading
+          //           ? 1
+          //           : (0.5 + (controller.value * 0.5)),
+          //       child: const Center(child: LoadingWidget()),
+          //       // Container(
+          //       //   width: 44,
+          //       //   height: 44,
+          //       //   decoration: BoxDecoration(
+          //       //     // color: CustomColors.primary,
+          //       //     shape: BoxShape.circle,
+          //       //     // boxShadow: [
+          //       //     //   BoxShadow(
+          //       //     //     color: CustomColors.primary.withOpacity(0.2),
+          //       //     //     blurRadius: 8,
+          //       //     //   ),
+          //       //     // ],
+          //       //   ),
+          //       //   child: const Center(child: LoadingWidget()),
+          //       // ),
+          //     ),
+          //   ),
         );
       },
       child: child,

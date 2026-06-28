@@ -26,11 +26,16 @@ class ChatController extends GetxController {
     searchFocusNode.unfocus();
     searchFocusNode.dispose();
     searchController.dispose();
+
+    // ✅ clear search state
+    searchQuery.value = '';
+    filteredList.clear();
+
     super.onClose();
   }
 
   void onSearchChanged(String query) {
-    searchFocusNode.unfocus();
+    // searchFocusNode.unfocus();
     searchQuery.value = query;
     final allData = chatPersonListModel?.data ?? [];
     if (query.trim().isEmpty) {

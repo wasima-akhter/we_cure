@@ -1,6 +1,6 @@
-import '../../../core/utils/basic_import.dart';
-
 import 'dart:io';
+
+import '../../../core/utils/basic_import.dart';
 
 class SingleImageWidget {
   static Widget buildSingleImage(

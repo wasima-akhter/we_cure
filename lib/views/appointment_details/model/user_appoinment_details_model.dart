@@ -163,7 +163,7 @@ class DoctorInfo {
 }
 */
 
-import '../../../core/helpers/helpers.dart';
+import '../../../core/helpers/safe_parser_helper.dart';
 
 class UserAppointmentDetailsModel {
   const UserAppointmentDetailsModel({

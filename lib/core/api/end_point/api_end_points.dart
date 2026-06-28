@@ -35,7 +35,7 @@ class ApiEndPoints {
   static const String userAppointmentDetails = '/appointments/me';
 
   //New api
-  static const String userAppointedChatDetails = '/chat/messages-by-user';
+  static const String userDoctorAppointedChatDetails = '/chat/messages-by-user';
 
   static const String appointments = '/appointments/me';
   static const String donationPayment = '/payments/donations/initialize';

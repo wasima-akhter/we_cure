@@ -29,6 +29,14 @@ class AppointmentDetailsController extends GetxController {
     // getChattingInfo(appointmentId);
   }
 
+  void refreshData() {
+    if (AppStorage.isUser == 'USER') {
+      fetchUserAppointmentDetails();
+    } else {
+      fetchDoctorAppointmentDetails();
+    }
+  }
+
   @override
   void onClose() {
     reasonController.dispose();
@@ -100,23 +108,22 @@ class AppointmentDetailsController extends GetxController {
   }
 
   RxBool isLoadingChatDetails = false.obs;
-  Rx<UserAppointChatDetailsModel?> userAppointChatDetailsModel =
+  Rx<UserAppointChatDetailsModel?> userDoctorAppointChatDetailsModel =
       Rx<UserAppointChatDetailsModel?>(null);
 
-  Future<void> fetchUserAppointedChatDetails({
-    required String userId,
+  Future<void> fetchUserDoctorAppointedChatDetails({
+    required String targeted_userId,
     required String appointmentId,
   }) async {
     await ApiRequest().get(
       fromJson: UserAppointChatDetailsModel.fromJson,
-      // endPoint: '${ApiEndPoints.userAppointmentDetails}/$userId',
+      // endPoint: '${ApiEndPoints.userAppointmentDetails}/$targeted_userId',
       endPoint:
-          '${ApiEndPoints.userAppointedChatDetails}/696472aa51ce4bd422d0e5e9',
+          '${ApiEndPoints.userDoctorAppointedChatDetails}/$targeted_userId',
       isLoading: isLoadingChatDetails,
       showResponse: true,
-      queryParams: {'appointmentId': '6a31fe95016d4b96fde5a5d2'},
       onSuccess: (result) {
-        userAppointChatDetailsModel.value = result;
+        userDoctorAppointChatDetailsModel.value = result;
         log('conversationId : ${result.conversationId}');
         log('recipient name : ${result.recipient.name}');
         log('total messages : ${result.meta.total}');
@@ -127,7 +134,27 @@ class AppointmentDetailsController extends GetxController {
   // From DoctorProfileController or wherever you trigger chat
   // In AppointmentDetailsController
 
-  void openChatAsDoctor() {
+  void openChatAsDoctor() async {
+    final patientDetails = doctorAppointmentDetailsModel.value?.data.patient;
+
+    if (patientDetails == null) {
+      CustomSnackBar.error('Appointment details not loaded yet.');
+      return;
+    }
+
+    // 👇 fetch on button tap, then navigate
+    await fetchUserDoctorAppointedChatDetails(
+      targeted_userId: patientDetails.userId ?? '',
+      appointmentId: appointmentId,
+    );
+
+    final chatDetails = userDoctorAppointChatDetailsModel.value;
+
+    if (chatDetails == null) {
+      CustomSnackBar.error('Could not load chat details.');
+      return;
+    }
+
     final data = doctorAppointmentDetailsModel.value?.data;
     if (data == null) {
       CustomSnackBar.error('Appointment details not loaded yet.');
@@ -139,11 +166,12 @@ class AppointmentDetailsController extends GetxController {
     Get.toNamed(
       Routes.inboxScreen,
       arguments: {
-        'conversationId': '', // new or let backend handle
-        'receiverId': patient.id, // patient's userId
+        'conversationId':
+            chatDetails.conversationId ?? '', // new or let backend handle
+        'receiverId': chatDetails.recipient.id, // patient's userId
         'receiverRole': 'USER',
-        'avatar': patient.profileImage,
-        'name': patient.name,
+        'avatar': chatDetails.recipient.image,
+        'name': chatDetails.recipient.name,
         'isOnline': false,
       },
     );

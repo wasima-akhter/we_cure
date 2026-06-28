@@ -37,7 +37,7 @@ class RoutePageList {
     GetPage(
       name: Routes.chatScreen,
       page: () => const ChatScreen(),
-      binding: ChatBinding(),
+      binding: NavigationBinding(),
     ),
     GetPage(
       name: Routes.request_viewScreen,

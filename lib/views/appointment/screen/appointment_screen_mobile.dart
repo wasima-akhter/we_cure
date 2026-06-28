@@ -24,115 +24,6 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
           }),
         ),
       ),
-
-      /*
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: CustomColors.primary,
-          backgroundColor: CustomColors.whiteColor,
-          onRefresh: () async {
-            if (isUser) {
-              await controller.fetchUserAppointments();
-            } else {
-              await controller.fetchDoctorAppointments();
-            }
-          },
-          child: Obx(() {
-            /// ================= USER =================
-            if (isUser) {
-              if (controller.isUserLoading.value) {
-                return LoadingWidget();
-              }
-              final appointments =
-                  controller.userAppointments.value?.data ?? [];
-              if (appointments.isEmpty) {
-                return _emptyWidget();
-              }
-
-              return ListView.builder(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Dimensions.defaultHorizontalSize,
-                  vertical: Dimensions.verticalSize,
-                ),
-                physics: const BouncingScrollPhysics(),
-                itemCount: appointments.length,
-                itemBuilder: (context, index) {
-                  final appointment = appointments[index];
-
-                  final startTime = formatTimeToAmPm(
-                    appointment.appointmentTime,
-                  );
-
-                  final endTime = formatTimeToAmPm(
-                    appointment.appointmentEndTime,
-                  );
-
-                  return AppointmentCard(
-                    appointmentId: appointment.id,
-                    doctorName: appointment.doctorName,
-                    specialization: appointment.specialtyName,
-                    time: '$startTime - $endTime',
-                    date: DateFormat(
-                      'dd MMM yyyy',
-                    ).format(appointment.appointmentDate.toLocal()),
-                    status: appointment.status.toLowerCase() ?? '',
-                    onPressed: () =>
-                        controller.handleAppointmentAction(appointment),
-                  );
-                },
-              );
-            }
-
-            /// ================= DOCTOR =================
-            if (controller.isDoctorLoading.value) {
-              return LoadingWidget();
-            }
-
-            final appointments =
-                controller.doctorAppointments.value?.data ?? [];
-
-            if (appointments.isEmpty) {
-              return _emptyWidget();
-            }
-
-            return ListView.builder(
-              padding: EdgeInsets.symmetric(
-                horizontal: Dimensions.defaultHorizontalSize,
-                vertical: Dimensions.verticalSize,
-              ),
-              physics: const BouncingScrollPhysics(),
-              itemCount: appointments.length,
-              itemBuilder: (context, index) {
-                final appointment = appointments[index];
-
-                final startTime = DateFormat(
-                  'HH:mm',
-                ).parse(appointment.appointmentTime);
-
-                final endTime = DateFormat(
-                  'HH:mm',
-                ).parse(appointment.appointmentEndTime);
-
-                return AppointmentCard(
-                  appointmentId: appointment.id,
-                  doctorName: appointment.patientName,
-                  specialization: appointment.specialtyName,
-                  time:
-                      '${DateFormat('HH:mm').format(startTime)} - ${DateFormat('HH:mm').format(endTime)}',
-                  date: DateFormat(
-                    'dd MMM yyyy',
-                  ).format(appointment.appointmentDate.toLocal()),
-                  status: appointment.status.toLowerCase() ?? '',
-                  onPressed: () =>
-                      controller.handleAppointmentAction(appointment),
-                );
-              },
-            );
-          }),
-        ),
-      ),
-
-*/
     );
   }
 
@@ -226,9 +117,7 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
           specialization: appointment.specialtyName,
           time:
               '${DateFormat('HH:mm').format(startTime)} - ${DateFormat('HH:mm').format(endTime)}',
-          date: DateFormat(
-            'dd MMM yyyy',
-          ).format(appointment.appointmentDate.toLocal()),
+          date: formatDateDMY(appointment.appointmentDate),
           status: appointment.status.toLowerCase() ?? '',
           onPressed: () => controller.handleAppointmentAction(appointment),
         );

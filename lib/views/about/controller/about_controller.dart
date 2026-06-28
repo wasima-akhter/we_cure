@@ -1,4 +1,5 @@
 import 'package:glady/core/api/model/basic_success_model.dart';
+import 'package:glady/core/utils/app_storage.dart';
 
 import '../../../core/api/end_point/api_end_points.dart';
 import '../../../core/api/services/api_request.dart';
@@ -33,6 +34,13 @@ class AboutController extends GetxController {
       showSuccessSnackBar: true,
       onSuccess: (result) {
         Get.close(1);
+
+        if (Get.isRegistered<ProfileController>()) {
+          if (AppStorage.isUser != "USER")
+            ProfileController.to.getDoctorProfile();
+        }
+
+        _prefillData();
       },
     );
   }

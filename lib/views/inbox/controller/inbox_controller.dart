@@ -7,6 +7,7 @@ import 'package:http/http.dart' hide MultipartFile;
 import 'package:image_picker/image_picker.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+import '../../../core/helpers/helpers.dart';
 import '../../../core/utils/app_storage.dart';
 import '../../../core/utils/basic_import.dart' hide FormData, MultipartFile;
 import '../model/all_conversation_model.dart';
@@ -311,6 +312,8 @@ class InboxController extends GetxController {
     }
   }
 
+  final recipientInfo = Recipient(id: '', image: '', name: '', role: '').obs;
+
   Future<void> getOldMessages({bool isPagination = false}) async {
     if (isPagination && !hasMore) return;
 
@@ -326,16 +329,26 @@ class InboxController extends GetxController {
     log("AppStorage.token: ${AppStorage.token}");
     await ApiRequest().get(
       fromJson: AllConversationModel.fromJson,
+
       endPoint:
           '/chat/messages/${args.conversationId}?page=$currentPage&limit=$limit',
       isLoading: isPagination
           ? isPaginationLoading
           : isLoading, // ✅ আলাদা loading variable
+      showResponse: true,
       onSuccess: (result) {
+        debugPrint(' result.recipient: ${result.recipient?.name} ');
+        recipientInfo.value = result.recipient!;
+
+        debugPrint(' result.recipient image: ${result.recipient?.image} ');
+
+        //
         final newMessages = (result.conversation ?? [])
             .map((conversion) {
+              debugPrint('conversion.sender.id : ${conversion.sender.id} ');
+              debugPrint('conversion myProfileId() : ${myProfileId()} ');
               return ChatMessageModel(
-                isMe: conversion.sender.id == myId,
+                isMe: conversion.sender.id == myProfileId(),
                 type: conversion.images.isNotEmpty
                     ? MessageType.image
                     : MessageType.text,

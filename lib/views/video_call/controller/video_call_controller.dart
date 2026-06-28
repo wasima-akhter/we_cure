@@ -152,7 +152,7 @@ class VideoCallController extends GetxController {
           print('UID: $uid');
           print('Muted: $muted');
 
-          isRemoteCameraOff.value = muted;
+          isRemoteCameraOff.value = !muted;
         },
 
         onUserOffline:
@@ -167,7 +167,7 @@ class VideoCallController extends GetxController {
 
               this.remoteUid = null;
               isRemoteUserJoined.value = false;
-              isRemoteCameraOff.value = false;
+              isRemoteCameraOff.value = true;
               isRemoteMuted.value = false;
             },
         onRemoteVideoStateChanged: (connection, uid, state, reason, elapsed) {
@@ -177,7 +177,7 @@ class VideoCallController extends GetxController {
             case RemoteVideoState.remoteVideoStateStarting:
             case RemoteVideoState.remoteVideoStateDecoding:
             case RemoteVideoState.remoteVideoStateFrozen:
-              isRemoteCameraOff.value = false;
+              isRemoteCameraOff.value = true;
               break;
 
             case RemoteVideoState.remoteVideoStateStopped:
@@ -190,30 +190,6 @@ class VideoCallController extends GetxController {
           }
         },
 
-        // onRemoteVideoStateChanged:
-        //     (
-        //       RtcConnection connection,
-        //       int uid,
-        //       RemoteVideoState state,
-        //       RemoteVideoStateReason reason,
-        //       int elapsed,
-        //     ) {
-        //       print('=== onRemoteVideoStateChanged ===');
-        //       print('UID: $uid');
-        //       print('State: $state');
-        //       print('Reason: $reason');
-        //       print('Elapsed: $elapsed');
-
-        //       if (reason ==
-        //           RemoteVideoStateReason.remoteVideoStateReasonRemoteMuted) {
-        //         isRemoteCameraOff.value = true;
-        //         print('Remote camera OFF');
-        //       } else if (reason ==
-        //           RemoteVideoStateReason.remoteVideoStateReasonRemoteUnmuted) {
-        //         isRemoteCameraOff.value = false;
-        //         print('Remote camera ON');
-        //       }
-        //     },
         onRemoteAudioStateChanged:
             (
               RtcConnection connection,

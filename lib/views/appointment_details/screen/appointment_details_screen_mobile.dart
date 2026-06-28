@@ -103,16 +103,20 @@ class AppointmentDetailsScreenMobile
                       /// ================================
                       /// DOCTOR SIDE - Chat Button
                       /// ================================
-                      Expanded(
-                        child: PrimaryButtonWidget(
-                          title: 'Chat',
-                          disable: currentStatus == 'CANCELLED',
-                          buttonColor: currentStatus == 'CANCELLED'
-                              ? CustomColors.disableColor
-                              : CustomColors.primary,
-                          onPressed: currentStatus == 'CANCELLED'
-                              ? () {}
-                              : () => controller.openChatAsDoctor(), // ✅ clean
+                      Obx(
+                        () => Expanded(
+                          child: PrimaryButtonWidget(
+                            isLoading: controller.isLoadingChatDetails.value,
+                            title: 'Chat',
+                            disable: currentStatus == 'CANCELLED',
+                            buttonColor: currentStatus == 'CANCELLED'
+                                ? CustomColors.disableColor
+                                : CustomColors.primary,
+                            onPressed: currentStatus == 'CANCELLED'
+                                ? () {}
+                                : () =>
+                                      controller.openChatAsDoctor(), // ✅ clean
+                          ),
                         ),
                       ),
                     ],
@@ -123,264 +127,287 @@ class AppointmentDetailsScreenMobile
           ),
         );
       }),
-      appBar: CommonAppBar(title: "appointment Details"),
+      appBar: CommonAppBar(
+        title: "Appointment Details",
+        isBack: true,
+        onTap: () => Get.back(),
+      ),
       body: SafeArea(
-        child: Obx(() {
-          if (controller.isLoading.value) {
-            return LoadingWidget();
-          }
-
-          // USER VIEW
-          if (AppStorage.isUser == 'USER') {
-            final appointmentData =
-                controller.userAppointmentDetailsModel.value;
-            if (appointmentData == null) {
-              return Center(
-                child: TextWidget(
-                  'No data available',
-                  fontSize: Dimensions.titleMedium,
+        child: RefreshIndicator(
+          color: CustomColors.primary,
+          onRefresh: () async => controller.refreshData(),
+          child: Obx(() {
+            if (controller.isLoading.value) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
                 ),
+                children: [LoadingWidget()],
               );
             }
 
-            final doctor = appointmentData.data?.doctorInfo;
-            final data = appointmentData.data;
-
-            debugPrint(' data?.appointmentDate: ${data?.appointmentDate} ');
-            //I/flutter ( 6343):  data?.appointmentDate: 2026-06-21 00:00:00.000Z
-
-            return ListView(
-              padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
-              physics: BouncingScrollPhysics(),
-              children: [
-                Space.height.v15,
-                DoctorDetailsCard(
-                  imageUrl: doctor?.profileImage ?? '',
-                  name: doctor?.name ?? '',
-                  specialty: doctor?.specialty ?? '',
-                  clinicName: doctor?.organization ?? '',
-                  rating: doctor?.rating.toDouble() ?? 0,
-                  yearsOfExperience: doctor?.experienceYears.toInt() ?? 0,
-                  startingPrice: data?.consultationFee.toDouble(),
-                  onTap: () {},
-                ),
-
-                22.verticalSpace,
-                // TextWidget(
-                //   padding: EdgeInsets.symmetric(
-                //     vertical: Dimensions.verticalSize,
-                //   ),
-                //   'Appointment Details',
-                //   fontWeight: FontWeight.bold,
-                //   fontSize: Dimensions.titleMedium,
-                // ),
-                InfoPairRow(
-                  leftTitle: 'Reason',
-                  leftValue: data?.reasonTitle ?? '',
-                  rightTitle: 'Booking Date',
-                  rightValue: formatAppointmentDate(data?.appointmentDate),
-                ),
-                Space.height.v15,
-                TextWidget(
-                  padding: EdgeInsets.only(
-                    top: Dimensions.heightSize,
-                    bottom: Dimensions.heightSize * 0.5,
+            // USER VIEW
+            if (AppStorage.isUser == 'USER') {
+              final appointmentData =
+                  controller.userAppointmentDetailsModel.value;
+              if (appointmentData == null) {
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
                   ),
-                  'Details',
-                  fontSize: Dimensions.titleSmall,
-                  fontWeight: FontWeight.bold,
+                  children: [
+                    Center(
+                      child: TextWidget(
+                        'No data available',
+                        fontSize: Dimensions.titleMedium,
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              final doctor = appointmentData.data?.doctorInfo;
+              final data = appointmentData.data;
+
+              debugPrint(' data?.appointmentDate: ${data?.appointmentDate} ');
+              //I/flutter ( 6343):  data?.appointmentDate: 2026-06-21 00:00:00.000Z
+
+              return ListView(
+                padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
                 ),
-                TextWidget(
-                  textAlign: TextAlign.justify,
-                  fontSize: Dimensions.titleSmall,
-                  fontWeight: FontWeight.w400,
-                  data?.reasonDetails ?? '',
-                ),
-                Space.height.v15,
-                InfoPairRow(
-                  leftTitle: 'Visiting Date',
-                  leftValue:
-                      '${formatAppointmentDate(data?.appointmentDate)}\n'
-                      '${formatTimeToAmPm(data?.appointmentTime)}',
-                  rightTitle: 'Status',
-                  rightValue: data?.status ?? '',
-                ),
-                Space.height.v15,
-                TextWidget("Appointment Fee", fontWeight: FontWeight.w600),
-                TextWidget(
-                  '₦${data?.consultationFee}',
-                  fontWeight: FontWeight.bold,
-                  fontSize: Dimensions.titleLarge - 1,
-                ),
-                Space.height.v15,
-                if ((data?.attachments ?? []).isNotEmpty) ...[
+                children: [
+                  Space.height.v15,
+                  DoctorDetailsCard(
+                    imageUrl: doctor?.profileImage ?? '',
+                    name: doctor?.name ?? '',
+                    specialty: doctor?.specialty ?? '',
+                    clinicName: doctor?.organization ?? '',
+                    rating: doctor?.rating.toDouble() ?? 0,
+                    yearsOfExperience: doctor?.experienceYears.toInt() ?? 0,
+                    startingPrice: data?.consultationFee.toDouble(),
+                    onTap: () {},
+                  ),
+
+                  22.verticalSpace,
+                  // TextWidget(
+                  //   padding: EdgeInsets.symmetric(
+                  //     vertical: Dimensions.verticalSize,
+                  //   ),
+                  //   'Appointment Details',
+                  //   fontWeight: FontWeight.bold,
+                  //   fontSize: Dimensions.titleMedium,
+                  // ),
+                  InfoPairRow(
+                    leftTitle: 'Reason',
+                    leftValue: data?.reasonTitle ?? '',
+                    rightTitle: 'Booking Date',
+                    rightValue: formatAppointmentDate(data?.appointmentDate),
+                  ),
+                  Space.height.v15,
                   TextWidget(
-                    padding: EdgeInsets.only(bottom: Dimensions.heightSize),
-                    "Attachment",
+                    padding: EdgeInsets.only(
+                      top: Dimensions.heightSize,
+                      bottom: Dimensions.heightSize * 0.5,
+                    ),
+                    'Details',
+                    fontSize: Dimensions.titleSmall,
                     fontWeight: FontWeight.bold,
                   ),
-                  Wrap(
-                    spacing: Dimensions.widthSize,
-                    runSpacing: Dimensions.heightSize,
-                    children: List.generate(
-                      (data?.attachments ?? []).length,
-                      (index) => Container(
-                        height: 100.h,
-                        width: 100.w,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: CustomColors.grayShade.withOpacity(0.7),
+                  TextWidget(
+                    textAlign: TextAlign.justify,
+                    fontSize: Dimensions.titleSmall,
+                    fontWeight: FontWeight.w400,
+                    data?.reasonDetails ?? '',
+                  ),
+                  Space.height.v15,
+                  InfoPairRow(
+                    leftTitle: 'Visiting Date',
+                    leftValue:
+                        '${formatAppointmentDate(data?.appointmentDate)}\n'
+                        '${formatTimeToAmPm(data?.appointmentTime)}',
+                    rightTitle: 'Status',
+                    rightValue: data?.status ?? '',
+                  ),
+                  Space.height.v15,
+                  TextWidget("Appointment Fee", fontWeight: FontWeight.w600),
+                  TextWidget(
+                    '₦${data?.consultationFee}',
+                    fontWeight: FontWeight.bold,
+                    fontSize: Dimensions.titleLarge - 1,
+                  ),
+                  Space.height.v15,
+                  if ((data?.attachments ?? []).isNotEmpty) ...[
+                    TextWidget(
+                      padding: EdgeInsets.only(bottom: Dimensions.heightSize),
+                      "Attachment",
+                      fontWeight: FontWeight.bold,
+                    ),
+                    Wrap(
+                      spacing: Dimensions.widthSize,
+                      runSpacing: Dimensions.heightSize,
+                      children: List.generate(
+                        (data?.attachments ?? []).length,
+                        (index) => Container(
+                          height: 100.h,
+                          width: 100.w,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: CustomColors.grayShade.withOpacity(0.7),
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.radius,
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.radius,
-                          ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.radius,
-                          ),
-                          child: CachedNetworkImage(
-                            imageUrl: data?.attachments[index].url ?? '',
-                            fit: BoxFit.cover,
-                            errorWidget: (context, url, error) => Icon(
-                              Icons.image_not_supported,
-                              color: CustomColors.grayShade,
-                              size: Dimensions.iconSizeLarge,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.radius,
+                            ),
+                            child: CachedNetworkImage(
+                              imageUrl: data?.attachments[index].url ?? '',
+                              fit: BoxFit.cover,
+                              errorWidget: (context, url, error) => Icon(
+                                Icons.image_not_supported,
+                                color: CustomColors.grayShade,
+                                size: Dimensions.iconSizeLarge,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
-            );
-          }
-          // DOCTOR VIEW
-          else {
-            final appointmentData =
-                controller.doctorAppointmentDetailsModel.value;
-            if (appointmentData == null) {
-              return Center(
-                child: TextWidget(
-                  'No data available',
-                  fontSize: Dimensions.titleMedium,
-                ),
               );
             }
-
-            final patient = appointmentData.data.patient;
-            final data = appointmentData.data;
-
-            return ListView(
-              padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
-              physics: BouncingScrollPhysics(),
-              children: [
-                Space.height.v15,
-                PatientInfoWidgetWithAsset(
-                  patientImageNetwork: patient.profileImage,
-                  patientName: patient.name,
-                  dateOfBirth: DateFormat(
-                    "dd MMM yyyy",
-                  ).format(patient.dateOfBirth.toLocal()),
-                  phoneNumber: patient.phone,
-                  bloodGroup: patient.bloodGroup,
-                  allergies: patient.allergies.isNotEmpty
-                      ? patient.allergies
-                      : ['None'],
-                ),
-                TextWidget(
-                  padding: EdgeInsets.symmetric(
-                    vertical: Dimensions.verticalSize,
+            // DOCTOR VIEW
+            else {
+              final appointmentData =
+                  controller.doctorAppointmentDetailsModel.value;
+              if (appointmentData == null) {
+                return Center(
+                  child: TextWidget(
+                    'No data available',
+                    fontSize: Dimensions.titleMedium,
                   ),
-                  'Appointment Details',
-                  fontWeight: FontWeight.bold,
-                  fontSize: Dimensions.titleMedium,
+                );
+              }
+
+              final patient = appointmentData.data.patient;
+              final data = appointmentData.data;
+
+              return ListView(
+                padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
                 ),
-                InfoPairRow(
-                  leftTitle: 'Reason',
-                  leftValue: data.reasonTitle,
-                  rightTitle: 'Booking Date',
-                  rightValue: DateFormat(
-                    "dd MMM yyyy",
-                  ).format(data.appointmentDate.toLocal()),
-                ),
-                Space.height.v15,
-                TextWidget(
-                  padding: EdgeInsets.only(
-                    top: Dimensions.heightSize,
-                    bottom: Dimensions.heightSize * 0.5,
+                children: [
+                  Space.height.v15,
+                  PatientInfoWidgetWithAsset(
+                    patientImageNetwork: patient.profileImage,
+                    patientName: patient.name,
+                    dateOfBirth: formatDateDMY(patient.dateOfBirth),
+                    // DateFormat(
+                    //   "dd MMM yyyy",
+                    // ).format(patient.dateOfBirth.toLocal()),
+                    phoneNumber: patient.phone,
+                    bloodGroup: patient.bloodGroup,
+                    allergies: patient.allergies.isNotEmpty
+                        ? patient.allergies
+                        : ['None'],
                   ),
-                  'Details',
-                  fontSize: Dimensions.titleSmall,
-                  fontWeight: FontWeight.bold,
-                ),
-                TextWidget(
-                  textAlign: TextAlign.justify,
-                  fontSize: Dimensions.titleSmall,
-                  fontWeight: FontWeight.w400,
-                  data.reasonDetails,
-                ),
-                Space.height.v15,
-                InfoPairRow(
-                  leftTitle: 'Visiting Date',
-                  leftValue:
-                      '${DateFormat("dd MMM yyyy").format(data.appointmentDate.toLocal())}\n${data.appointmentTime}',
-                  rightTitle: 'Status',
-                  rightValue: data.status,
-                ),
-                Space.height.v15,
-                TextWidget("Appointment Fee", fontWeight: FontWeight.w400),
-                TextWidget(
-                  '₦${data.consultationFee}',
-                  fontWeight: FontWeight.bold,
-                  fontSize: Dimensions.titleLarge,
-                ),
-                Space.height.v15,
-                if (data.attachments.isNotEmpty) ...[
                   TextWidget(
-                    padding: EdgeInsets.only(bottom: Dimensions.heightSize),
-                    "Attachment",
+                    padding: EdgeInsets.symmetric(
+                      vertical: Dimensions.verticalSize,
+                    ),
+                    'Appointment Details',
+                    fontWeight: FontWeight.bold,
+                    fontSize: Dimensions.titleMedium,
+                  ),
+                  InfoPairRow(
+                    leftTitle: 'Reason',
+                    leftValue: data.reasonTitle,
+                    rightTitle: 'Booking Date',
+                    rightValue: formatDateDMY(data.appointmentDate),
+                  ),
+                  Space.height.v15,
+                  TextWidget(
+                    padding: EdgeInsets.only(
+                      top: Dimensions.heightSize,
+                      bottom: Dimensions.heightSize * 0.5,
+                    ),
+                    'Details',
+                    fontSize: Dimensions.titleSmall,
                     fontWeight: FontWeight.bold,
                   ),
-                  Wrap(
-                    spacing: Dimensions.widthSize,
-                    runSpacing: Dimensions.heightSize,
-                    children: List.generate(
-                      data.attachments.length,
-                      (index) => Container(
-                        height: 100.h,
-                        width: 100.w,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: CustomColors.grayShade.withOpacity(0.7),
+                  TextWidget(
+                    textAlign: TextAlign.justify,
+                    fontSize: Dimensions.titleSmall,
+                    fontWeight: FontWeight.w400,
+                    data.reasonDetails,
+                  ),
+                  Space.height.v15,
+                  InfoPairRow(
+                    leftTitle: 'Visiting Date',
+                    leftValue:
+                        '${formatDateDMY(data.appointmentDate)}\n${data.appointmentTime}',
+                    rightTitle: 'Status',
+                    rightValue: data.status,
+                  ),
+                  Space.height.v15,
+                  TextWidget("Appointment Fee", fontWeight: FontWeight.w400),
+                  TextWidget(
+                    '₦${data.consultationFee}',
+                    fontWeight: FontWeight.bold,
+                    fontSize: Dimensions.titleLarge,
+                  ),
+                  Space.height.v15,
+                  if (data.attachments.isNotEmpty) ...[
+                    TextWidget(
+                      padding: EdgeInsets.only(bottom: Dimensions.heightSize),
+                      "Attachment",
+                      fontWeight: FontWeight.bold,
+                    ),
+                    Wrap(
+                      spacing: Dimensions.widthSize,
+                      runSpacing: Dimensions.heightSize,
+                      children: List.generate(
+                        data.attachments.length,
+                        (index) => Container(
+                          height: 100.h,
+                          width: 100.w,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: CustomColors.grayShade.withOpacity(0.7),
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.radius,
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.radius,
-                          ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(
-                            Dimensions.radius,
-                          ),
-                          child: CachedNetworkImage(
-                            imageUrl: data.attachments[index].url,
-                            fit: BoxFit.cover,
-                            errorWidget: (context, url, error) => Icon(
-                              Icons.image_not_supported,
-                              color: CustomColors.grayShade,
-                              size: Dimensions.iconSizeLarge,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.radius,
+                            ),
+                            child: CachedNetworkImage(
+                              imageUrl: data.attachments[index].url,
+                              fit: BoxFit.cover,
+                              errorWidget: (context, url, error) => Icon(
+                                Icons.image_not_supported,
+                                color: CustomColors.grayShade,
+                                size: Dimensions.iconSizeLarge,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
-            );
-          }
-        }),
+              );
+            }
+          }),
+        ),
       ),
     );
   }
@@ -429,22 +456,22 @@ class AppointmentDetailsScreenMobile
         onPressed: isLoadingChat
             ? () {}
             : () async {
-                final userDetails =
+                final doctorDetails =
                     controller.userAppointmentDetailsModel.value;
 
-                if (userDetails == null) {
+                if (doctorDetails == null) {
                   CustomSnackBar.error('Appointment details not loaded yet.');
                   return;
                 }
 
                 // 👇 fetch on button tap, then navigate
-                await controller.fetchUserAppointedChatDetails(
-                  userId: userDetails.data?.doctorInfo?.userId ?? '',
+                await controller.fetchUserDoctorAppointedChatDetails(
+                  targeted_userId: doctorDetails.data?.doctorInfo?.userId ?? '',
                   appointmentId: appointmentId,
                 );
 
                 final chatDetails =
-                    controller.userAppointChatDetailsModel.value;
+                    controller.userDoctorAppointChatDetailsModel.value;
 
                 if (chatDetails == null) {
                   CustomSnackBar.error('Could not load chat details.');

@@ -6,7 +6,7 @@ import 'package:glady/views/profile/model/doctor_profile_model.dart';
 
 import '../../../core/api/services/auth_services.dart';
 import '../../../core/utils/app_storage.dart';
-import '../../../core/utils/basic_import.dart';
+import '../../../core/utils/basic_import.dart' hide Data;
 import '../model/user_profile_model.dart';
 
 class ProfileController extends GetxController {
@@ -75,6 +75,7 @@ class ProfileController extends GetxController {
       fromJson: UserProfileModel.fromJson,
       endPoint: ApiEndPoints.userProfile,
       isLoading: getUserProfileLoading,
+      showResponse: true,
       onSuccess: (result) {
         userProfileModel = result;
 
@@ -83,4 +84,76 @@ class ProfileController extends GetxController {
       },
     );
   }
+
+  //
+  // PLaceholder data
+
+  final UserProfileModel userProfilePlaceholder = UserProfileModel(
+    success: true,
+    statusCode: 200,
+    message: "No user data",
+    data: UserData(
+      id: '',
+      email: '',
+      v: 0,
+      createdAt: DateTime(2000),
+      emailVerificationOtp: null,
+      emailVerificationOtpExpires: null,
+      isEmailVerified: false,
+      name: 'User Name',
+      role: '',
+      status: '',
+      updatedAt: DateTime(2000),
+      refreshToken: '',
+      dateOfBirth: null,
+      phone: '',
+      profileImage: '',
+      passwordResetOtp: null,
+      passwordResetOtpExpires: null,
+      bloodGroup: '',
+      allergies: [],
+      accountName: '',
+      accountNumber: '',
+      bankName: '',
+    ),
+  );
+
+  final DoctorProfileModel doctorProfilePlaceholder = DoctorProfileModel(
+    success: true,
+    statusCode: 200,
+    message: "No doctor data",
+    data: Data(
+      id: '',
+      userId: UserId(
+        id: '',
+        name: 'Doctor Name',
+        phone: '',
+        profileImage: '',
+        email: '',
+      ),
+      currentOrganization: 'Organization Not Available',
+      specialtyId: SpecialtyId(id: '', name: 'Specialty Not Available'),
+      about: '',
+      consultationFee: 0,
+      verificationDocuments: [],
+      verificationStatus: '',
+      isVerified: false,
+      createdAt: DateTime(2000),
+      updatedAt: DateTime(2000),
+      v: 0,
+      verificationNote: '',
+      accountName: '',
+      accountNumber: '',
+      bankName: '',
+      paystackRecipientCode: '',
+      pendingPayouts: 0,
+      recipientCreatedAt: null,
+      totalEarnings: 0,
+      totalPayouts: 0,
+      totalExperienceYears: 0,
+      dateOfBirth: '',
+      services: [],
+      averageRating: 0,
+    ),
+  );
 }

@@ -5,11 +5,13 @@ class TipsCardWidget extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => SizedBox(
+    return Obx(() {
+      final list = controller.wellnessTipsList;
+
+      return SizedBox(
         height: 140.h,
         child: ListView.builder(
-          itemCount: min(controller.wellnessTipsList.length, 10),
+          itemCount: min(list.length, 10),
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
           padding: EdgeInsets.symmetric(
@@ -17,17 +19,17 @@ class TipsCardWidget extends GetView<HomeController> {
           ),
 
           itemBuilder: (context, index) {
-            if (index == controller.wellnessTipsList.length) {
+            if (index == list.length) {
               return PaginationLoaderWidget(
                 index: index,
-                list: controller.wellnessTipsList,
+                list: list,
                 currentPage: controller.tipsCurrentPage,
                 fetchFunction: controller.fetchWellnessTips,
                 padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
               );
             }
 
-            final tip = controller.wellnessTipsList[index];
+            final tip = list[index];
             return Container(
               width: MediaQuery.of(context).size.width * 0.8,
               margin: EdgeInsets.only(right: Dimensions.widthSize),
@@ -81,7 +83,7 @@ class TipsCardWidget extends GetView<HomeController> {
             );
           },
         ),
-      ),
-    );
+      );
+    });
   }
 }

@@ -11,6 +11,7 @@ import '../../../core/utils/basic_import.dart';
 import '../update_profile_helper.dart';
 
 class UpdateProfileController extends GetxController {
+  static UpdateProfileController get to => Get.find();
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final phoneController = TextEditingController();
@@ -40,10 +41,10 @@ class UpdateProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _prefillData();
+    prefillData();
   }
 
-  void _prefillData() {
+  void prefillData() {
     final profileController = Get.find<ProfileController>();
 
     if (AppStorage.isUser == 'USER') {
@@ -62,8 +63,8 @@ class UpdateProfileController extends GetxController {
             ? data.dateOfBirth!.toIso8601String().substring(0, 10)
             : '';
         dobController.text = initialDateOfBirth;
-        if (data.allergies != null && data.allergies!.isNotEmpty) {
-          allergiesList.assignAll(data.allergies!);
+        if (data.allergies.isNotEmpty) {
+          allergiesList.assignAll(data.allergies);
         }
       }
     } else {

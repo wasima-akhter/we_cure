@@ -16,7 +16,7 @@ extension AppointmentSlotExtension on Availability {
     }
   }
 
-  String get formattedPrice => "\$$fee";
+  String get formattedPrice => "₦$fee";
 
   String get formattedDuration => "$slotSizeMinutes Minutes";
 

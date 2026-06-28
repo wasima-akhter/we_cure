@@ -1,6 +1,7 @@
 import 'package:glady/core/widgets/loading_widget.dart';
 import 'package:glady/core/widgets/profile_avater_widget.dart';
 
+import '../../../core/helpers/helpers.dart';
 import '../../../core/utils/basic_import.dart';
 import '../controller/chat_controller.dart';
 
@@ -51,6 +52,9 @@ class ChatScreenMobile extends GetView<ChatController> {
                         controller: controller.searchController,
                         focusNode: controller.searchFocusNode,
                         onChanged: controller.onSearchChanged,
+                        onSubmitted: (_) {
+                          controller.searchFocusNode.unfocus();
+                        },
                         cursorColor: CustomColors.primary,
                         style: TextStyle(fontSize: Dimensions.titleSmall),
                         decoration: InputDecoration(
@@ -122,10 +126,9 @@ class ChatScreenMobile extends GetView<ChatController> {
                               ' item.lastMessage: ${item.lastMessage} ',
                             );
 
-                            final time = _formatTime(
+                            final time = formatToHourMinPeriod(
                               item.lastMessage.createdAt,
                             );
-
                             // print(
                             //   "result.data. user id from User patient POV: ${item.id.toString()}",
                             // );

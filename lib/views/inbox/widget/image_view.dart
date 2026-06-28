@@ -49,6 +49,7 @@ class ImageViewGridWidget {
       return SizedBox(
         width: maxWidth,
         child: Column(
+          spacing: 1,
           children: [
             SingleImageWidget.buildSingleImage(
               images[0],
@@ -89,6 +90,7 @@ class ImageViewGridWidget {
       return SizedBox(
         width: maxWidth,
         child: Column(
+          spacing: 1,
           children: [
             Row(
               children: [
@@ -144,6 +146,7 @@ class ImageViewGridWidget {
       return SizedBox(
         width: maxWidth,
         child: Column(
+          spacing: 1,
           children: [
             Row(
               children: [

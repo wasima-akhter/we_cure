@@ -78,7 +78,7 @@ class PaymentScreenMobile extends GetView<PaymentController> {
               days: doctorController.selectedDate.value,
               time: doctorController.selectedTime.value,
               price: selectedTimeData?.fee != null
-                  ? '\$${selectedTimeData!.fee}'
+                  ? '₦${selectedTimeData!.fee}'
                   : '',
               slot: '',
               duration: selectedTimeData?.duration != null

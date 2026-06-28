@@ -1,9 +1,9 @@
 import 'package:glady/views/experience/controller/experience_controller.dart';
 import 'package:glady/views/experience/model/all_experience_model.dart';
 
-import '../../../core/utils/basic_import.dart';
 import '../../../core/api/end_point/api_end_points.dart';
 import '../../../core/api/services/api_request.dart';
+import '../../../core/utils/basic_import.dart';
 import '../model/add_experience_model.dart';
 
 class AddExperienceController extends GetxController {
@@ -42,6 +42,9 @@ class AddExperienceController extends GetxController {
   }
 
   Future<AddExperienceModel> addExperience() async {
+    if (!validateExperience()) {
+      throw Exception('Validation failed');
+    }
     return ApiRequest().post(
       fromJson: AddExperienceModel.fromJson,
       endPoint: ApiEndPoints.addExperiencesDoctor,
@@ -62,7 +65,92 @@ class AddExperienceController extends GetxController {
     );
   }
 
+  bool validateExperience() {
+    if (organizationController.text.trim().isEmpty) {
+      Get.snackbar(
+        'Validation Error',
+        'Please enter the organization name.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackStyle: SnackStyle.FLOATING,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+
+    if (designationController.text.trim().isEmpty) {
+      Get.snackbar(
+        '',
+        '',
+        titleText: Text('Validation Error', style: CustomStyle.titleSmall),
+        messageText: Text(
+          'Please enter your designation.',
+          style: CustomStyle.bodySmall,
+        ),
+
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackStyle: SnackStyle.FLOATING,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+
+    if (startDate.value == null) {
+      Get.snackbar(
+        'Validation Error',
+        'Please select a start date.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackStyle: SnackStyle.FLOATING,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+
+    if (!isChecked.value && endDate.value == null) {
+      Get.snackbar(
+        'Validation Error',
+        'Please select an end date.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackStyle: SnackStyle.FLOATING,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+
+    if (!isChecked.value && endDate.value!.isBefore(startDate.value!)) {
+      Get.snackbar(
+        'Validation Error',
+        'End date cannot be earlier than the start date.',
+        backgroundColor: Colors.red,
+
+        colorText: Colors.white,
+
+        // '',
+        // '',
+        // titleText: Text('Validation Error', style: CustomStyle.titleSmall),
+        // messageText: Text(
+        //   'Please enter your designation.',
+        //   style: CustomStyle.bodySmall,
+        // ),
+
+        // backgroundColor: Colors.grey.withValues(alpha: 0.5),
+        // colorText: Colors.white,
+        // snackStyle: SnackStyle.FLOATING,
+        // snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+
+    return true;
+  }
+
   Future<AddExperienceModel> updateExperience() async {
+    if (!validateExperience()) {
+      throw Exception();
+    }
     return ApiRequest().patch(
       fromJson: AddExperienceModel.fromJson,
       endPoint: '${ApiEndPoints.addExperiencesDoctor}/${editData!.id}',

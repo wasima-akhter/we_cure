@@ -1,6 +1,6 @@
 import 'package:glady/views/profile/controller/profile_controller.dart';
-import 'package:intl/intl.dart';
 
+import '../../../core/helpers/safe_parser_helper.dart';
 import '../../../core/utils/app_storage.dart';
 import '../../../core/utils/basic_import.dart';
 import '../../../core/widgets/profile_avater_widget.dart';
@@ -62,7 +62,9 @@ class ProfileBoxWidget extends GetView<ProfileController> {
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: Dimensions.widthSize * 0.8,
             children: [
-              TextWidget(controller.userProfileModel?.data.name ?? ""),
+              TextWidget(
+                SafeParser.str(controller.userProfileModel?.data.name),
+              ),
               if ((controller.userProfileModel?.data.bloodGroup ?? '')
                   .isNotEmpty)
                 BloodGroupBox(
@@ -74,11 +76,10 @@ class ProfileBoxWidget extends GetView<ProfileController> {
           Builder(
             builder: (context) {
               final dob = controller.userProfileModel?.data.dateOfBirth;
+
               return TextWidget(
                 dob != null
-                    ? DateFormat(
-                        'dd - MMM - yyyy',
-                      ).format(controller.userProfileModel!.data.dateOfBirth!)
+                    ? SafeParser.formatDate(dob)
                     : 'No Date Of Birth is Available',
                 fontSize: Dimensions.titleSmall,
                 color: Colors.black.withOpacity(0.7),
@@ -115,7 +116,7 @@ class ProfileBoxWidget extends GetView<ProfileController> {
                   spacing: Dimensions.spaceBetweenInputBox * 0.4,
                   runSpacing: Dimensions.spaceBetweenInputBox * 0.4,
                   children: List.generate(
-                    controller.userProfileModel?.data.allergies?.length ?? 0,
+                    controller.userProfileModel?.data.allergies.length ?? 0,
                     (index) => Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: Dimensions.widthSize,
@@ -134,8 +135,7 @@ class ProfileBoxWidget extends GetView<ProfileController> {
                           // right: Dimensions.widthSize * 2,
                           // bottom: Dimensions.heightSize,
                         ),
-                        controller.userProfileModel!.data.allergies?[index]
-                                .toString() ??
+                        controller.userProfileModel?.data.allergies[index] ??
                             '',
                         fontSize: Dimensions.titleSmall,
                         color: CustomColors.grayShade,
@@ -230,8 +230,7 @@ class DoctorProfileBox extends GetView<ProfileController> {
             spacing: Dimensions.widthSize * 0.8,
             children: [
               TextWidget(
-                controller.doctorProfileModel?.data.userId.name ??
-                    "Luna Kellan",
+                controller.doctorProfileModel?.data.userId.name ?? "N/A",
               ),
               //
               if (controller.doctorProfileModel?.data.totalExperienceYears !=
@@ -265,12 +264,14 @@ class DoctorProfileBox extends GetView<ProfileController> {
             controller.doctorProfileModel?.data.specialtyId.name.toString() ??
                 'Specialty',
             fontSize: Dimensions.titleSmall,
+            textAlign: TextAlign.center,
             color: Colors.black.withOpacity(0.7),
           ),
           TextWidget(
             controller.doctorProfileModel?.data.currentOrganization
                     .toString() ??
                 '',
+            textAlign: TextAlign.center,
             fontSize: Dimensions.titleSmall,
             color: Colors.black.withOpacity(0.7),
           ),
@@ -299,44 +300,51 @@ class DoctorProfileBox extends GetView<ProfileController> {
           ),
 
           Space.height.v20,
+
           Column(
             crossAxisAlignment: crossStart,
             children: [
-              TextWidget('Services'),
-              Space.height.v10,
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: List.generate(
-                  controller.doctorProfileModel?.data.services.length ?? 0,
-                  (index) => Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        Dimensions.radius * 5,
-                      ),
-                      border: Border.all(color: CustomColors.primary),
-                    ),
-
-                    child: TextWidget(
-                      // padding: EdgeInsetsGeometry.only(
-                      //   right: Dimensions.widthSize * 2,
-                      //   bottom: Dimensions.heightSize,
-                      // ),
-                      padding: EdgeInsetsGeometry.symmetric(
-                        horizontal: Dimensions.horizontalSize / 2,
-                        vertical: 4,
+              if ((controller.doctorProfileModel?.data.services ?? [])
+                  .isNotEmpty) ...[
+                TextWidget('Services'),
+                Space.height.v10,
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: List.generate(
+                    controller.doctorProfileModel?.data.services.length ?? 0,
+                    (index) => Container(
+                      decoration: BoxDecoration(
+                        color: CustomColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.radius * 2,
+                        ),
+                        border: Border.all(
+                          color: CustomColors.primary.withOpacity(0.3),
+                        ),
                       ),
 
-                      controller.doctorProfileModel?.data.services[index].name
-                              .toString() ??
-                          '',
-                      fontSize: Dimensions.titleSmall,
-                      color: CustomColors.grayShade,
+                      child: TextWidget(
+                        // padding: EdgeInsetsGeometry.only(
+                        //   right: Dimensions.widthSize * 2,
+                        //   bottom: Dimensions.heightSize,
+                        // ),
+                        padding: EdgeInsetsGeometry.symmetric(
+                          horizontal: Dimensions.horizontalSize / 2,
+                          vertical: 2,
+                        ),
+
+                        controller.doctorProfileModel?.data.services[index].name
+                                .toString() ??
+                            '',
+                        fontSize: Dimensions.titleSmall,
+                        color: CustomColors.grayShade,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Space.height.v20,
+                Space.height.v20,
+              ],
               Row(
                 mainAxisAlignment: mainSpaceBet,
                 children: [

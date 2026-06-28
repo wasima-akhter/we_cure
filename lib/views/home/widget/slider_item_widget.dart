@@ -31,7 +31,20 @@ class SliderItemWidget extends GetView<HomeController> {
                     textOverflow: TextOverflow.ellipsis,
                   ),
 
-                  Image.asset(Assets.dummy.sh.path, height: 125.h),
+                  Image.asset(
+                    Assets.dummy.sh.path,
+                    height: 125.h,
+                    errorBuilder: (context, error, stackTrace) {
+                      return SizedBox(
+                        height: 125.h,
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
+                          size: 40.sp,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),

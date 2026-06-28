@@ -14,7 +14,7 @@ class DoctorDetailsController extends GetxController {
     super.onInit();
     doctorId = Get.arguments as String;
     getDoctorDetailsInfo(doctorId ?? '');
-    fetchAllDate();
+    // fetchAllDate();
   }
 
   // Booking Dialog
@@ -78,6 +78,7 @@ class DoctorDetailsController extends GetxController {
       fromJson: DoctorDetailsInfoModel.fromJson,
       endPoint: '/doctors/$doctorId/public',
       isLoading: isLoading,
+      showResponse: true,
       onSuccess: (result) {
         doctorDetailsInfoModel = result;
         // doctorDetailsInfoModel = doctorDetailsInfoModelEmpty;
@@ -89,12 +90,15 @@ class DoctorDetailsController extends GetxController {
   AllDateModel? allDateModel;
 
   Future<void> fetchAllDate() async {
+    debugPrint('isLoading = ${isLoading.value}');
+    debugPrint('isLoadingDate = ${isLoadingDate.value}');
     try {
       await ApiRequest().get(
         fromJson: AllDateModel.fromJson,
         endPoint: ApiEndPoints.availableDates,
         queryParams: {'doctorId': doctorId},
         isLoading: isLoadingDate,
+        showResponse: true,
         onSuccess: (result) {
           allDateModel = result;
           datesDayList.clear();
@@ -139,7 +143,9 @@ class DoctorDetailsController extends GetxController {
       datesDayList.clear();
 
       // reload APIs together
-      await Future.wait([getDoctorDetailsInfo(doctorId ?? ''), fetchAllDate()]);
+      await Future.wait([
+        getDoctorDetailsInfo(doctorId ?? ''), //fetchAllDate()
+      ]);
     } catch (e) {
       debugPrint("Doctor refresh error: $e");
     }

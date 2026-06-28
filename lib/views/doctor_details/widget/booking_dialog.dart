@@ -111,15 +111,33 @@ class BookingDialog extends GetView<DoctorDetailsController> {
                           itemCount: controller.datesDayList.length,
                           itemBuilder: (context, index) {
                             final dateItem = controller.datesDayList[index];
+                            // final label =
+                            //     '${dateItem.day.substring(0, 3).toUpperCase()} ${dateItem.date?.day} ${_monthName(dateItem.date?.month ?? 0)}';
+
                             final label =
-                                '${dateItem.day.substring(0, 3).toUpperCase()} ${dateItem.date.day} ${_monthName(dateItem.date.month)}';
+                                '${dateItem.day.substring(0, 3).toUpperCase()} '
+                                '${dateItem.date?.day} '
+                                '${_monthName(dateItem.date?.month ?? 0)}';
                             return InkWell(
+                              // onTap: () {
+                              //   controller.selectedDateIndex.value = index;
+                              //   controller.selectedDate.value = dateItem.date
+                              //       .toIso8601String()
+                              //       .split('T')[0];
+                              //   controller.showTimeSlots.value = true;
+                              //   controller.fetchAllTimes(
+                              //     controller.selectedDate.value,
+                              //   );
+                              // },
                               onTap: () {
                                 controller.selectedDateIndex.value = index;
-                                controller.selectedDate.value = dateItem.date
-                                    .toIso8601String()
-                                    .split('T')[0];
+
+                                final date = dateItem.date;
+                                controller.selectedDate.value =
+                                    date?.toIso8601String().split('T')[0] ?? '';
+
                                 controller.showTimeSlots.value = true;
+
                                 controller.fetchAllTimes(
                                   controller.selectedDate.value,
                                 );

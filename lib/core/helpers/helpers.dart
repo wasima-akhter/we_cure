@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:glady/core/utils/app_storage.dart';
+import 'package:glady/views/profile/controller/profile_controller.dart';
 import 'package:intl/intl.dart';
 
 class Helpers {
@@ -143,219 +146,6 @@ String timeAgo(DateTime date) {
   return '$years year${years > 1 ? 's' : ''} ago';
 }
 
-class SafeParser {
-  const SafeParser._();
-
-  // ---------- String ----------
-
-  static String str(dynamic value, [String fallback = '']) {
-    if (value == null) return fallback;
-
-    final result = value.toString().trim();
-
-    if (result.isEmpty || result.toLowerCase() == 'null') {
-      return fallback;
-    }
-
-    return result;
-  }
-
-  static String id(dynamic value) {
-    return str(value);
-  }
-
-  static String? nullableString(dynamic value) {
-    final result = str(value);
-
-    return result.isEmpty ? null : result;
-  }
-
-  // ---------- Numbers ----------
-
-  static int intVal(dynamic value, [int fallback = 0]) {
-    if (value == null) return fallback;
-
-    if (value is int) return value;
-
-    if (value is num) return value.toInt();
-
-    return int.tryParse(value.toString()) ?? fallback;
-  }
-
-  static int? nullableInt(dynamic value) {
-    if (value == null) return null;
-
-    final strValue = value.toString().trim();
-
-    if (strValue.isEmpty || strValue.toLowerCase() == 'null') {
-      return null;
-    }
-
-    if (value is num) {
-      return value.toInt();
-    }
-
-    return int.tryParse(strValue);
-  }
-
-  static double dbl(dynamic value, [double fallback = 0.0]) {
-    if (value == null) return fallback;
-
-    if (value is num) return value.toDouble();
-
-    return double.tryParse(value.toString()) ?? fallback;
-  }
-
-  static double? nullableDouble(dynamic value) {
-    if (value == null) return null;
-
-    final strValue = value.toString().trim();
-
-    if (strValue.isEmpty || strValue.toLowerCase() == 'null') {
-      return null;
-    }
-
-    if (value is num) {
-      return value.toDouble();
-    }
-
-    return double.tryParse(strValue);
-  }
-
-  // ---------- Bool ----------
-
-  static bool boolVal(dynamic value, [bool fallback = false]) {
-    if (value == null) return fallback;
-
-    if (value is bool) return value;
-
-    if (value is num) {
-      return value == 1;
-    }
-
-    switch (value.toString().toLowerCase().trim()) {
-      case 'true':
-      case '1':
-      case 'yes':
-      case 'y':
-        return true;
-
-      case 'false':
-      case '0':
-      case 'no':
-      case 'n':
-        return false;
-
-      default:
-        return fallback;
-    }
-  }
-
-  // ---------- Date ----------
-
-  static DateTime? date(dynamic value) {
-    if (value == null) return null;
-
-    final strValue = value.toString().trim();
-
-    if (strValue.isEmpty || strValue.toLowerCase() == 'null') {
-      return null;
-    }
-
-    return DateTime.tryParse(strValue);
-  }
-
-  // ---------- Map ----------
-
-  static Map<String, dynamic>? map(dynamic value) {
-    if (value is Map<String, dynamic>) {
-      return value;
-    }
-
-    if (value is Map) {
-      try {
-        return Map<String, dynamic>.from(value);
-      } catch (_) {
-        return null;
-      }
-    }
-
-    return null;
-  }
-
-  // ---------- Objects ----------
-
-  static T? object<T>(
-    dynamic value,
-    T Function(Map<String, dynamic>) fromJson,
-  ) {
-    final mapValue = map(value);
-
-    if (mapValue == null) return null;
-
-    try {
-      return fromJson(mapValue);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  // ---------- Lists ----------
-
-  static List<T> list<T>(
-    dynamic value,
-    T Function(Map<String, dynamic>) fromJson,
-  ) {
-    if (value is! List) return const [];
-
-    return value
-        .whereType<Map>()
-        .map((e) => fromJson(Map<String, dynamic>.from(e)))
-        .toList();
-  }
-
-  static List<String> stringList(dynamic value) {
-    if (value is! List) return const [];
-
-    return value.where((e) => e != null).map((e) => e.toString()).toList();
-  }
-
-  static List<int> intList(dynamic value) {
-    if (value is! List) return const [];
-
-    return value.map((e) => nullableInt(e)).whereType<int>().toList();
-  }
-
-  static List<double> doubleList(dynamic value) {
-    if (value is! List) return const [];
-
-    return value.map((e) => nullableDouble(e)).whereType<double>().toList();
-  }
-
-  static List<Map<String, dynamic>> mapList(dynamic value) {
-    if (value is! List) return const [];
-
-    return value
-        .whereType<Map>()
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList();
-  }
-
-  // ---------- Enum ----------
-
-  static T enumValue<T>(dynamic value, List<T> values, {required T fallback}) {
-    final strValue = value?.toString().toLowerCase();
-
-    for (final item in values) {
-      if (item.toString().split('.').last.toLowerCase() == strValue) {
-        return item;
-      }
-    }
-
-    return fallback;
-  }
-}
-
 String formatTimeToAmPm(String? time) {
   if (time == null || time.trim().isEmpty) {
     return '--:--';
@@ -381,4 +171,92 @@ String formatAppointmentDate(DateTime? date) {
     debugPrint('Invalid date: $date');
     return '-- --- ----';
   }
+}
+
+//
+String formatToHourMinPeriod(DateTime? value) {
+  final date = value;
+  if (date == null) return '';
+
+  final hour = date.hour;
+  final minute = date.minute.toString().padLeft(2, '0');
+  final period = hour >= 12 ? 'PM' : 'AM';
+  final displayHour = hour % 12 == 0 ? 12 : hour % 12;
+
+  return '$displayHour:$minute $period';
+}
+
+//
+String formatMonthYear(dynamic value, {String outputFormat = "MMM yyyy"}) {
+  if (value == null) return '';
+
+  final str = value.toString().trim();
+  if (str.isEmpty || str.toLowerCase() == 'null') return '';
+
+  DateTime? date = DateTime.tryParse(str);
+
+  if (date == null) {
+    final formats = [
+      DateFormat("dd MMM yyyy"),
+      DateFormat("dd-MM-yyyy"),
+      DateFormat("dd/MM/yyyy"),
+      DateFormat("MMM yyyy"),
+      DateFormat("MM/yyyy"),
+    ];
+
+    for (final f in formats) {
+      try {
+        date = f.parseStrict(str);
+        break;
+      } catch (_) {}
+    }
+  }
+
+  if (date == null) return '';
+
+  return DateFormat(outputFormat).format(date.toLocal());
+}
+
+String formatDateDMY(dynamic value, {String outputFormat = "dd MMM yyyy"}) {
+  if (value == null) return '';
+
+  final str = value.toString().trim();
+  if (str.isEmpty || str.toLowerCase() == 'null') return '';
+
+  DateTime? date;
+
+  // 1. Try ISO parsing first
+  date = DateTime.tryParse(str);
+
+  // 2. Try common fallback formats if ISO fails
+  if (date == null) {
+    final formats = [
+      DateFormat("dd MMM yyyy"),
+      DateFormat("dd-MM-yyyy"),
+      DateFormat("dd/MM/yyyy"),
+    ];
+
+    for (final f in formats) {
+      try {
+        date = f.parseStrict(str);
+        break;
+      } catch (_) {}
+    }
+  }
+
+  if (date == null) return '';
+
+  return DateFormat(outputFormat).format(date.toLocal());
+}
+
+String myProfileId() {
+  if (Get.isRegistered<ProfileController>()) {
+    if (AppStorage.isUser == 'USER') {
+      return ProfileController.to.userProfileModel?.data.id ?? '';
+    } else {
+      return ProfileController.to.doctorProfileModel?.data.id ?? '';
+    }
+  }
+
+  return '';
 }

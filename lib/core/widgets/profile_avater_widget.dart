@@ -49,6 +49,7 @@ class ProfileAvatarWidget extends StatelessWidget {
             Container(
               width: size.w,
               height: size.w,
+
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -82,7 +83,7 @@ class ProfileAvatarWidget extends StatelessWidget {
         ),
         child: FittedBox(
           fit: BoxFit.scaleDown,
-          child: Icon(Icons.person, color: Colors.white),
+          child: Icon(Icons.person, size: size.w / 2, color: Colors.white),
         ),
       );
     }

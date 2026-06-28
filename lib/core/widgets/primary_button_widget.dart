@@ -56,97 +56,97 @@ class PrimaryButtonWidget extends StatelessWidget {
             width: double.infinity,
             child: outlineButton
                 ? OutlinedButton(
-              onPressed: disable
-                  ? null
-                  : () {
-                isPadding.value = true;
-                Future.delayed(
-                  const Duration(milliseconds: 220),
-                      () {
-                    isPadding.value = false;
-                  },
-                );
-                onPressed();
-              },
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(
-                  width: borderWidth,
-                  color: disable
-                      ? CustomColors.disableColor
-                      : borderColor ?? CustomColors.primary,
-                ),
-                shape:
-                shape ??
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        Dimensions.radius * 0.8,
+                    onPressed: disable
+                        ? null
+                        : () {
+                            isPadding.value = true;
+                            Future.delayed(
+                              const Duration(milliseconds: 220),
+                              () {
+                                isPadding.value = false;
+                              },
+                            );
+                            onPressed();
+                          },
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        width: borderWidth,
+                        color: disable
+                            ? CustomColors.disableColor
+                            : borderColor ?? CustomColors.primary,
                       ),
+                      shape:
+                          shape ??
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.radius * 0.8,
+                            ),
+                          ),
+                      backgroundColor: Colors.transparent,
                     ),
-                backgroundColor: Colors.transparent,
-              ),
-              child: TextWidget(
-                title,
-                fontSize: isPadded
-                    ? (fontSize ?? Dimensions.titleMedium)
-                    : fontSize ?? Dimensions.titleMedium * 1.1,
-                fontWeight: fontWeight ?? FontWeight.w700,
-                color: primary
-                    ? CustomColors.primary
-                    : buttonTextColor ?? CustomColors.primary,
-                maxLines: 1,
-                textOverflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
-            )
+                    child: TextWidget(
+                      title,
+                      fontSize: isPadded
+                          ? (fontSize ?? Dimensions.titleMedium)
+                          : fontSize ?? Dimensions.titleMedium * 1.1,
+                      fontWeight: fontWeight ?? FontWeight.w700,
+                      color: primary
+                          ? CustomColors.primary
+                          : buttonTextColor ?? CustomColors.primary,
+                      maxLines: 1,
+                      textOverflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  )
                 : ElevatedButton(
-              onPressed: disable
-                  ? null
-                  : () {
-                isPadding.value = true;
-                Future.delayed(
-                  const Duration(milliseconds: 220),
-                      () {
-                    isPadding.value = false;
-                  },
-                );
-                onPressed();
-              },
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor:
-                (disable ? CustomColors.disableColor : buttonColor) ??
-                    CustomColors.primary,
-                shape:
-                shape ??
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        Dimensions.radius * 0.8,
+                    onPressed: disable
+                        ? null
+                        : () {
+                            isPadding.value = true;
+                            Future.delayed(
+                              const Duration(milliseconds: 220),
+                              () {
+                                isPadding.value = false;
+                              },
+                            );
+                            onPressed();
+                          },
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      backgroundColor:
+                          (disable ? CustomColors.disableColor : buttonColor) ??
+                          CustomColors.primary,
+                      shape:
+                          shape ??
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.radius * 0.8,
+                            ),
+                          ),
+                      side: BorderSide(
+                        width: borderWidth,
+                        color: disable
+                            ? CustomColors.disableColor
+                            : borderColor ?? CustomColors.primary,
                       ),
                     ),
-                side: BorderSide(
-                  width: borderWidth,
-                  color: disable
-                      ? CustomColors.disableColor
-                      : borderColor ?? CustomColors.primary,
-                ),
-              ),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 350),
-                child: TextWidget(
-                  title,
-                  fontSize: isPadded
-                      ? (fontSize ?? Dimensions.titleMedium)
-                      : fontSize ?? Dimensions.titleMedium * 1.1,
-                  fontWeight: fontWeight ?? FontWeight.w700,
-                  color: primary
-                      ? CustomColors.primary
-                      : buttonTextColor ?? Colors.white,
-                  maxLines: 1,
-                  textOverflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 350),
+                      child: TextWidget(
+                        title,
+                        fontSize: isPadded
+                            ? (fontSize ?? Dimensions.titleMedium)
+                            : fontSize ?? Dimensions.titleMedium * 1.1,
+                        fontWeight: fontWeight ?? FontWeight.w700,
+                        color: primary
+                            ? CustomColors.primary
+                            : buttonTextColor ?? Colors.white,
+                        maxLines: 1,
+                        textOverflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
           ),
         );
       },

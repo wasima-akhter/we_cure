@@ -9,13 +9,27 @@ class DoctorDetailsScreenMobile extends GetView<DoctorDetailsController> {
       bottomNavigationBar: Obx(
         () => controller.isLoading.value
             ? SizedBox.shrink()
+            : controller.isLoadingDate.value
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimensions.defaultHorizontalSize,
+                      vertical: Dimensions.verticalSize,
+                    ),
+                    child: LoadingWidget(),
+                  ),
+                ],
+              )
             : PrimaryButtonWidget(
                 padding: EdgeInsets.symmetric(
                   horizontal: Dimensions.defaultHorizontalSize,
                   vertical: Dimensions.verticalSize,
                 ),
                 title: "Book Appointment",
-                onPressed: () {
+                onPressed: () async {
+                  await controller.fetchAllDate();
                   Get.dialog(const BookingDialog(), barrierDismissible: true);
                 },
               ),

@@ -84,7 +84,7 @@ class MessageBodyWidget extends GetView<InboxController> {
                             padding: EdgeInsets.only(right: 8.0.w),
                             child: ProfileAvatarWidget(
                               size: 40.r,
-                              imageUrl: controller.args.avatar,
+                              imageUrl: controller.recipientInfo.value.image,
                             ),
                           ),
                         Flexible(
@@ -94,16 +94,14 @@ class MessageBodyWidget extends GetView<InboxController> {
                                 : CrossAxisAlignment.start,
                             children: [
                               if (messageType == MessageType.image &&
-                                  msg.images != null &&
-                                  msg.images!.isNotEmpty)
+                                  msg.images.isNotEmpty)
                                 ImageViewGridWidget.imageViewGrid(
-                                  images: msg.images!,
+                                  images: msg.images,
                                   width: width,
                                   isUploading: isUploading,
                                   isMe: msg.isMe,
                                 ),
                               if (messageType == MessageType.image &&
-                                  msg.images != null &&
                                   msg.message.isNotEmpty)
                                 Space.height.v5,
                               if (msg.message.isNotEmpty)
@@ -116,7 +114,7 @@ class MessageBodyWidget extends GetView<InboxController> {
                                   children: [
                                     TextWidget(
                                       Helpers.formatTimestamp(
-                                        msg.createdAt.toIso8601String(),
+                                        msg.createdAt.toString(),
                                       ), // ✅ DateFormat → Helpers
                                       color: Colors.grey[500],
                                       fontSize: 11.sp,
@@ -126,12 +124,12 @@ class MessageBodyWidget extends GetView<InboxController> {
                                         padding: EdgeInsets.only(left: 4.w),
                                         child: Icon(
                                           msg.isSeen
-                                              ? Icons.done_all
+                                              ? Icons.abc
                                               : Icons.done_all,
-                                          size: 14.sp,
+                                          size: 14.w,
                                           color: msg.isSeen
                                               ? Colors.blue[600]
-                                              : Colors.blue[600],
+                                              : Colors.grey[400],
                                         ),
                                       ),
                                   ],

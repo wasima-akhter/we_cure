@@ -47,7 +47,7 @@ class AddExperienceScreenMobile extends GetView<AddExperienceController> {
                   Space.width.v10,
                   Obx(
                     () => Container(
-                      height: 18.h,
+                      height: 18.w,
                       width: 18.w,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(

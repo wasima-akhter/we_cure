@@ -1,5 +1,6 @@
-import '../utils/basic_import.dart';
 import 'package:intl/intl.dart';
+
+import '../utils/basic_import.dart';
 
 class DatePickerWidget extends StatefulWidget {
   final String hint;
@@ -44,8 +45,8 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(

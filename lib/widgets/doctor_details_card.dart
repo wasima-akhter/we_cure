@@ -154,7 +154,7 @@ class DoctorDetailsCard extends StatelessWidget {
                               fontWeight: FontWeight.w400,
                             ),
                             TextWidget(
-                              '\$${startingPrice ?? startingPrice?.toStringAsFixed(0)}',
+                              '₦${startingPrice ?? startingPrice?.toStringAsFixed(0)}',
                               fontSize: Dimensions.titleMedium,
                               fontWeight: FontWeight.w700,
                               color: CustomColors.primary,
