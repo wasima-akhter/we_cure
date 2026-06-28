@@ -7,8 +7,11 @@ class SplashScreenMobile extends GetView<SplashController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CustomColors.logoColor,
-      body: Center(
-        child: Image.asset(Assets.dummy.logoPng.path, fit: BoxFit.cover),
+      body: Padding(
+        padding: EdgeInsets.only(bottom: Get.mediaQuery.viewPadding.bottom),
+        child: Center(
+          child: Image.asset(Assets.dummy.logoPng.path, fit: BoxFit.cover),
+        ),
       ),
     );
   }

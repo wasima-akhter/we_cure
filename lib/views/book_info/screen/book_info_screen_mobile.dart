@@ -8,13 +8,16 @@ class BookInfoScreenMobile extends GetView<BookInfoController> {
     return Scaffold(
       appBar: CommonAppBar(title: "Information"),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: Dimensions.defaultHorizontalSize,
-          vertical: Dimensions.verticalSize,
-        ),
-        child: PrimaryButtonWidget(
-          title: 'Book Appointment & Pay',
-          onPressed: () => controller.bookAppointment(),
+        padding: EdgeInsets.only(bottom: Get.mediaQuery.viewPadding.bottom),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: Dimensions.defaultHorizontalSize,
+            vertical: Dimensions.verticalSize,
+          ),
+          child: PrimaryButtonWidget(
+            title: 'Book Appointment & Pay',
+            onPressed: () => controller.bookAppointment(),
+          ),
         ),
       ),
       body: SafeArea(

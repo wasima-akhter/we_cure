@@ -103,20 +103,15 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
       itemBuilder: (context, index) {
         final appointment = appointments[index];
 
-        final startTime = DateFormat(
-          'HH:mm',
-        ).parse(appointment.appointmentTime);
+        final startTime = formatTimeToAmPm(appointment.appointmentTime);
 
-        final endTime = DateFormat(
-          'HH:mm',
-        ).parse(appointment.appointmentEndTime);
+        final endTime = formatTimeToAmPm(appointment.appointmentEndTime);
 
         return AppointmentCard(
           appointmentId: appointment.id,
           doctorName: appointment.patientName,
           specialization: appointment.specialtyName,
-          time:
-              '${DateFormat('HH:mm').format(startTime)} - ${DateFormat('HH:mm').format(endTime)}',
+          time: '$startTime - $endTime',
           date: formatDateDMY(appointment.appointmentDate),
           status: appointment.status.toLowerCase() ?? '',
           onPressed: () => controller.handleAppointmentAction(appointment),

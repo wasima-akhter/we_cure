@@ -8,21 +8,24 @@ class TermsScreenMobile extends GetView<TermsController> {
     return Scaffold(
       appBar: CommonAppBar(title: "Terms"),
       body: SafeArea(
-        child: Obx(
-          () => controller.isLoading.value
-              ? LoadingWidget()
-              : controller.termsDescription.isEmpty
-              ? EmptyDataWidget()
-              : ListView(
-                  padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
-                  children: [
-                    TextWidget(
-                      controller.termsDescription,
-                      fontSize: Dimensions.titleSmall,
-                      color: CustomColors.grayShade,
-                    ),
-                  ],
-                ),
+        child: Container(
+          // padding: EdgeInsets.only(bottom: Get.mediaQuery.viewPadding.bottom),
+          child: Obx(
+            () => controller.isLoading.value
+                ? LoadingWidget()
+                : controller.termsDescription.isEmpty
+                ? EmptyDataWidget()
+                : ListView(
+                    padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
+                    children: [
+                      TextWidget(
+                        controller.termsDescription,
+                        fontSize: Dimensions.titleSmall,
+                        color: CustomColors.grayShade,
+                      ),
+                    ],
+                  ),
+          ),
         ),
       ),
     );

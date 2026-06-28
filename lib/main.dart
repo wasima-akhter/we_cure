@@ -1,3 +1,4 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:glady/views/splash/controller/splash_controller.dart';
 
@@ -35,7 +36,12 @@ void main() async {
     }
     lastStatus = isConnected;
   });
-  runApp(MyApp(hasInternet: hasInternet));
+  runApp(
+    DevicePreview(
+      enabled: false, // set false in release
+      builder: (context) => MyApp(hasInternet: hasInternet),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

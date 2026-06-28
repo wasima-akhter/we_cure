@@ -6,33 +6,36 @@ class DoctorDetailsScreenMobile extends GetView<DoctorDetailsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: Obx(
-        () => controller.isLoading.value
-            ? SizedBox.shrink()
-            : controller.isLoadingDate.value
-            ? Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Dimensions.defaultHorizontalSize,
-                      vertical: Dimensions.verticalSize,
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: Get.mediaQuery.viewPadding.bottom),
+        child: Obx(
+          () => controller.isLoading.value
+              ? SizedBox.shrink()
+              : controller.isLoadingDate.value
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Dimensions.defaultHorizontalSize,
+                        vertical: Dimensions.verticalSize,
+                      ),
+                      child: LoadingWidget(),
                     ),
-                    child: LoadingWidget(),
+                  ],
+                )
+              : PrimaryButtonWidget(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Dimensions.defaultHorizontalSize,
+                    vertical: Dimensions.verticalSize,
                   ),
-                ],
-              )
-            : PrimaryButtonWidget(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Dimensions.defaultHorizontalSize,
-                  vertical: Dimensions.verticalSize,
+                  title: "Book Appointment",
+                  onPressed: () async {
+                    await controller.fetchAllDate();
+                    Get.dialog(const BookingDialog(), barrierDismissible: true);
+                  },
                 ),
-                title: "Book Appointment",
-                onPressed: () async {
-                  await controller.fetchAllDate();
-                  Get.dialog(const BookingDialog(), barrierDismissible: true);
-                },
-              ),
+        ),
       ),
       appBar: CommonAppBar(title: "Doctor Details"),
       body: SafeArea(
@@ -50,7 +53,8 @@ class DoctorDetailsScreenMobile extends GetView<DoctorDetailsController> {
     final availability =
         controller.doctorDetailsInfoModel?.data.availability ?? [];
 
-    return SafeArea(
+    return Container(
+      // padding: EdgeInsets.only(bottom: Get.mediaQuery.viewPadding.bottom),
       child: RefreshIndicator(
         color: CustomColors.primary,
 
