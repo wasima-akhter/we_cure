@@ -1,3 +1,4 @@
+/*
 import 'dart:async';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
@@ -15,7 +16,8 @@ class VideoCallController extends GetxController {
   String _token = '';
 
   final RxBool isMuted = false.obs;
-  final RxBool isCameraFlipped = false.obs;
+  final RxBool isCameraOn = true.obs;
+  final RxBool isCameraFlipped = false.obs; // only for switchCamera()
   final RxBool isConnected = false.obs;
   final RxString callDuration = '00:00'.obs;
   final RxBool isLocalUserJoined = false.obs;
@@ -58,8 +60,12 @@ class VideoCallController extends GetxController {
   @override
   void onClose() {
     _durationTimer?.cancel();
-    _leaveChannel();
-    agoraEngine.release();
+
+    Future(() async {
+      await _leaveChannel();
+      await agoraEngine.release();
+    });
+
     super.onClose();
   }
 
@@ -104,7 +110,7 @@ class VideoCallController extends GetxController {
       CustomSnackBar.error('Camera and microphone permission required');
     }
   }
-
+  /*
   void _setupEventHandlers() {
     agoraEngine.registerEventHandler(
       RtcEngineEventHandler(
@@ -223,6 +229,159 @@ class VideoCallController extends GetxController {
       ),
     );
   }
+*/
+
+  void _setupEventHandlers() {
+    agoraEngine.registerEventHandler(
+      RtcEngineEventHandler(
+        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+          print('=== [AgoraLog] onJoinChannelSuccess ===');
+          print('Local UID: ${connection.localUid} | Elapsed: ${elapsed}ms');
+
+          localUid = connection.localUid;
+          isLocalUserJoined.value = true;
+          isConnected.value = true;
+          _startDurationTimer();
+        },
+
+        onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+          print('=== [AgoraLog] onUserJoined ===');
+          print('Remote UID: $remoteUid | Elapsed: ${elapsed}ms');
+
+          this.remoteUid = remoteUid;
+          isRemoteUserJoined.value = true;
+          // User just joined, we assume they are connecting until stream states tell us otherwise
+        },
+
+        onUserOffline:
+            (
+              RtcConnection connection,
+              int remoteUid,
+              UserOfflineReasonType reason,
+            ) {
+              print('=== [AgoraLog] onUserOffline ===');
+              print('Remote UID: $remoteUid | Reason: $reason');
+
+              this.remoteUid = null;
+              isRemoteUserJoined.value = false;
+              isRemoteCameraOff.value = true;
+              isRemoteMuted.value = true; // User is gone, mute them by default
+            },
+
+        onFirstRemoteVideoDecoded:
+            (
+              RtcConnection connection,
+              int uid,
+              int width,
+              int height,
+              int elapsed,
+            ) {
+              print('=== [AgoraLog] onFirstRemoteVideoDecoded ===');
+              print(
+                'UID: $uid | Resolution: ${width}x$height | Elapsed: ${elapsed}ms',
+              );
+
+              remoteUid = uid;
+              isRemoteUserJoined.value = true;
+              isRemoteCameraOff.value =
+                  false; // Video decoded successfully, camera is ON
+            },
+
+        onUserMuteVideo: (RtcConnection connection, int uid, bool muted) {
+          print('=== [AgoraLog] onUserMuteVideo ===');
+          print('UID: $uid | Muted: $muted');
+
+          if (uid != remoteUid) return;
+
+          isRemoteCameraOff.value = muted;
+
+          debugPrint("Remote camera off = ${isRemoteCameraOff.value}");
+        },
+
+        onRemoteVideoStateChanged: (connection, uid, state, reason, elapsed) {
+          print(
+            '[AgoraLog] Video state changed | UID: $uid | State: $state | Reason: $reason',
+          );
+
+          // 1. Check the reason using your exact enum values
+          if (reason ==
+                  RemoteVideoStateReason.remoteVideoStateReasonRemoteMuted ||
+              reason ==
+                  RemoteVideoStateReason.remoteVideoStateReasonLocalMuted) {
+            print('[AgoraLog] -> Peer stopped publishing video hardware.');
+            isRemoteCameraOff.value = true;
+            return;
+          } else if (reason ==
+                  RemoteVideoStateReason.remoteVideoStateReasonRemoteUnmuted ||
+              reason ==
+                  RemoteVideoStateReason.remoteVideoStateReasonLocalUnmuted) {
+            print('[AgoraLog] -> Peer started publishing video hardware.');
+            isRemoteCameraOff.value = false;
+            return;
+          }
+
+          // 2. Fallback to State tracking if the reason isn't conclusive
+          switch (state) {
+            case RemoteVideoState.remoteVideoStateDecoding:
+              print('[AgoraLog] -> State: DECODING. Rendering stream.');
+              isRemoteCameraOff.value = false;
+              break;
+
+            case RemoteVideoState.remoteVideoStateStopped:
+            case RemoteVideoState.remoteVideoStateFailed:
+              print('[AgoraLog] -> State: STOPPED/FAILED. Stream is dead.');
+              isRemoteCameraOff.value = true;
+              break;
+
+            case RemoteVideoState.remoteVideoStateStarting:
+              print('[AgoraLog] -> State: STARTING. Stream bootup.');
+              isRemoteCameraOff.value = true;
+              break;
+
+            case RemoteVideoState.remoteVideoStateFrozen:
+              print('[AgoraLog] -> State: FROZEN. Network lag.');
+              break;
+
+            default:
+              break;
+          }
+        },
+
+        onRemoteAudioStateChanged:
+            (
+              RtcConnection connection,
+              int uid,
+              RemoteAudioState state,
+              RemoteAudioStateReason reason,
+              int elapsed,
+            ) {
+              print('=== [AgoraLog] onRemoteAudioStateChanged ===');
+              print(
+                'UID: $uid | State: $state | Reason: $reason | Elapsed: ${elapsed}ms',
+              );
+
+              // FIXED: Combined State and Reason tracking for airtight mute conditions
+              if (state == RemoteAudioState.remoteAudioStateStopped ||
+                  state == RemoteAudioState.remoteAudioStateFailed ||
+                  reason ==
+                      RemoteAudioStateReason.remoteAudioReasonRemoteMuted) {
+                isRemoteMuted.value = true;
+                print('[AgoraLog] -> Remote microphone MUTED');
+              } else if (state == RemoteAudioState.remoteAudioStateDecoding ||
+                  reason ==
+                      RemoteAudioStateReason.remoteAudioReasonRemoteUnmuted) {
+                isRemoteMuted.value = false;
+                print('[AgoraLog] -> Remote microphone UNMUTED');
+              }
+            },
+
+        onError: (ErrorCodeType err, String msg) {
+          print('=== [AgoraLog] Agora Error ===');
+          print('Code: $err | Message: $msg');
+        },
+      ),
+    );
+  }
 
   Future<void> _joinChannel() async {
     try {
@@ -265,10 +424,14 @@ class VideoCallController extends GetxController {
 
   Future<void> toggleCamera() async {
     try {
-      bool isEnabled = !isCameraFlipped.value;
-      await agoraEngine.enableLocalVideo(isEnabled);
-      isCameraFlipped.value = !isCameraFlipped.value;
+      isCameraOn.toggle();
+
+      await agoraEngine.muteLocalVideoStream(!isCameraOn.value);
+
+      print('[Agora] Local camera ${isCameraOn.value ? "ON" : "OFF"}');
     } catch (e) {
+      // Roll back the state if the API call fails
+      isCameraOn.toggle();
       print('Error toggling camera: $e');
     }
   }
@@ -285,7 +448,7 @@ class VideoCallController extends GetxController {
   Future<void> flipCamera() async {
     try {
       await agoraEngine.switchCamera();
-      isCameraFlipped.value = !isCameraFlipped.value;
+      isCameraFlipped.toggle();
     } catch (e) {
       print('Error flipping camera: $e');
     }
@@ -300,6 +463,379 @@ class VideoCallController extends GetxController {
       print('Error ending call: $e');
     }
   }
+
+  Future<JoinVideoCallModel> getVideoCallInfo(String id) async {
+    return ApiRequest().get(
+      fromJson: JoinVideoCallModel.fromJson,
+      endPoint: '/appointments/$id/video/token',
+      isLoading: isRemoteUserJoined,
+    );
+  }
+}
+
+
+*/
+
+import 'dart:async';
+
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:glady/core/api/services/api_request.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import '../../../core/utils/basic_import.dart';
+import '../../appointment/model/join_video_call_model.dart';
+
+enum VideoCallState { loading, ready, error }
+
+class VideoCallController extends GetxController {
+  // ── Engine (nullable to prevent LateInitializationError) ──────────────────
+  RtcEngine? _agoraEngine;
+  bool _engineInitialized = false;
+
+  // Expose a safe getter so the view can use it without null checks everywhere
+  RtcEngine? get agoraEngine => _agoraEngine;
+
+  // ── Agora credentials ──────────────────────────────────────────────────────
+  String _appId = '';
+  String channelName = '';
+  String _token = '';
+
+  // ── Screen state ───────────────────────────────────────────────────────────
+  final Rx<VideoCallState> callState = VideoCallState.loading.obs;
+  final RxString errorMessage = ''.obs;
+
+  // ── Local state ────────────────────────────────────────────────────────────
+  final RxBool isMuted = false.obs;
+  final RxBool isCameraOn = true.obs;
+  final RxBool isCameraFlipped = false.obs;
+  final RxBool isConnected = false.obs;
+  final RxString callDuration = '00:00'.obs;
+  final RxBool isLocalUserJoined = false.obs;
+
+  // ── Remote state ───────────────────────────────────────────────────────────
+  final RxBool isRemoteUserJoined = false.obs;
+  final RxBool isRemoteCameraOff = false.obs;
+  final RxBool isRemoteMuted = false.obs;
+
+  int? localUid;
+  int? remoteUid;
+
+  // ── Timer ──────────────────────────────────────────────────────────────────
+  Timer? _durationTimer;
+  int _seconds = 0;
+
+  // ── Route args ─────────────────────────────────────────────────────────────
+  String? appointmentId;
+  String? userId;
+
+  // ── Lifecycle ──────────────────────────────────────────────────────────────
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    final args = Get.arguments;
+    if (args is String) {
+      appointmentId = args;
+    } else if (args is Map) {
+      appointmentId = args['appointmentId']?.toString();
+      userId = args['userId']?.toString();
+    }
+
+    if (appointmentId == null || appointmentId!.isEmpty) {
+      _setError('Appointment ID is missing');
+      return;
+    }
+
+    _loadAndInitialize(appointmentId!);
+  }
+
+  @override
+  void onClose() {
+    _durationTimer?.cancel();
+    _disposeAgora(); // fire-and-forget; safe because of null/flag guards
+    super.onClose();
+  }
+
+  // ── Initialization ─────────────────────────────────────────────────────────
+
+  Future<void> _loadAndInitialize(String appointmentId) async {
+    callState.value = VideoCallState.loading;
+
+    try {
+      final result = await getVideoCallInfo(appointmentId);
+      _appId = result.data.appId;
+      channelName = result.data.channel;
+      _token = result.data.token;
+
+      await _initializeAgora();
+
+      // callState is set to ready inside onJoinChannelSuccess
+    } catch (e) {
+      debugPrint('[VideoCall] _loadAndInitialize error: $e');
+      _setError(e.toString().replaceFirst('Exception: ', ''));
+    }
+  }
+
+  Future<void> _initializeAgora() async {
+    await _requestPermissions();
+
+    _agoraEngine = createAgoraRtcEngine();
+
+    await _agoraEngine!.initialize(RtcEngineContext(appId: _appId));
+    _engineInitialized = true;
+
+    _setupEventHandlers();
+
+    await _agoraEngine!.enableVideo();
+    await _joinChannel();
+  }
+
+  Future<void> _requestPermissions() async {
+    final statuses = await [Permission.camera, Permission.microphone].request();
+    if (statuses[Permission.camera] != PermissionStatus.granted ||
+        statuses[Permission.microphone] != PermissionStatus.granted) {
+      // Not throwing here — Agora itself will surface the issue if perms are missing.
+      CustomSnackBar.error('Camera and microphone permission required');
+    }
+  }
+
+  // ── Agora event handlers ───────────────────────────────────────────────────
+
+  void _setupEventHandlers() {
+    _agoraEngine!.registerEventHandler(
+      RtcEngineEventHandler(
+        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+          debugPrint(
+            '[AgoraLog] onJoinChannelSuccess | UID: ${connection.localUid}',
+          );
+          localUid = connection.localUid;
+          isLocalUserJoined.value = true;
+          isConnected.value = true;
+          callState.value = VideoCallState.ready; // ← screen is now live
+          _startDurationTimer();
+        },
+
+        onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+          debugPrint('[AgoraLog] onUserJoined | remoteUid: $remoteUid');
+          this.remoteUid = remoteUid;
+          isRemoteUserJoined.value = true;
+          // Camera/audio state will be confirmed by subsequent state events
+        },
+
+        onUserOffline:
+            (
+              RtcConnection connection,
+              int remoteUid,
+              UserOfflineReasonType reason,
+            ) {
+              debugPrint(
+                '[AgoraLog] onUserOffline | remoteUid: $remoteUid | reason: $reason',
+              );
+              this.remoteUid = null;
+              isRemoteUserJoined.value = false;
+              isRemoteCameraOff.value = true;
+              isRemoteMuted.value = true;
+            },
+
+        onFirstRemoteVideoDecoded:
+            (
+              RtcConnection connection,
+              int uid,
+              int width,
+              int height,
+              int elapsed,
+            ) {
+              debugPrint(
+                '[AgoraLog] onFirstRemoteVideoDecoded | UID: $uid | ${width}x$height',
+              );
+              remoteUid = uid;
+              isRemoteUserJoined.value = true;
+              isRemoteCameraOff.value = false;
+            },
+
+        onUserMuteVideo: (RtcConnection connection, int uid, bool muted) {
+          debugPrint('[AgoraLog] onUserMuteVideo | UID: $uid | muted: $muted');
+          if (uid != remoteUid) return;
+          // muted=true  → peer turned camera OFF  → isRemoteCameraOff = true
+          // muted=false → peer turned camera ON   → isRemoteCameraOff = false
+          isRemoteCameraOff.value = muted;
+        },
+
+        onRemoteVideoStateChanged: (connection, uid, state, reason, elapsed) {
+          debugPrint(
+            '[AgoraLog] onRemoteVideoStateChanged | UID: $uid | state: $state | reason: $reason',
+          );
+
+          // Reason is the most precise signal — check it first
+          if (reason ==
+                  RemoteVideoStateReason.remoteVideoStateReasonRemoteMuted ||
+              reason ==
+                  RemoteVideoStateReason.remoteVideoStateReasonLocalMuted) {
+            isRemoteCameraOff.value = true;
+            return;
+          }
+          if (reason ==
+                  RemoteVideoStateReason.remoteVideoStateReasonRemoteUnmuted ||
+              reason ==
+                  RemoteVideoStateReason.remoteVideoStateReasonLocalUnmuted) {
+            isRemoteCameraOff.value = false;
+            return;
+          }
+
+          // Fallback: use stream state
+          switch (state) {
+            case RemoteVideoState.remoteVideoStateDecoding:
+              isRemoteCameraOff.value = false;
+              break;
+            case RemoteVideoState.remoteVideoStateStopped:
+            case RemoteVideoState.remoteVideoStateFailed:
+            case RemoteVideoState.remoteVideoStateStarting:
+              isRemoteCameraOff.value = true;
+              break;
+            case RemoteVideoState.remoteVideoStateFrozen:
+              // Network lag — don't change camera-off state; just let it freeze
+              break;
+            default:
+              break;
+          }
+        },
+
+        onRemoteAudioStateChanged:
+            (
+              RtcConnection connection,
+              int uid,
+              RemoteAudioState state,
+              RemoteAudioStateReason reason,
+              int elapsed,
+            ) {
+              debugPrint(
+                '[AgoraLog] onRemoteAudioStateChanged | UID: $uid | state: $state | reason: $reason',
+              );
+
+              if (state == RemoteAudioState.remoteAudioStateStopped ||
+                  state == RemoteAudioState.remoteAudioStateFailed ||
+                  reason ==
+                      RemoteAudioStateReason.remoteAudioReasonRemoteMuted) {
+                isRemoteMuted.value = true;
+              } else if (state == RemoteAudioState.remoteAudioStateDecoding ||
+                  reason ==
+                      RemoteAudioStateReason.remoteAudioReasonRemoteUnmuted) {
+                isRemoteMuted.value = false;
+              }
+            },
+
+        onError: (ErrorCodeType err, String msg) {
+          debugPrint('[AgoraLog] Error | code: $err | msg: $msg');
+        },
+      ),
+    );
+  }
+
+  // ── Channel ────────────────────────────────────────────────────────────────
+
+  Future<void> _joinChannel() async {
+    await _agoraEngine!.joinChannel(
+      token: _token,
+      channelId: channelName,
+      uid: 0,
+      options: const ChannelMediaOptions(
+        clientRoleType: ClientRoleType.clientRoleBroadcaster,
+        channelProfile: ChannelProfileType.channelProfileCommunication,
+        publishCameraTrack: true,
+        publishMicrophoneTrack: true,
+      ),
+    );
+  }
+
+  Future<void> _leaveChannel() async {
+    if (!_engineInitialized || _agoraEngine == null) return;
+    try {
+      await _agoraEngine!.leaveChannel();
+      isLocalUserJoined.value = false;
+      isRemoteUserJoined.value = false;
+      isConnected.value = false;
+    } catch (e) {
+      debugPrint('[VideoCall] _leaveChannel error: $e');
+    }
+  }
+
+  Future<void> _disposeAgora() async {
+    if (!_engineInitialized || _agoraEngine == null) return;
+    try {
+      await _agoraEngine!.leaveChannel();
+      await _agoraEngine!.release();
+      _agoraEngine = null;
+      _engineInitialized = false;
+    } catch (e) {
+      debugPrint('[VideoCall] _disposeAgora error: $e');
+    }
+  }
+
+  // ── Timer ──────────────────────────────────────────────────────────────────
+
+  void _startDurationTimer() {
+    _seconds = 0;
+    _durationTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _seconds++;
+      final m = (_seconds ~/ 60).toString().padLeft(2, '0');
+      final s = (_seconds % 60).toString().padLeft(2, '0');
+      callDuration.value = '$m:$s';
+    });
+  }
+
+  // ── Controls ───────────────────────────────────────────────────────────────
+
+  Future<void> toggleCamera() async {
+    if (_agoraEngine == null) return;
+    isCameraOn.toggle();
+    try {
+      await _agoraEngine!.muteLocalVideoStream(!isCameraOn.value);
+      debugPrint('[Agora] Local camera ${isCameraOn.value ? "ON" : "OFF"}');
+    } catch (e) {
+      isCameraOn.toggle(); // roll back
+      debugPrint('[VideoCall] toggleCamera error: $e');
+    }
+  }
+
+  Future<void> toggleMute() async {
+    if (_agoraEngine == null) return;
+    isMuted.toggle();
+    try {
+      await _agoraEngine!.muteLocalAudioStream(isMuted.value);
+    } catch (e) {
+      isMuted.toggle(); // roll back
+      debugPrint('[VideoCall] toggleMute error: $e');
+    }
+  }
+
+  Future<void> flipCamera() async {
+    if (_agoraEngine == null) return;
+    try {
+      await _agoraEngine!.switchCamera();
+      isCameraFlipped.toggle();
+    } catch (e) {
+      debugPrint('[VideoCall] flipCamera error: $e');
+    }
+  }
+
+  Future<void> endCall() async {
+    _durationTimer?.cancel();
+    await _leaveChannel();
+    Get.back();
+  }
+
+  // ── Error helper ───────────────────────────────────────────────────────────
+
+  void _setError(String message) {
+    errorMessage.value = message;
+    callState.value = VideoCallState.error;
+    CustomSnackBar.error(message);
+    // Give the snackbar a moment to show, then close the screen
+    Future.delayed(const Duration(seconds: 2), Get.back);
+  }
+
+  // ── API ────────────────────────────────────────────────────────────────────
 
   Future<JoinVideoCallModel> getVideoCallInfo(String id) async {
     return ApiRequest().get(
