@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:glady/core/api/services/push_notification_service.dart';
 import 'package:glady/views/auth/login/model/login_model.dart';
+import 'package:glady/views/navigation/controller/navigation_controller.dart';
 
 import '../../../views/auth/otp/model/otp_verify_model.dart';
 import '../../utils/app_storage.dart';
@@ -15,20 +15,8 @@ class AuthService {
   static final ApiRequest _api = ApiRequest();
 
   /// =============================================== ✅ Login ================================================== ///
-  /*
-  Usage:
-  ──────────────────────────────────────────────────────────────────────────
-  RxBool isLoading = false.obs;
 
-  loginProcess() async {
-    return await AuthService.loginService(
-      isLoading: isLoading,
-      email: emailController.text,
-      password: passwordController.text,
-    );
-  }
-  ──────────────────────────────────────────────────────────────────────────
-  */
+  /*
   static Future<LoginModel> loginService({
     required RxBool isLoading,
     required String email,
@@ -53,6 +41,13 @@ class AuthService {
           isUser: result.data?.role,
           isLoggedIn: true,
         );
+
+        if (Get.isRegistered<NavigationController>()) {
+          NavigationController.to.reloadScreens();
+          NavigationController.to.update();
+          NavigationController.to.selectedIndex.value = 0;
+        }
+
         Get.offAllNamed(Routes.navigationScreen);
         log('✅ Login successful - Token saved');
 
@@ -64,6 +59,59 @@ class AuthService {
             AppStorage.save(temporaryToken: fcmToken);
           }
         });
+      },
+    );
+  }
+*/
+
+  static Future<LoginModel> loginService({
+    required RxBool isLoading,
+    required String email,
+    required String password,
+  }) async {
+    log("🟡 LOGIN START");
+    log("➡️ Email: $email");
+    log("➡️ Role BEFORE login: ${AppStorage.isUser}");
+    log("➡️ Token BEFORE login: ${AppStorage.token}");
+
+    Map<String, dynamic> inputBody = {
+      'email': email.trim(),
+      'password': password,
+    };
+
+    return await _api.post(
+      fromJson: LoginModel.fromJson,
+      endPoint: ApiEndPoints.login,
+      isLoading: isLoading,
+      body: inputBody,
+      queryParams: {},
+
+      showSuccessSnackBar: false,
+      onSuccess: (result) async {
+        log("🟢 LOGIN RESPONSE RECEIVED");
+        log("➡️ API Role: ${result.data?.role}");
+        log("➡️ API Token: ${result.data?.accessToken}");
+
+        log("➡️ API ROLE: ${result.data?.role}");
+
+        await AppStorage.save(
+          token: result.data?.accessToken,
+          isUser: result.data?.role?.toString().toUpperCase(),
+          isLoggedIn: true,
+        );
+
+        log("💾 AFTER SAVE STORAGE");
+        log("➡️ Saved Role: ${AppStorage.isUser}");
+        log("➡️ Saved Token: ${AppStorage.token}");
+
+        if (Get.isRegistered<NavigationController>()) {
+          NavigationController.to.reloadScreens(); // ✅ Add this
+        }
+
+        log("🚀 Navigating to NavigationScreen");
+        Get.offAllNamed(Routes.navigationScreen);
+
+        log("✅ Login complete");
       },
     );
   }
@@ -153,9 +201,14 @@ class AuthService {
         AppStorage.save(
           isLoggedIn: true,
           token: result.data?.accessToken,
-          isUser: result.data?.role,
+          isUser: result.data?.role.toString().toUpperCase(),
         );
         print(result.data?.accessToken ?? '');
+
+        if (Get.isRegistered<NavigationController>()) {
+          NavigationController.to.reloadScreens(); // ✅ Add this
+        }
+
         if (result.data?.role == 'USER') {
           log('USER');
           Get.offAllNamed(Routes.navigationScreen);
@@ -398,26 +451,8 @@ class AuthService {
   }
 
   /// =============================================== ✅ Logout ================================================== ///
+
   /*
-  Usage:
-  ──────────────────────────────────────────────────────────────────────────
-  // Option 1: Simple logout (no API call)
-  logoutProcess() {
-    AuthService.logoutService();
-  }
-
-  // Option 2: Logout with API call
-  RxBool isLoading = false.obs;
-
-  logoutProcess() async {
-    await AuthService.logoutService(
-      isLoading: isLoading,
-      callApi: true, // if backend requires logout endpoint
-    );
-  }
-
-  ──────────────────────────────────────────────────────────────────────────
-  */
   static Future<void> logoutService({
     RxBool? isLoading,
     bool callApi = false,
@@ -441,6 +476,47 @@ class AuthService {
       log('⚠️ Logout API failed, but clearing local data anyway');
       AppStorage.clear();
       Get.offAllNamed(Routes.loginScreen);
+    }
+  }
+
+  */
+
+  static Future<void> logoutService({
+    RxBool? isLoading,
+    bool callApi = false,
+    bool showSuccessSnackBar = true,
+  }) async {
+    log("🔴 LOGOUT START");
+    log("➡️ Role BEFORE logout: ${AppStorage.isUser}");
+    log("➡️ Token BEFORE logout: ${AppStorage.token}");
+
+    try {
+      if (callApi) {
+        await _api.post(
+          fromJson: BasicSuccessModel.fromJson,
+          endPoint: ApiEndPoints.logout,
+          isLoading: isLoading ?? false.obs,
+          body: {'token': AppStorage.temporaryToken},
+          showSuccessSnackBar: showSuccessSnackBar,
+        );
+      }
+    } catch (e) {
+      log('⚠️ Logout API failed, continuing cleanup → $e');
+    } finally {
+      AppStorage.clear();
+
+      log("🧹 STORAGE CLEARED COMPLETELY");
+      log("➡️ Raw storage role: ${GetStorage().read('isUser')}");
+      log("➡️ AppStorage.isUser (getter): ${AppStorage.isUser}");
+
+      if (Get.isRegistered<NavigationController>()) {
+        NavigationController.to.selectedIndex.value = 0;
+        NavigationController.to.update();
+      }
+
+      Get.offAllNamed(Routes.loginScreen);
+
+      log("🚪 Navigated to login");
     }
   }
 }

@@ -146,16 +146,54 @@ String timeAgo(DateTime date) {
   return '$years year${years > 1 ? 's' : ''} ago';
 }
 
-String formatTimeToAmPm(String? time) {
-  if (time == null || time.trim().isEmpty) {
-    return '--:--';
-  }
+String convertLocalToNigerian(String localHHmm) {
+  final parts = localHHmm.split(':');
+  final now = DateTime.now();
+
+  final localDateTime = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    int.parse(parts[0]),
+    int.parse(parts[1]),
+  );
+
+  final nigerianTime = localDateTime.toUtc().add(const Duration(hours: 1));
+
+  return '${nigerianTime.hour.toString().padLeft(2, '0')}:${nigerianTime.minute.toString().padLeft(2, '0')}';
+}
+
+//
+String formatTimeToAmPm(String? time, {String? date}) {
+  if (time == null || time.trim().isEmpty) return '--:--';
 
   try {
-    final parsedTime = DateFormat('HH:mm').parseStrict(time);
-    return DateFormat('hh:mm a').format(parsedTime);
+    const nigerianOffsetHours = 1;
+
+    DateTime parsedUtc;
+
+    if (date != null && date.trim().isNotEmpty) {
+      // ✅ Extract only the date portion (handles "2026-06-29 00:00:00.000Z" or "2026-06-29")
+      final dateOnly = date.split('T').first.split(' ').first; // → "2026-06-29"
+
+      final combined = '$dateOnly $time'; // → "2026-06-29 07:57"
+      final parsedNigerian = DateFormat(
+        'yyyy-MM-dd HH:mm',
+      ).parseStrict(combined);
+      parsedUtc = parsedNigerian.subtract(
+        const Duration(hours: nigerianOffsetHours),
+      );
+    } else {
+      final parsedNigerian = DateFormat('HH:mm').parseStrict(time);
+      parsedUtc = parsedNigerian.subtract(
+        const Duration(hours: nigerianOffsetHours),
+      );
+    }
+
+    final localTime = parsedUtc.toLocal();
+    return DateFormat('hh:mm a').format(localTime);
   } catch (e) {
-    debugPrint('Invalid time format: $time');
+    debugPrint('Invalid time format: $time | date: $date | error: $e');
     return '--:--';
   }
 }

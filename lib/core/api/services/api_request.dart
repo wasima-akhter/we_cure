@@ -12,6 +12,7 @@ import '../end_point/api_end_points.dart';
 
 /// ========================================== 🔥 HTTP CLIENT ========================================== ///
 class ApiRequest {
+  //
   /// ✅ Header Generator
   Future<Map<String, String>> _bearerHeaderInfo([String? token]) async {
     final authToken = token ?? AppStorage.token ?? '';
@@ -56,6 +57,14 @@ class ApiRequest {
   }
 
   /// =========================================================== ✅ HTTP POST REQUEST =========================================================== ///
+  // Toggle this while testing
+  bool kUseFakeResponse = false;
+
+  // Customize these when needed
+  int kFakeStatusCode = 401;
+
+  Map<String, dynamic> kFakeBody = {"success": false, "message": "JWT expired"};
+  //
   Future<R> post<R>({
     required R Function(Map<String, dynamic>) fromJson,
     required String endPoint,
@@ -80,17 +89,25 @@ class ApiRequest {
           .post(uri, headers: await _bearerHeaderInfo(), body: jsonEncode(body))
           .timeout(const Duration(seconds: 120));
 
+      // TEMP FOR TESTING
+      // Use fake response when enabled
+      final http.Response res = kUseFakeResponse
+          ? http.Response(jsonEncode(kFakeBody), kFakeStatusCode)
+          : response;
+
+      ////
+
       log('|✅|---------[ ✅ HTTP POST REQUEST COMPLETED ]---------|✅|');
 
       debugPrint('===== API RESPONSE body START =====');
-      prettyPrintResponse(response.body);
+      prettyPrintResponse(res.body);
       debugPrint('===== API RESPONSE bodyEND =====');
 
-      debugPrint(' result:${response.statusCode} ');
+      debugPrint(' result:${res.statusCode} ');
       debugPrint('===== result START =====');
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final Map<String, dynamic> json = jsonDecode(response.body);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        final Map<String, dynamic> json = jsonDecode(res.body);
         final result = fromJson(json);
         debugPrint(' result after parse:$result ');
         // prettyPrintResponse(jsonEncode(response.bo));
@@ -123,19 +140,19 @@ class ApiRequest {
       // }
       else {
         debugPrint(' asfdyuafsdyasydf   not 200   ');
-        _handleUnauthorized(response);
+        _handleUnauthorized(res);
 
         String errorMessage = 'Something went wrong!';
 
-        if (response.body.isNotEmpty) {
+        if (res.body.isNotEmpty) {
           try {
-            final error = jsonDecode(response.body);
+            final error = jsonDecode(res.body);
             errorMessage = error['message'] ?? errorMessage;
           } catch (_) {
-            errorMessage = response.body; // fallback if not JSON
+            errorMessage = res.body; // fallback if not JSON
           }
         } else {
-          errorMessage = 'Empty response from server (${response.statusCode})';
+          errorMessage = 'Empty response from server (${res.statusCode})';
         }
 
         log('❌ Error: $errorMessage');
@@ -628,6 +645,7 @@ void prettyPrintResponse(String body) {
     debugPrint(body); // fallback
   }
 }
+
 void printPrettyResponse(String body) {
   try {
     final decoded = jsonDecode(body);

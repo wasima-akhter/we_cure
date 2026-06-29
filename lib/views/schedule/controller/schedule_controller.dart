@@ -24,6 +24,7 @@ class ScheduleController extends GetxController {
       fromJson: ScheduleModel.fromJson,
       endPoint: ApiEndPoints.getALlSchedule,
       isLoading: isLoading,
+      showResponse: true,
       onSuccess: (result) {
         scheduleList.clear();
         scheduleList.assignAll(result.data);

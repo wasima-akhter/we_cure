@@ -67,9 +67,8 @@ class CreateScheduleScreenMobile extends GetView<CreateScheduleController> {
                               : null,
                         ),
                         onTimeSelected: (time) {
-                          controller.startTime.value = time; // "HH:mm"
-
-                          // controller.calculateDuration();
+                          controller.startTime.value = time;
+                          // convertLocalToNigerian(time);
                         },
                       ),
                     ],
@@ -97,10 +96,10 @@ class CreateScheduleScreenMobile extends GetView<CreateScheduleController> {
                               ? controller.editingSchedule!.endTime
                               : null,
                         ),
+                        // end time
                         onTimeSelected: (time) {
                           controller.endTime.value = time;
-
-                          // controller.calculateDuration();
+                          // convertLocalToNigerian( time )
                         },
                       ),
                     ],

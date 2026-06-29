@@ -71,9 +71,17 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
       itemBuilder: (context, index) {
         final appointment = appointments[index];
 
-        final startTime = formatTimeToAmPm(appointment.appointmentTime);
+        final startTime = formatTimeToAmPm(
+          appointment.appointmentTime,
+          date: appointment.appointmentDate.toString(),
+        );
 
-        final endTime = formatTimeToAmPm(appointment.appointmentEndTime);
+        final endTime = formatTimeToAmPm(
+          appointment.appointmentEndTime,
+          date: appointment.appointmentDate.toString(),
+        );
+
+        debugPrint('  startTime -  endTime : $startTime - $endTime   ');
 
         return AppointmentCard(
           appointmentId: appointment.id,
@@ -103,9 +111,21 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
       itemBuilder: (context, index) {
         final appointment = appointments[index];
 
-        final startTime = formatTimeToAmPm(appointment.appointmentTime);
+        final startTime = formatTimeToAmPm(
+          appointment.appointmentTime,
+          date: appointment.appointmentDate.toString(),
+        );
 
-        final endTime = formatTimeToAmPm(appointment.appointmentEndTime);
+        final endTime = formatTimeToAmPm(
+          appointment.appointmentEndTime,
+          date: appointment.appointmentDate.toString(),
+        );
+
+        debugPrint(' appointmentDate - : ${appointment.appointmentDate}   ');
+        debugPrint('  startTime -  endTime : $startTime - $endTime   ');
+        debugPrint(
+          '  appointmentTime -  appointmentEndTime : ${appointment.appointmentTime} - ${appointment.appointmentEndTime}   ',
+        );
 
         return AppointmentCard(
           appointmentId: appointment.id,

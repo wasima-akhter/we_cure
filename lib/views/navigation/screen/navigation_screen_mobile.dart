@@ -23,10 +23,21 @@ class NavigationScreenMobile extends GetView<NavigationController> {
           // }
         }
       },
-      child: Scaffold(
-        body: Obx(() => controller.bodyScreen[controller.selectedIndex.value]),
-        bottomNavigationBar: SizedBox(child: BottomNavWidget()),
-      ),
+      child:
+          // GetBuilder<NavigationController>(
+          //   builder: (controller) {
+          //     return Scaffold(
+          //       body: controller.bodyScreen[controller.selectedIndex.value],
+          // bottomNavigationBar: SizedBox(child: BottomNavWidget()),
+          //     );
+          //   },
+          // );
+          Scaffold(
+            body: Obx(
+              () => controller.bodyScreen.value[controller.selectedIndex.value],
+            ),
+            bottomNavigationBar: SizedBox(child: BottomNavWidget()),
+          ),
     );
   }
 }

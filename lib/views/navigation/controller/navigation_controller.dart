@@ -54,7 +54,7 @@ class NavigationController extends GetxController {
 class NavigationController extends GetxController {
   static NavigationController get to => Get.find<NavigationController>();
   RxInt selectedIndex = 0.obs;
-  late List<Widget> bodyScreen;
+  final RxList<Widget> bodyScreen = <Widget>[].obs;
 
   @override
   void onInit() {
@@ -68,9 +68,19 @@ class NavigationController extends GetxController {
     }
   }
 
+  void reloadScreens() {
+    _initScreens();
+    selectedIndex.value = 0;
+    update();
+  }
+
   void _initScreens() {
-    if (AppStorage.isUser == 'USER') {
-      bodyScreen = [
+    final role = AppStorage.isUser;
+
+    debugPrint('🔥 BUILDING SCREENS FOR ROLE: $role');
+
+    if (role == 'USER') {
+      bodyScreen.value = [
         HomeScreen(),
         FindScreen(),
         AppointmentScreen(),
@@ -78,7 +88,7 @@ class NavigationController extends GetxController {
         ProfileScreen(),
       ];
     } else {
-      bodyScreen = [
+      bodyScreen.value = [
         DoctorHomeScreen(),
         RequestViewScreen(),
         AppointmentScreen(),

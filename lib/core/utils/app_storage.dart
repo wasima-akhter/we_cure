@@ -1,4 +1,5 @@
 import 'package:get_storage/get_storage.dart';
+
 import 'app_storage_model.dart';
 
 class AppStorage {
@@ -61,7 +62,7 @@ class AppStorage {
   static String get token => _storage.read(tokenKey) ?? '';
   static String get temporaryToken => _storage.read(temporaryTokenKey) ?? '';
   static String get userId => _storage.read(userIdKey) ?? '';
-  static String get isUser => _storage.read(isUserKey) ?? 'USER';
+  static String? get isUser => _storage.read(isUserKey);
   static String get mobileCode => _storage.read(mobileCodeKey) ?? '';
   static String get waitTime => _storage.read(waitTimeKey) ?? '01:00';
   static bool get isLoggedIn => _storage.read(isLoggedInKey) ?? false;
