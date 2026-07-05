@@ -61,6 +61,7 @@ class MyApp extends StatelessWidget {
         // translations: Languages(),
         // locale: Locale(savedLang, savedLang == 'en' ? 'US' : 'GK'),
         // fallbackLocale: Locale('en', 'US'),
+        navigatorObservers: [GetObserver(), appRouteObserver],
         debugShowCheckedModeBanner: false,
         home: hasInternet ? const SplashScreen() : const OfflineWidget(),
         title: Strings.appName,

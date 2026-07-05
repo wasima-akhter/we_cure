@@ -6,6 +6,7 @@ import '../../../core/helpers/helpers.dart';
 import '../../../core/utils/basic_import.dart';
 import '../../../core/widgets/app_refresh_widget.dart';
 import '../../../core/widgets/loading_widget.dart';
+import '../../../initial.dart';
 import '../../profile/controller/profile_controller.dart';
 import '../controller/appointment_controller.dart';
 import '../helper/appointment_helper.dart';

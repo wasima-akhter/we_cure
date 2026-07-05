@@ -2,6 +2,7 @@ import '../../../core/api/end_point/api_end_points.dart';
 import '../../../core/api/services/api_request.dart';
 import '../../../core/utils/app_storage.dart';
 import '../../../core/utils/basic_import.dart';
+import '../../navigation/controller/navigation_controller.dart';
 import '../model/doctor_appoinment_model.dart';
 import '../model/user_all_appoinment.dart';
 
@@ -17,10 +18,27 @@ class AppointmentController extends GetxController {
   void onInit() {
     super.onInit();
     _initData();
+
+    // Refetch every time the Appointment tab is selected
+    ever(NavigationController.to.selectedIndex, (index) {
+      if (index == 2) {
+        refreshData();
+      }
+    });
   }
 
   void _initData() {
     if (AppStorage.isUser == 'USER') {
+      fetchUserAppointments();
+    } else {
+      fetchDoctorAppointments();
+    }
+  }
+
+  void refreshData() {
+    final isUser = AppStorage.isUser == 'USER';
+
+    if (isUser) {
       fetchUserAppointments();
     } else {
       fetchDoctorAppointments();

@@ -17,3 +17,6 @@ class Initial {
     tz.initializeTimeZones();
   }
 }
+
+final RouteObserver<ModalRoute<void>> appRouteObserver =
+    RouteObserver<ModalRoute<void>>();

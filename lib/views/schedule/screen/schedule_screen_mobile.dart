@@ -98,6 +98,12 @@ class ScheduleScreenMobile extends GetView<ScheduleController> {
         final schedule = controller.scheduleList[index];
 
         debugPrint('schedule id in manage screen: ${schedule.id}');
+        debugPrint(
+          'schedule startTime - ${schedule.startTime}. --   endtime - ${schedule.endTime} ',
+        );
+        debugPrint(
+          'schedule converted startTime - ${formatTimeToAmPm(schedule.startTime)}. --   endtime - ${formatTimeToAmPm(schedule.endTime)} ',
+        );
 
         return Container(
           margin: EdgeInsets.only(bottom: Dimensions.heightSize * 1.25),

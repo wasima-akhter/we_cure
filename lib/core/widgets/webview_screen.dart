@@ -1,4 +1,7 @@
+import 'package:glady/core/utils/app_storage.dart';
+import 'package:glady/views/profile/controller/profile_controller.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+
 import '../utils/basic_import.dart';
 import 'confirmation_widget.dart';
 import 'loading_widget.dart';
@@ -244,6 +247,10 @@ class _WebPaymentScreenState extends State<WebPaymentScreen> {
     if (!mounted || _successHandled) return;
     _successHandled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.isRegistered<ProfileController>() &&
+          AppStorage.isUser == "USER") {
+        ProfileController.to.getUserProfile();
+      }
       Get.offAll(
         () => ConfirmationWidget(
           iconPath: Assets.icons.vector,

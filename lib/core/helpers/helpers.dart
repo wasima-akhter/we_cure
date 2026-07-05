@@ -165,36 +165,14 @@ String convertLocalToNigerian(String localHHmm) {
 }
 
 //
-String formatTimeToAmPm(String? time, {String? date}) {
+String formatTimeToAmPm(String? time) {
   if (time == null || time.trim().isEmpty) return '--:--';
 
   try {
-    const nigerianOffsetHours = 1;
-
-    DateTime parsedUtc;
-
-    if (date != null && date.trim().isNotEmpty) {
-      // ✅ Extract only the date portion (handles "2026-06-29 00:00:00.000Z" or "2026-06-29")
-      final dateOnly = date.split('T').first.split(' ').first; // → "2026-06-29"
-
-      final combined = '$dateOnly $time'; // → "2026-06-29 07:57"
-      final parsedNigerian = DateFormat(
-        'yyyy-MM-dd HH:mm',
-      ).parseStrict(combined);
-      parsedUtc = parsedNigerian.subtract(
-        const Duration(hours: nigerianOffsetHours),
-      );
-    } else {
-      final parsedNigerian = DateFormat('HH:mm').parseStrict(time);
-      parsedUtc = parsedNigerian.subtract(
-        const Duration(hours: nigerianOffsetHours),
-      );
-    }
-
-    final localTime = parsedUtc.toLocal();
-    return DateFormat('hh:mm a').format(localTime);
+    final parsed = DateFormat('HH:mm').parseStrict(time);
+    return DateFormat('hh:mm a').format(parsed);
   } catch (e) {
-    debugPrint('Invalid time format: $time | date: $date | error: $e');
+    debugPrint('Invalid time format: $time | error: $e');
     return '--:--';
   }
 }

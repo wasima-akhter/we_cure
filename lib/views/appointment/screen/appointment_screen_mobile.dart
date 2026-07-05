@@ -1,8 +1,35 @@
 part of 'appointment_screen.dart';
 
-class AppointmentScreenMobile extends GetView<AppointmentController> {
+class AppointmentScreenMobile extends StatefulWidget
+    with WidgetsBindingObserver {
   const AppointmentScreenMobile({super.key});
 
+  @override
+  State<AppointmentScreenMobile> createState() =>
+      _AppointmentScreenMobileState();
+}
+
+class _AppointmentScreenMobileState extends State<AppointmentScreenMobile>
+    with RouteAware {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    appRouteObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPopNext() {
+    debugPrint('didPopNext fired!');
+    AppointmentController.to.refreshData();
+  }
+
+  @override
+  void dispose() {
+    appRouteObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  final controller = AppointmentController.to;
   @override
   Widget build(BuildContext context) {
     final isUser = AppStorage.isUser == 'USER';
@@ -20,7 +47,7 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
             }
           },
           child: Obx(() {
-            return _buildBody(isUser);
+            return buildBody(isUser);
           }),
         ),
       ),
@@ -28,7 +55,7 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
   }
 
   //
-  Widget _buildBody(bool isUser) {
+  Widget buildBody(bool isUser) {
     /// ================= USER =================
     if (isUser) {
       if (controller.isUserLoading.value) {
@@ -41,7 +68,7 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
         return emptyScrollable(name: "appointments");
       }
 
-      return _listViewUser(appointments);
+      return listViewUser(appointments);
     }
 
     /// ================= DOCTOR =================
@@ -55,10 +82,10 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
       return emptyScrollable(name: "appointments");
     }
 
-    return _listViewDoctor(appointments);
+    return listViewDoctor(appointments);
   }
 
-  Widget _listViewUser(List<Appointments> appointments) {
+  Widget listViewUser(List<Appointments> appointments) {
     return ListView.builder(
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
@@ -85,7 +112,7 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
         final startTime = isSameTimezone
             ? formatTimeToAmPm(
                 appointment.appointmentTime,
-                date: appointment.appointmentDate.toString(),
+                // date: appointment.appointmentDate.toString(),
               )
             : convertAppointmentTime(
                 appointmentDate: appointment.appointmentDate,
@@ -97,7 +124,7 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
         final endTime = isSameTimezone
             ? formatTimeToAmPm(
                 appointment.appointmentEndTime,
-                date: appointment.appointmentDate.toString(),
+                // date: appointment.appointmentDate.toString(),
               )
             : convertAppointmentTime(
                 appointmentDate: appointment.appointmentDate,
@@ -147,7 +174,7 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
     );
   }
 
-  Widget _listViewDoctor(List<DoctorAppointments> appointments) {
+  Widget listViewDoctor(List<DoctorAppointments> appointments) {
     return ListView.builder(
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
@@ -162,12 +189,12 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
 
         final startTime = formatTimeToAmPm(
           appointment.appointmentTime,
-          date: appointment.appointmentDate.toString(),
+          // date: appointment.appointmentDate.toString(),
         );
 
         final endTime = formatTimeToAmPm(
           appointment.appointmentEndTime,
-          date: appointment.appointmentDate.toString(),
+          // date: appointment.appointmentDate.toString(),
         );
 
         debugPrint(' appointmentDate - : ${appointment.appointmentDate}   ');
