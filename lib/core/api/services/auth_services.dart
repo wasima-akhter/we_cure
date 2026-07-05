@@ -4,6 +4,7 @@ import 'package:glady/views/auth/login/model/login_model.dart';
 import 'package:glady/views/navigation/controller/navigation_controller.dart';
 
 import '../../../views/auth/otp/model/otp_verify_model.dart';
+import '../../helpers/timezone_service.dart';
 import '../../utils/app_storage.dart';
 import '../../utils/basic_import.dart';
 import '../../widgets/confirmation_widget.dart';
@@ -108,10 +109,24 @@ class AuthService {
           NavigationController.to.reloadScreens(); // ✅ Add this
         }
 
+        ///
+
+        ///
+
         log("🚀 Navigating to NavigationScreen");
         Get.offAllNamed(Routes.navigationScreen);
 
         log("✅ Login complete");
+
+        await TimezoneService.checkAndSyncTimezone();
+
+        // add logic.
+        // if success , then    checkthe time zone from profileController
+        // AppStorage.isUser == "User"
+        //     ? ProfileController.to.getUserProfile()
+        //     : ProfileController.to.getDoctorProfile();
+
+        // after fetching, if the timezone (for both users) is different to the currnt local timezone, then show a popup to change the timezone by user.
       },
     );
   }
@@ -140,6 +155,7 @@ class AuthService {
     required String password,
     required String role,
     String? doctorId,
+    String? timezone,
     String? phone,
   }) async {
     Map<String, dynamic> inputBody = {
@@ -148,6 +164,7 @@ class AuthService {
       'password': password,
       'role': role,
       'doctorId': doctorId,
+      'timezone': timezone ?? '',
     };
 
     return await _api.post(
@@ -197,7 +214,7 @@ class AuthService {
       isLoading: isLoading,
       body: inputBody,
       showSuccessSnackBar: false,
-      onSuccess: (result) {
+      onSuccess: (result) async {
         AppStorage.save(
           isLoggedIn: true,
           token: result.data?.accessToken,
@@ -217,6 +234,8 @@ class AuthService {
           Get.toNamed(Routes.aditionalScreen);
         }
         log('✅ OTP verified successfully');
+
+        await TimezoneService.checkAndSyncTimezone(); // ✅ ADD THIS
       },
     );
   }

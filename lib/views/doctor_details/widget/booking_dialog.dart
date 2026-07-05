@@ -1,6 +1,11 @@
+import 'package:glady/core/utils/app_storage.dart';
+import 'package:glady/views/profile/controller/profile_controller.dart';
+
 import '../../../core/utils/basic_import.dart';
 import '../../../core/widgets/divider_widget.dart';
 import '../controller/doctor_details_controller.dart';
+import '../helper/helper.dart';
+import 'select_date_section.dart';
 
 class BookingDialog extends GetView<DoctorDetailsController> {
   const BookingDialog({super.key});
@@ -98,88 +103,7 @@ class BookingDialog extends GetView<DoctorDetailsController> {
                           ),
                         )
                       else
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                childAspectRatio: 2.5,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                              ),
-                          itemCount: controller.datesDayList.length,
-                          itemBuilder: (context, index) {
-                            final dateItem = controller.datesDayList[index];
-                            // final label =
-                            //     '${dateItem.day.substring(0, 3).toUpperCase()} ${dateItem.date?.day} ${_monthName(dateItem.date?.month ?? 0)}';
-
-                            final label =
-                                '${dateItem.day.substring(0, 3).toUpperCase()} '
-                                '${dateItem.date?.day} '
-                                '${_monthName(dateItem.date?.month ?? 0)}';
-                            return InkWell(
-                              // onTap: () {
-                              //   controller.selectedDateIndex.value = index;
-                              //   controller.selectedDate.value = dateItem.date
-                              //       .toIso8601String()
-                              //       .split('T')[0];
-                              //   controller.showTimeSlots.value = true;
-                              //   controller.fetchAllTimes(
-                              //     controller.selectedDate.value,
-                              //   );
-                              // },
-                              onTap: () {
-                                controller.selectedDateIndex.value = index;
-
-                                final date = dateItem.date;
-                                controller.selectedDate.value =
-                                    date?.toIso8601String().split('T')[0] ?? '';
-
-                                controller.showTimeSlots.value = true;
-
-                                controller.fetchAllTimes(
-                                  controller.selectedDate.value,
-                                );
-                              },
-                              borderRadius: BorderRadius.circular(
-                                Dimensions.radius,
-                              ),
-                              child: Obx(
-                                () => Container(
-                                  decoration: BoxDecoration(
-                                    color:
-                                        controller.selectedDateIndex.value ==
-                                            index
-                                        ? CustomColors.primary
-                                        : const Color(0xFFF5F5F5),
-                                    borderRadius: BorderRadius.circular(
-                                      Dimensions.radius,
-                                    ),
-                                    border: Border.all(
-                                      color: Colors.transparent,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: TextWidget(
-                                      label,
-                                      fontSize: Dimensions.labelSmall,
-                                      fontWeight: FontWeight.w500,
-                                      color:
-                                          controller.selectedDateIndex.value ==
-                                              index
-                                          ? Colors.white
-                                          : CustomColors.blackColor,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-
+                        SelectDateSection(),
                       AnimatedSize(
                         duration: const Duration(milliseconds: 300),
                         child: controller.showTimeSlots.value
@@ -205,6 +129,13 @@ class BookingDialog extends GetView<DoctorDetailsController> {
                                               ),
                                             ),
                                           )
+                                        : controller.timeList.isEmpty
+                                        ? TextWidget(
+                                            "No slot is available this day",
+                                            fontSize: Dimensions.labelMedium,
+                                            fontWeight: FontWeight.w500,
+                                            color: CustomColors.blackColor,
+                                          )
                                         : GridView.builder(
                                             shrinkWrap: true,
                                             physics:
@@ -221,6 +152,65 @@ class BookingDialog extends GetView<DoctorDetailsController> {
                                             itemBuilder: (context, index) {
                                               final timeItem =
                                                   controller.timeList[index];
+                                              final doctorTimezone =
+                                                  timeItem.doctorTimezone ??
+                                                  'Africa/Lagos';
+
+                                              final userTimezone =
+                                                  Get.isRegistered<
+                                                        ProfileController
+                                                      >() &&
+                                                      AppStorage.isUser
+                                                              ?.toUpperCase() ==
+                                                          "USER"
+                                                  ? (ProfileController
+                                                            .to
+                                                            .userProfileModel
+                                                            ?.data
+                                                            .timezone ??
+                                                        'Africa/Lagos')
+                                                  : 'Africa/Lagos';
+
+                                              debugPrint(
+                                                'doctorTimezone,: $doctorTimezone ',
+                                              );
+                                              debugPrint(
+                                                'userTimezone: $userTimezone ',
+                                              );
+                                              debugPrint(
+                                                'userTimezone from profile: ${ProfileController.to.userProfileModel?.data.timezone} ',
+                                              );
+
+                                              final isSameTimezone =
+                                                  doctorTimezone ==
+                                                  userTimezone;
+
+                                              String displayTime;
+                                              int dayOffset = 0;
+
+                                              if (isSameTimezone) {
+                                                displayTime = _formatTime(
+                                                  timeItem.time,
+                                                );
+                                              } else {
+                                                final converted =
+                                                    convertTimeToUserTime(
+                                                      dateStr: controller
+                                                          .selectedDate
+                                                          .value, // doctor date
+                                                      time: timeItem
+                                                          .time, // doctor time
+                                                      doctorTimezone:
+                                                          doctorTimezone,
+                                                      userTimezone:
+                                                          userTimezone,
+                                                    );
+
+                                                displayTime =
+                                                    converted.formattedTime;
+                                                dayOffset = converted.dayOffset;
+                                              }
+
                                               return InkWell(
                                                 onTap: () {
                                                   if (!timeItem.isAvailable) {
@@ -231,9 +221,9 @@ class BookingDialog extends GetView<DoctorDetailsController> {
                                                           .value =
                                                       index;
                                                   controller
-                                                          .selectedTime
-                                                          .value =
-                                                      timeItem.time;
+                                                      .selectedTime
+                                                      .value = timeItem
+                                                      .time; // keep raw doctor-time value for the booking API call
                                                 },
                                                 borderRadius:
                                                     BorderRadius.circular(
@@ -268,22 +258,47 @@ class BookingDialog extends GetView<DoctorDetailsController> {
                                                         ),
                                                       ),
                                                       child: Center(
-                                                        child: TextWidget(
-                                                          _formatTime(
-                                                            timeItem.time,
-                                                          ),
-                                                          fontSize: Dimensions
-                                                              .labelMedium,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          color:
-                                                              controller
-                                                                      .selectedTimeIndex
-                                                                      .value ==
-                                                                  index
-                                                              ? Colors.white
-                                                              : CustomColors
-                                                                    .blackColor,
+                                                        child: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            TextWidget(
+                                                              displayTime,
+                                                              fontSize: Dimensions
+                                                                  .labelMedium,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color:
+                                                                  controller
+                                                                          .selectedTimeIndex
+                                                                          .value ==
+                                                                      index
+                                                                  ? Colors.white
+                                                                  : CustomColors
+                                                                        .blackColor,
+                                                            ),
+                                                            if (dayOffset != 0)
+                                                              TextWidget(
+                                                                dayOffset > 0
+                                                                    ? '(+1 day)'
+                                                                    : '(-1 day)',
+                                                                fontSize: Dimensions
+                                                                    .labelSmall,
+                                                                color:
+                                                                    controller
+                                                                            .selectedTimeIndex
+                                                                            .value ==
+                                                                        index
+                                                                    ? Colors
+                                                                          .white70
+                                                                    : CustomColors
+                                                                          .blackColor
+                                                                          .withOpacity(
+                                                                            0.6,
+                                                                          ),
+                                                              ),
+                                                          ],
                                                         ),
                                                       ),
                                                     ),

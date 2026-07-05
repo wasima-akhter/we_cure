@@ -592,12 +592,14 @@ class UserId {
   final String? email;
   final String name;
   final String profileImage;
+  final String timezone;
 
   UserId({
     required this.id,
     this.email,
     required this.name,
     required this.profileImage,
+    required this.timezone,
   });
 
   factory UserId.fromJson(Map<String, dynamic>? json) => UserId(
@@ -605,10 +607,11 @@ class UserId {
     email: SafeParser.nullableString(json?['email']),
     name: JsonHelper.getString(json?['name']),
     profileImage: JsonHelper.getString(json?['profileImage']),
+    timezone: JsonHelper.getString(json?['timezone']),
   );
 
   static UserId fallback() =>
-      UserId(id: '', email: null, name: '', profileImage: '');
+      UserId(id: '', email: null, name: '', profileImage: '', timezone: '');
 }
 
 class Experience {

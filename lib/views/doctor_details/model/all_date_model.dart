@@ -91,12 +91,14 @@ class AllDates {
   final String day;
   final int availableSlots;
   final int totalSlots;
+  final String? doctorTimezone;
 
   AllDates({
     required this.date,
     required this.day,
     required this.availableSlots,
     required this.totalSlots,
+    this.doctorTimezone,
   });
 
   factory AllDates.fromJson(Map<String, dynamic>? json) {
@@ -107,11 +109,17 @@ class AllDates {
       day: SafeParser.str(map['day']),
       availableSlots: SafeParser.intVal(map['availableSlots']),
       totalSlots: SafeParser.intVal(map['totalSlots']),
+      doctorTimezone: SafeParser.str(map['doctorTimezone']),
     );
   }
 
-  static AllDates fallback() =>
-      AllDates(date: null, day: '', availableSlots: 0, totalSlots: 0);
+  static AllDates fallback() => AllDates(
+    date: null,
+    day: '',
+    availableSlots: 0,
+    totalSlots: 0,
+    doctorTimezone: '',
+  );
 
   /// 🔥 UI-safe label
   String get label {

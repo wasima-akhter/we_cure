@@ -92,6 +92,20 @@ class UpdateProfileScreenMobile extends GetView<UpdateProfileController> {
 
                 Space.height.betweenInputBox,
 
+                TextWidget(
+                  "Timezone",
+                  color: CustomColors.grayShade,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+                Space.height.btnInputTitleAndBox,
+                TextWidget(
+                  controller.timezone.value,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+                Space.height.betweenInputBox,
+
                 DatePickerWidget(
                   hint: 'Date of Birth',
                   label: 'Date of Birth',
@@ -115,6 +129,14 @@ class UpdateProfileScreenMobile extends GetView<UpdateProfileController> {
                   //   hintText: 'Blood Group (e.g. A+)',
                   //   label: 'Blood Group',
                   // ),
+                  TextWidget(
+                    "Blood Group",
+                    color: CustomColors.grayShade,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                  ),
+                  Space.height.btnInputTitleAndBox,
+
                   Obx(
                     () => CustomDropDownWidget(
                       label: 'Blood Group',

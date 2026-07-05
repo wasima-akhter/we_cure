@@ -69,28 +69,77 @@ class AppointmentScreenMobile extends GetView<AppointmentController> {
       ),
       itemCount: appointments.length,
       itemBuilder: (context, index) {
+        final userTimezone =
+            Get.isRegistered<ProfileController>() &&
+                AppStorage.isUser?.toUpperCase() == "USER"
+            ? (ProfileController.to.userProfileModel?.data.timezone ??
+                  'Africa/Lagos')
+            : 'Africa/Lagos';
+
         final appointment = appointments[index];
 
-        final startTime = formatTimeToAmPm(
-          appointment.appointmentTime,
-          date: appointment.appointmentDate.toString(),
+        final doctorTimezone = appointment.doctorTimezone ?? 'Africa/Lagos';
+
+        final isSameTimezone = doctorTimezone == userTimezone;
+
+        final startTime = isSameTimezone
+            ? formatTimeToAmPm(
+                appointment.appointmentTime,
+                date: appointment.appointmentDate.toString(),
+              )
+            : convertAppointmentTime(
+                appointmentDate: appointment.appointmentDate,
+                time: appointment.appointmentTime,
+                doctorTimezone: doctorTimezone,
+                userTimezone: userTimezone,
+              ).formattedTime;
+
+        final endTime = isSameTimezone
+            ? formatTimeToAmPm(
+                appointment.appointmentEndTime,
+                date: appointment.appointmentDate.toString(),
+              )
+            : convertAppointmentTime(
+                appointmentDate: appointment.appointmentDate,
+                time: appointment.appointmentEndTime,
+                doctorTimezone: doctorTimezone,
+                userTimezone: userTimezone,
+              ).formattedTime;
+
+        final displayDate = isSameTimezone
+            ? appointment.appointmentDate
+            : tz.TZDateTime.from(
+                appointment.appointmentDate,
+                tz.getLocation(userTimezone),
+              );
+
+        debugPrint(
+          ' converted startTime -  endTime : $startTime - $endTime   ',
+        );
+        debugPrint(
+          ' original startTime -  endTime : ${appointment.appointmentTime} - ${appointment.appointmentEndTime}   ',
         );
 
-        final endTime = formatTimeToAmPm(
-          appointment.appointmentEndTime,
-          date: appointment.appointmentDate.toString(),
+        debugPrint('doctorTimezone,: $doctorTimezone ');
+        debugPrint('userTimezone: $userTimezone ');
+        debugPrint(
+          'userTimezone from profile: ${ProfileController.to.userProfileModel?.data.timezone} ',
         );
 
-        debugPrint('  startTime -  endTime : $startTime - $endTime   ');
+        // check the times and date same way (if same timezone or not) if not, convert to user timezone.
+        // .
 
         return AppointmentCard(
           appointmentId: appointment.id,
           doctorName: appointment.doctorName,
           specialization: appointment.specialtyName,
           time: '$startTime - $endTime',
-          date: DateFormat(
-            'dd MMM yyyy',
-          ).format(appointment.appointmentDate.toLocal()),
+
+          // date: DateFormat(
+          //   'dd MMM yyyy',
+          // ).format(appointment.appointmentDate.toLocal()),
+          date: DateFormat('dd MMM yyyy').format(displayDate),
+
           status: appointment.status.toLowerCase() ?? '',
           onPressed: () => controller.handleAppointmentAction(appointment),
         );

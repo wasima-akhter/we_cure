@@ -172,6 +172,46 @@ class AppointmentDetailsScreenMobile
               debugPrint(' data?.appointmentDate: ${data?.appointmentDate} ');
               //I/flutter ( 6343):  data?.appointmentDate: 2026-06-21 00:00:00.000Z
 
+              final userTimezone =
+                  Get.isRegistered<ProfileController>() &&
+                      AppStorage.isUser == "USER"
+                  ? (ProfileController.to.userProfileModel?.data.timezone ??
+                        'Africa/Lagos')
+                  : 'Africa/Lagos';
+
+              final doctorTimezone = data?.doctorTimezone ?? 'Africa/Lagos';
+
+              final isSameTimezone = doctorTimezone == userTimezone;
+
+              final displayDate = isSameTimezone
+                  ? data?.appointmentDate
+                  : data?.appointmentDate == null
+                  ? null
+                  : tz.TZDateTime.from(
+                      data!.appointmentDate!,
+                      tz.getLocation(userTimezone),
+                    );
+
+              final formattedVisitingDate = formatTzConvertedAppointmentDate(
+                date: data?.appointmentDate,
+                doctorTimezone: doctorTimezone,
+                userTimezone: userTimezone,
+              );
+
+              final formattedVisitingTime = isSameTimezone
+                  ? formatTimeToAmPm(data?.appointmentTime)
+                  : convertTimeToUserTime(
+                      dateStr:
+                          data?.appointmentDate
+                              ?.toIso8601String()
+                              .split('T')
+                              .first ??
+                          '',
+                      time: data?.appointmentTime ?? '',
+                      doctorTimezone: doctorTimezone,
+                      userTimezone: userTimezone,
+                    ).formattedTime;
+
               return ListView(
                 padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
                 physics: const AlwaysScrollableScrollPhysics(
@@ -203,7 +243,18 @@ class AppointmentDetailsScreenMobile
                     leftTitle: 'Reason',
                     leftValue: data?.reasonTitle ?? '',
                     rightTitle: 'Booking Date',
-                    rightValue: formatAppointmentDate(data?.appointmentDate),
+                    rightValue: data?.appointmentDate == null
+                        ? '-- --- ----'
+                        : (isSameTimezone
+                              ? DateFormat(
+                                  'dd MMM yyyy',
+                                ).format(data!.appointmentDate!)
+                              : DateFormat('dd MMM yyyy').format(
+                                  tz.TZDateTime.from(
+                                    data!.appointmentDate!,
+                                    tz.getLocation(userTimezone),
+                                  ),
+                                )),
                   ),
                   Space.height.v15,
                   TextWidget(
@@ -224,9 +275,7 @@ class AppointmentDetailsScreenMobile
                   Space.height.v15,
                   InfoPairRow(
                     leftTitle: 'Visiting Date',
-                    leftValue:
-                        '${formatAppointmentDate(data?.appointmentDate)}\n'
-                        '${formatTimeToAmPm(data?.appointmentTime)}',
+                    leftValue: '$formattedVisitingDate\n$formattedVisitingTime',
                     rightTitle: 'Status',
                     rightValue: data?.status ?? '',
                   ),
@@ -351,7 +400,7 @@ class AppointmentDetailsScreenMobile
                   InfoPairRow(
                     leftTitle: 'Visiting Date',
                     leftValue:
-                        '${formatDateDMY(data.appointmentDate)}\n${data.appointmentTime}',
+                        '${formatDateDMY(data.appointmentDate)}\n${formatTimeToAmPm(data.appointmentTime)}',
                     rightTitle: 'Status',
                     rightValue: data.status,
                   ),

@@ -67,6 +67,22 @@ class RegisterScreenMobile extends GetView<RegisterController> {
                     confirmWith:
                         controller.passwordController, // only checks matching
                   ),
+
+                  ///---------------------------
+                  Space.height.betweenInputBox,
+
+                  Obx(
+                    () => CustomDropDownWidget(
+                      hint: "Select Timezone",
+                      initialValue: controller.selectedTimezone.value,
+                      items: controller.timezones,
+                      onChanged: (value) {
+                        controller.selectedTimezone.value = value;
+                      },
+                    ),
+                  ),
+
+                  ///---------------------------
                   Space.height.betweenInputBox,
                   Space.height.betweenInputBox,
                   Obx(

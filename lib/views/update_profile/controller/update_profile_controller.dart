@@ -6,6 +6,7 @@ import 'package:glady/core/api/services/api_request.dart';
 import 'package:glady/views/profile/controller/profile_controller.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/constants/timezones.dart';
 import '../../../core/utils/app_storage.dart';
 import '../../../core/utils/basic_import.dart';
 import '../update_profile_helper.dart';
@@ -38,6 +39,11 @@ class UpdateProfileController extends GetxController {
   }
 
   //
+  final RxString timezone = 'Africa/Lagos'.obs;
+
+  final List<String> timezones = Timezones.all;
+
+  //
   @override
   void onInit() {
     super.onInit();
@@ -66,6 +72,11 @@ class UpdateProfileController extends GetxController {
         if (data.allergies.isNotEmpty) {
           allergiesList.assignAll(data.allergies);
         }
+
+        //
+        timezone.value = data.timezone?.isNotEmpty == true
+            ? data.timezone!
+            : 'Africa/Lagos';
       }
     } else {
       final data = profileController.doctorProfileModel?.data;
@@ -77,6 +88,11 @@ class UpdateProfileController extends GetxController {
             ? data.dateOfBirth!.substring(0, 10)
             : '';
         dobController.text = initialDateOfBirth;
+
+        //
+        timezone.value = data.userId.timezone?.isNotEmpty == true
+            ? data.userId.timezone!
+            : 'Africa/Lagos';
       }
     }
   }
@@ -104,6 +120,8 @@ class UpdateProfileController extends GetxController {
         "name": nameController.text,
         "phone": phoneController.text,
         "dateOfBirth": dobController.text,
+        //
+        "timezone": timezone.value,
       },
       showSuccessSnackBar: true,
       onSuccess: (result) {
@@ -129,6 +147,9 @@ class UpdateProfileController extends GetxController {
         "bloodGroup": selectedBloodGroup.value?.value,
         for (int i = 0; i < allergiesList.length; i++)
           "allergies[$i]": allergiesList[i],
+
+        //
+        "timezone": timezone.value,
       },
       showSuccessSnackBar: true,
       onSuccess: (result) {

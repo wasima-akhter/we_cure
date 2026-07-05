@@ -24,12 +24,14 @@ class AllTimes {
   final bool isAvailable;
   final int fee;
   final int duration;
+  final String? doctorTimezone;
 
   AllTimes({
     required this.time,
     required this.isAvailable,
     required this.fee,
     required this.duration,
+    this.doctorTimezone,
   });
 
   factory AllTimes.fromJson(Map<String, dynamic> json) => AllTimes(
@@ -37,5 +39,6 @@ class AllTimes {
     isAvailable: json["isAvailable"],
     fee: json["fee"],
     duration: json["duration"],
+    doctorTimezone: json["doctorTimezone"],
   );
 }

@@ -1,5 +1,6 @@
 import '../../../../core/utils/basic_import.dart';
 
+import '../../../../core/widgets/custom_drop_down_widget.dart';
 import '../../../../widgets/custom_logo_widget.dart';
 import '../controller/doctor_register_controller.dart';
 

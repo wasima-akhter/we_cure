@@ -404,6 +404,7 @@ class UserId {
   final String? phone;
   final String profileImage;
   final String? email;
+  final String? timezone;
 
   UserId({
     required this.id,
@@ -411,6 +412,7 @@ class UserId {
     this.phone,
     required this.profileImage,
     this.email,
+    this.timezone,
   });
 
   factory UserId.fromJson(Map<String, dynamic>? json) {
@@ -422,6 +424,7 @@ class UserId {
       phone: SafeParser.nullableString(map['phone']),
       profileImage: SafeParser.str(map['profileImage']),
       email: SafeParser.nullableString(map['email']),
+      timezone: SafeParser.nullableString(map['timezone']),
     );
   }
 

@@ -81,6 +81,7 @@ class ProfileController extends GetxController {
 
         log("userId: ${result.data.id}");
         log("user patient token: ${AppStorage.token}");
+        log("user timezone: ${result.data.timezone}");
       },
     );
   }

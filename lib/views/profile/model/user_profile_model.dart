@@ -163,6 +163,7 @@ class UserData {
   final String accountName;
   final String accountNumber;
   final String bankName;
+  final String? timezone;
 
   UserData({
     required this.id,
@@ -187,6 +188,7 @@ class UserData {
     required this.accountName,
     required this.accountNumber,
     required this.bankName,
+    this.timezone,
   });
 
   factory UserData.fromJson(Map<String, dynamic>? json) {
@@ -219,6 +221,7 @@ class UserData {
       accountName: SafeParser.str(map['accountName']),
       accountNumber: SafeParser.str(map['accountNumber']),
       bankName: SafeParser.str(map['bankName']),
+      timezone: SafeParser.str(map['timezone']),
     );
   }
 
@@ -245,5 +248,6 @@ class UserData {
     accountName: '',
     accountNumber: '',
     bankName: '',
+    timezone: '',
   );
 }

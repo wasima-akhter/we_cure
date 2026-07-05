@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:glady/core/utils/app_storage.dart';
 import 'package:glady/views/profile/controller/profile_controller.dart';
 import 'package:intl/intl.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class Helpers {
   static DateTime _toBDTime(String timestamp) {
@@ -205,6 +206,30 @@ String formatAppointmentDate(DateTime? date) {
 
   try {
     return DateFormat('dd MMM yyyy').format(date.toLocal());
+  } catch (e) {
+    debugPrint('Invalid date: $date');
+    return '-- --- ----';
+  }
+}
+
+String formatTzConvertedAppointmentDate({
+  required DateTime? date,
+  required String doctorTimezone,
+  required String userTimezone,
+}) {
+  if (date == null) {
+    return '-- --- ----';
+  }
+
+  try {
+    final doctorLocation = tz.getLocation(doctorTimezone);
+    final userLocation = tz.getLocation(userTimezone);
+
+    final doctorDateTime = tz.TZDateTime.from(date, doctorLocation);
+
+    final userDateTime = tz.TZDateTime.from(doctorDateTime, userLocation);
+
+    return DateFormat('dd MMM yyyy').format(userDateTime);
   } catch (e) {
     debugPrint('Invalid date: $date');
     return '-- --- ----';

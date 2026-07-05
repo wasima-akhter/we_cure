@@ -34,6 +34,7 @@ class Appointments {
   final int consultationFee;
   final String doctorName;
   final String specialtyName;
+  final String? doctorTimezone;
 
   Appointments({
     required this.id,
@@ -44,6 +45,7 @@ class Appointments {
     required this.consultationFee,
     required this.doctorName,
     required this.specialtyName,
+    this.doctorTimezone,
   });
 
   factory Appointments.fromJson(Map<String, dynamic> json) => Appointments(
@@ -55,6 +57,7 @@ class Appointments {
     consultationFee: json["consultationFee"],
     doctorName: json["doctorName"],
     specialtyName: json["specialtyName"],
+    doctorTimezone: json["doctorTimezone"],
   );
 }
 

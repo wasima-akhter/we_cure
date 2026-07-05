@@ -53,6 +53,25 @@ class DoctorDetailsScreenMobile extends GetView<DoctorDetailsController> {
     final availability =
         controller.doctorDetailsInfoModel?.data.availability ?? [];
 
+    final doctorTimezone = doctor?.userId.timezone ?? 'Africa/Lagos';
+
+    // Requires tz.setLocalLocation(...) to have been called once at app startup
+    // (e.g. in main.dart using the `flutter_timezone` package to get the device's
+    // IANA zone name). If that's not set up yet, let me know and I'll add it.
+    final userTimezone =
+        Get.isRegistered<ProfileController>() &&
+            AppStorage.isUser?.toUpperCase() == "USER"
+        ? (ProfileController.to.userProfileModel?.data.timezone ??
+              'Africa/Lagos')
+        : 'Africa/Lagos';
+
+    debugPrint('doctorTimezone,: $doctorTimezone ');
+    debugPrint('userTimezone: $userTimezone ');
+    debugPrint(
+      'userTimezone from profile: ${ProfileController.to.userProfileModel?.data.timezone} ',
+    );
+
+    final isSameTimezone = doctorTimezone == userTimezone;
     return Container(
       // padding: EdgeInsets.only(bottom: Get.mediaQuery.viewPadding.bottom),
       child: RefreshIndicator(
@@ -115,13 +134,32 @@ class DoctorDetailsScreenMobile extends GetView<DoctorDetailsController> {
                 debugPrint(' slot.formattedTime,: ${slot.formattedTime} ');
                 debugPrint(' slot.totalSlots,: ${slot.totalSlots} ');
 
+                String displayDay = slot.dayOfWeek;
+                String displayTime = slot.formattedTime;
+
+                debugPrint('doctorTimezone,: $doctorTimezone ');
+                debugPrint('userTimezone: $userTimezone ');
+
+                if (!isSameTimezone) {
+                  final converted = convertSlotToUserTime(
+                    dayOfWeek: slot.dayOfWeek,
+                    startTime: slot.startTime,
+                    endTime: slot.endTime,
+                    doctorTimezone: doctorTimezone,
+                    userTimezone: userTimezone,
+                  );
+
+                  displayDay = converted.dayOfWeek;
+                  displayTime = converted.formattedTime;
+                }
+
                 return Padding(
                   padding: EdgeInsets.only(
                     bottom: Dimensions.verticalSize * 0.25,
                   ),
                   child: AppointmentSectionWidget(
-                    days: slot.dayOfWeek,
-                    time: slot.formattedTime,
+                    days: displayDay,
+                    time: displayTime,
                     price: slot.formattedPrice,
                     slot: slot.totalSlots,
                     duration: slot.formattedDuration,

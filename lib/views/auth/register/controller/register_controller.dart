@@ -1,5 +1,8 @@
+import 'package:flutter_timezone/flutter_timezone.dart';
+
 import '../../../../core/api/model/basic_success_model.dart';
 import '../../../../core/api/services/auth_services.dart';
+import '../../../../core/constants/timezones.dart';
 import '../../../../core/utils/basic_import.dart';
 
 class RegisterController extends GetxController {
@@ -24,6 +27,33 @@ class RegisterController extends GetxController {
 
   final isCheck = false.obs;
 
+  //
+  // Timezone
+  // Timezone
+  final RxString selectedTimezone = 'Africa/Lagos'.obs;
+
+  final List<String> timezones = Timezones.all;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadDeviceTimezone();
+  }
+
+  Future<void> _loadDeviceTimezone() async {
+    try {
+      final timezone = await FlutterTimezone.getLocalTimezone();
+
+      if (timezones.contains(timezone)) {
+        selectedTimezone.value = timezone.identifier;
+      } else {
+        selectedTimezone.value = 'Africa/Lagos';
+      }
+    } catch (_) {
+      selectedTimezone.value = 'Africa/Lagos';
+    }
+  }
+
   //Register api
   RxBool isLoading = false.obs;
   Future<BasicSuccessModel> registerProcess() async {
@@ -34,6 +64,7 @@ class RegisterController extends GetxController {
       password: passwordController.text,
       role: 'USER',
       doctorId: '',
+      timezone: selectedTimezone.value,
     );
   }
 }

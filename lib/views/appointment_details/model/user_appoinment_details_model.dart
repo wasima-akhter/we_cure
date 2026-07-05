@@ -212,6 +212,7 @@ class AppointmentData {
     this.doctorInfo,
     this.attachments = const [],
     this.createdAt,
+    this.doctorTimezone,
   });
 
   final String id;
@@ -228,6 +229,7 @@ class AppointmentData {
   final DoctorInfo? doctorInfo;
 
   final List<Attachment> attachments;
+  final String? doctorTimezone;
 
   final DateTime? createdAt;
 
@@ -252,6 +254,7 @@ class AppointmentData {
         json['attachments'],
         Attachment.fromJson,
       ),
+      doctorTimezone: SafeParser.str(json['doctorTimezone']),
 
       createdAt: SafeParser.date(json['createdAt']),
     );
@@ -269,6 +272,7 @@ class AppointmentData {
     'doctorInfo': doctorInfo?.toJson(),
     'attachments': attachments.map((e) => e.toJson()).toList(),
     'createdAt': createdAt?.toIso8601String(),
+    'doctorTimezone': doctorTimezone,
   };
 }
 

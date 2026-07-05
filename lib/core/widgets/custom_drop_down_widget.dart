@@ -21,6 +21,17 @@ class CustomDropDownWidget extends StatefulWidget {
 }
 
 class _DropdownWidgetState extends State<CustomDropDownWidget> {
+  @override
+  void didUpdateWidget(covariant CustomDropDownWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.initialValue != widget.initialValue) {
+      setState(() {
+        _selectedValue = widget.initialValue;
+      });
+    }
+  }
+
   String? _selectedValue;
 
   @override

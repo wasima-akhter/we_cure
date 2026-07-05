@@ -7,6 +7,7 @@ import 'package:glady/views/doctor_details/model/time_model.dart';
 import '../../../core/utils/basic_import.dart' hide Data;
 
 class DoctorDetailsController extends GetxController {
+  static DoctorDetailsController get to => Get.find();
   String? doctorId = '';
 
   @override
@@ -38,7 +39,13 @@ class DoctorDetailsController extends GetxController {
     data: Data(
       doctor: Doctor(
         id: '',
-        userId: UserId(id: '', email: null, name: '', profileImage: ''),
+        userId: UserId(
+          id: '',
+          email: null,
+          name: '',
+          profileImage: '',
+          timezone: '',
+        ),
         currentOrganization: '',
         specialtyId: SpecialtyId(id: '', name: ''),
         about: '',
@@ -121,6 +128,7 @@ class DoctorDetailsController extends GetxController {
       await ApiRequest().get(
         fromJson: AllTimeModel.fromJson,
         endPoint: ApiEndPoints.availableSlots,
+        showResponse: true,
         queryParams: {'doctorId': doctorId, 'date': date},
         isLoading: isLoadingTime,
         onSuccess: (result) {
