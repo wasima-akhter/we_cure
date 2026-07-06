@@ -99,11 +99,20 @@ class UpdateProfileScreenMobile extends GetView<UpdateProfileController> {
                   fontSize: 16,
                 ),
                 Space.height.btnInputTitleAndBox,
-                TextWidget(
-                  controller.timezone.value,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
+                Obx(
+                  () => CustomDropDownWidget(
+                    label: 'Timezone',
+                    hint: 'Select Timezone',
+                    items: controller.timezones,
+                    initialValue: controller.timezone.value.isNotEmpty
+                        ? controller.timezone.value
+                        : null,
+                    onChanged: (value) {
+                      controller.timezone.value = value;
+                    },
+                  ),
                 ),
+                Space.height.betweenInputBox,
                 Space.height.betweenInputBox,
 
                 DatePickerWidget(

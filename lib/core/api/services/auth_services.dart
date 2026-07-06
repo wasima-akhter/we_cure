@@ -522,7 +522,7 @@ class AuthService {
     } catch (e) {
       log('⚠️ Logout API failed, continuing cleanup → $e');
     } finally {
-      AppStorage.clear();
+      await AppStorage.clear();
 
       log("🧹 STORAGE CLEARED COMPLETELY");
       log("➡️ Raw storage role: ${GetStorage().read('isUser')}");

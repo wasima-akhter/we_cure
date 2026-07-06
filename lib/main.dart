@@ -30,7 +30,9 @@ void main() async {
         if (Get.key.currentState?.canPop() ?? false) {
           Get.back();
         } else {
+          Get.delete<SplashController>();
           Get.offAllNamed(Routes.splashScreen);
+          Get.put(SplashController()); // fresh instance → onReady fires again
         }
       }
     }
