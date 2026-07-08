@@ -1,7 +1,79 @@
 part of 'request_view_screen.dart';
 
-class RequestViewScreenMobile extends GetView<DoctorHomeController> {
+class RequestViewScreenMobile extends StatefulWidget {
   const RequestViewScreenMobile({super.key});
+
+  @override
+  State<RequestViewScreenMobile> createState() =>
+      _RequestViewScreenMobileState();
+}
+
+class _RequestViewScreenMobileState extends State<RequestViewScreenMobile>
+    with RouteAware {
+  late DoctorHomeController controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = Get.find<DoctorHomeController>();
+
+    debugPrint("🟢 RequestViewScreenMobile initState");
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    debugPrint("🟡 RequestViewScreenMobile didChangeDependencies");
+
+    final route = ModalRoute.of(context);
+
+    debugPrint("🟡 Current route: $route");
+
+    if (route is PageRoute) {
+      debugPrint("🟡 Subscribing RouteAware");
+
+      appRouteObserver.subscribe(this, route);
+    } else {
+      debugPrint("🔴 Route is not PageRoute");
+    }
+  }
+
+  @override
+  void didPush() {
+    debugPrint("🚀 RouteAware didPush fired");
+
+    controller.fetchDashboard();
+  }
+
+  @override
+  void didPopNext() {
+    debugPrint("🔄 RouteAware didPopNext fired");
+
+    debugPrint("🔄 Calling fetchDashboard after returning");
+
+    controller.fetchDashboard();
+  }
+
+  @override
+  void didPushNext() {
+    debugPrint("➡️ RouteAware didPushNext fired (another screen opened)");
+  }
+
+  @override
+  void didPop() {
+    debugPrint("⬅️ RouteAware didPop fired");
+  }
+
+  @override
+  void dispose() {
+    debugPrint("🔴 RequestViewScreenMobile dispose");
+
+    appRouteObserver.unsubscribe(this);
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +124,7 @@ class RequestViewScreenMobile extends GetView<DoctorHomeController> {
                   child: RequestCard(
                     name: appointment.patientName,
                     service: appointment.reasonTitle,
-                    time: appointment.timeRange,
+                    time: formatTimeRange(appointment.timeRange),
                     status: DateFormat(
                       "dd MMMM yyyy",
                     ).format(DateTime.parse(appointment.date)),

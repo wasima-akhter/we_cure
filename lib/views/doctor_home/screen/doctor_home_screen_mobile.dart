@@ -24,6 +24,19 @@ class DoctorHomeScreenMobile extends GetView<DoctorHomeController> {
                     physics: AlwaysScrollableScrollPhysics(),
                     padding: Dimensions.defaultHorizontalSize.edgeHorizontal,
                     children: [
+                      if (kDebugMode) ...[
+                        ElevatedButton(
+                          onPressed: () {
+                            NotificationService.testForegroundNotification();
+                          },
+                          child: const Text(
+                            "Test Notification",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+
+                        Space.height.v20,
+                      ],
                       Space.height.v20,
                       const DoctorAppointmentSectionWidget(),
                       Space.height.v20,
@@ -89,45 +102,7 @@ class DoctorHomeScreenMobile extends GetView<DoctorHomeController> {
                         ),
                       ),
                       Space.height.v20,
-                      // ListView.builder(
-                      //   itemCount:
-                      //       controller
-                      //           .dashboardModel
-                      //           .value
-                      //           ?.data
-                      //           .upcomingAppointments
-                      //           .length ??
-                      //       0,
-                      //   addRepaintBoundaries: true,
-                      //   cacheExtent: 500,
-                      //   shrinkWrap: true,
-                      //   primary: false,
-                      //   physics: NeverScrollableScrollPhysics(),
-                      //   itemBuilder: (context, index) {
-                      //     final appointment = controller
-                      //         .dashboardModel
-                      //         .value!
-                      //         .data
-                      //         .upcomingAppointments[index];
-                      //     return Padding(
-                      //       padding: EdgeInsets.only(
-                      //         bottom: Dimensions.heightSize,
-                      //       ),
-                      //       child: RequestCard(
-                      //         name: appointment.patientName,
-                      //         service: appointment.reasonTitle,
-                      //         time: appointment.timeRange,
-                      //         status: DateFormat(
-                      //           "dd MMMM",
-                      //         ).format(DateTime.parse(appointment.date)),
-                      //         buttonTitle: 'View',
-                      //         cardOnTap: () {
-                      //           Get.toNamed(Routes.appointmentDetailsScreen);
-                      //         },
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
+
                       if ((controller
                                   .dashboardModel
                                   .value
@@ -175,6 +150,12 @@ class DoctorHomeScreenMobile extends GetView<DoctorHomeController> {
                                 name: appointment.patientName,
                                 service: appointment.reasonTitle,
                                 time: appointment.timeRange,
+                                onTap: () {
+                                  Get.toNamed(
+                                    Routes.appointmentDetailsScreen,
+                                    arguments: appointment.id,
+                                  );
+                                },
                                 status: DateFormat(
                                   "dd MMMM yyyy",
                                 ).format(DateTime.parse(appointment.date)),

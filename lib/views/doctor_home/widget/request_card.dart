@@ -42,23 +42,23 @@ class RequestCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextWidget(
-                    name,
+                    time,
                     fontSize: Dimensions.titleMedium,
                     fontWeight: FontWeight.w500,
                   ),
                   SizedBox(height: 2.h),
                   TextWidget(
-                    service,
+                    service.capitalizeSafe,
                     fontSize: Dimensions.titleSmall,
                     fontWeight: FontWeight.w500,
                   ),
                   Space.height.v10,
-                  TextWidget(
-                    time,
-                    fontSize: Dimensions.titleSmall,
-                    fontWeight: FontWeight.w500,
-                    color: CustomColors.blackColor.withOpacity(0.7),
-                  ),
+                  // TextWidget(
+                  //   time,
+                  //   fontSize: Dimensions.titleSmall,
+                  //   fontWeight: FontWeight.w500,
+                  //   color: CustomColors.blackColor.withOpacity(0.7),
+                  // ),
                   TextWidget(
                     status,
                     fontSize: Dimensions.titleSmall * 0.9,

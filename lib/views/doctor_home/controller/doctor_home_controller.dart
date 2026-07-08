@@ -23,4 +23,22 @@ class DoctorHomeController extends GetxController {
       },
     );
   }
+
+  //
+
+  void handleAppointmentAction({required String appStatus, required String appId}) {
+    final status = appStatus.toUpperCase() ?? '';
+
+    if (status == 'ONGOING') {
+      joinVideoCall(appId );
+    } else if (status == 'COMPLETED' ||
+        status == 'CANCELLED' ||
+        status == 'UPCOMING') {
+      Get.toNamed(Routes.appointmentDetailsScreen, arguments: appId);
+    }
+  }
+
+  void joinVideoCall(String appointmentId) {
+    Get.toNamed(Routes.videoCallScreen, arguments: appointmentId);
+  }
 }

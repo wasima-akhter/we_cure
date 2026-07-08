@@ -44,6 +44,7 @@ class InboxController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    myId = myProfileId();
     _conversationId = args.conversationId; // may be empty
     scrollController.addListener(_onScroll);
 
@@ -83,7 +84,9 @@ class InboxController extends GetxController {
     );
 
     socket.onConnect((_) {
-      log("✅ Socket connected");
+      log("Socket Connected");
+
+      log("socket.id = ${socket.id}");
     });
     socket.onDisconnect((_) => log("❌ Socket disconnected"));
     socket.onError((error) => log("❌ Socket error: $error"));
@@ -92,12 +95,32 @@ class InboxController extends GetxController {
     socket.onReconnectError((error) => log("❌ Socket reconnect error: $error"));
 
     socket.on('connection_confirmed', (data) {
-      log("✅ connection_confirmed: $data");
-      myId = data['data']?['userId']?.toString() ?? '';
-      log("✅ myId set: $myId");
+      log("connection_confirmed");
+
+      log(data.toString());
+
+      // myId = data['data']?['userId']?.toString() ?? ''; // ekhane
+
+      log("myId = $myId");
     });
 
+    // socket.on('message_new', (data) {
+    //   log("========== MESSAGE_NEW ==========");
+    //   log(data.toString());
+
+    //   listenMsgInstant(data);
+    // });
+
+    // ✅ existing generic listener (keep, harmless)
     socket.on('message_new', (data) {
+      log("========== MESSAGE_NEW (generic) ==========");
+      listenMsgInstant(data);
+    });
+
+    // ✅ NEW — the actual per-user delivery channel
+    socket.on('message_new/$myId', (data) {
+      log("========== MESSAGE_NEW (per-user: $myId) ==========");
+      log(data.toString());
       listenMsgInstant(data);
     });
 
@@ -107,15 +130,41 @@ class InboxController extends GetxController {
     });
 
     socket.on('conversation_update', (data) {
-      log("🔄 conversation_update: $data");
+      log("conversation_update");
+      log(data.toString());
+    });
+
+    socket.onAny((event, data) {
+      log("EVENT => $event");
+      log("$event DATA => $data");
     });
   }
 
   void listenMsgInstant(dynamic data) {
+    log("listenMsgInstant called");
+
     final senderId = data["sender"]?["id"]?.toString() ?? '';
-    if (senderId == myId) return;
+
+    log("senderId: $senderId");
+    log("myId: $myId");
+
+    if (senderId == myId) {
+      log("Ignoring own message");
+      return;
+    }
+    //
+    // ✅ add a dedup guard using message _id, since two channels could deliver the same message twice
+    final incomingId = data["_id"]?.toString();
+    if (incomingId != null &&
+        messagesList.any((m) => m.senderId == incomingId)) {
+      log("Duplicate message ignored: $incomingId");
+      return;
+    }
+
+    log("Adding incoming message");
 
     List<String> imagesList = [];
+
     if (data["images"] != null) {
       imagesList = (data["images"] as List)
           .where((e) => e != null)
@@ -127,20 +176,26 @@ class InboxController extends GetxController {
       ChatMessageModel(
         isMe: false,
         type: imagesList.isNotEmpty ? MessageType.image : MessageType.text,
-        message: data['text'] ?? '',
+        message: data["text"] ?? "",
         images: imagesList,
-        senderId: data['_id']?.toString(),
-        isUploading: false,
-        isSeen: data['seen'] ?? false,
-        createdAt: DateTime.tryParse(data['createdAt'] ?? '') ?? DateTime.now(),
+        senderId: data["_id"]?.toString(),
+        isSeen: data["seen"] ?? false,
+        createdAt: DateTime.tryParse(data["createdAt"] ?? "") ?? DateTime.now(),
       ),
     );
+
+    log("messages count = ${messagesList.length}");
 
     scrollToBottom();
   }
 
   void sendMessage() {
-    if (textController.text.trim().isEmpty && multipleImages.isEmpty) return;
+    if (textController.text.trim().isEmpty && multipleImages.isEmpty) {
+      print(
+        "${textController.text.trim().isEmpty} || ${multipleImages.isEmpty}",
+      );
+      return;
+    }
 
     print(
       "receiver:  args.receiverId : ${args.receiverId},  args.receiverRole : ${args.receiverRole}},",
@@ -153,29 +208,46 @@ class InboxController extends GetxController {
   }
 
   void sendTextMessage() {
-    final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+    final text = textController.text.trim();
+    if (text.isEmpty) return;
 
-    messagesList.add(
-      ChatMessageModel(
-        isMe: true,
-        senderId: tempId,
-        type: MessageType.text,
-        message: textController.text.trim(),
-      ),
-    );
-    scrollToBottom();
+    log("========== SEND TEXT ==========");
+    log("myId: $myId");
+    log("conversationId: $_conversationId");
+    log("receiverId: ${args.receiverId}");
+    log("receiverRole: ${args.receiverRole}");
+    log("message: $text");
 
     final body = {
       "sender": {"id": myId, "role": AppStorage.isUser},
       "receiver": {"id": args.receiverId, "role": args.receiverRole},
-      "text": textController.text.trim(),
-
-      // ✅ include conversationId only if it exists
+      "text": text,
       if (_conversationId.isNotEmpty) "conversationId": _conversationId,
     };
 
+    log("Socket Body: $body");
+    log("Socket connected: ${socket.connected}");
+
+    // ✅ plain emit — don't block UI on a server ack that may never come
     socket.emit('send_message', body);
+    log("send_message emitted");
+
     textController.clear();
+
+    // ✅ optimistic local insert — same pattern as images
+    messagesList.add(
+      ChatMessageModel(
+        isMe: true,
+        senderId: myId,
+        type: MessageType.text,
+        message: text,
+        images: const [],
+        isUploading: false,
+        isSeen: false,
+        createdAt: DateTime.now(),
+      ),
+    );
+    scrollToBottom();
   }
 
   Future<void> sendMessageWithImages() async {
@@ -231,6 +303,8 @@ class InboxController extends GetxController {
     log(
       "receiver:  args.receiverId : ${args.receiverId},  args.receiverRole : ${args.receiverRole}},",
     );
+
+    log("Socket connected: ${socket.connected}");
     socket.emit('send_message', body);
   }
 
@@ -348,7 +422,7 @@ class InboxController extends GetxController {
               debugPrint('conversion.sender.id : ${conversion.sender.id} ');
               debugPrint('conversion myProfileId() : ${myProfileId()} ');
               return ChatMessageModel(
-                isMe: conversion.sender.id == myProfileId(),
+                isMe: conversion.sender.id == myId,
                 type: conversion.images.isNotEmpty
                     ? MessageType.image
                     : MessageType.text,

@@ -24,7 +24,7 @@ class ApiRequest {
     };
   }
 
-  void _handleUnauthorized(http.Response response) {
+  Future<void> _handleUnauthorized(http.Response response) async {
     if (response.statusCode == 401) {
       final error = jsonDecode(response.body);
       final errorMessage = (error['message'] ?? '').toString().toLowerCase();
@@ -33,7 +33,8 @@ class ApiRequest {
           errorMessage.contains('expired') ||
           errorMessage.contains('invalid') ||
           errorMessage.contains('unauthorized')) {
-        AppStorage.clear();
+        // AppStorage.clear();
+        await AppStorage.clearLoginData();
         Get.offAllNamed(Routes.loginScreen);
         // CustomSnackBar.error('Session expired. Please login again.');
       }
@@ -226,18 +227,38 @@ class ApiRequest {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> json = jsonDecode(response.body);
-        final result = fromJson(json);
+        if (response.body.trim().isEmpty) {
+          throw Exception("Empty response body");
+        }
+
+        dynamic decoded;
+
+        try {
+          decoded = jsonDecode(response.body);
+        } catch (e) {
+          log("❌ JSON Parse Error: $e");
+          log("❌ Raw Body: ${response.body}");
+          throw Exception("Invalid server response");
+        }
+
+        if (decoded is! Map<String, dynamic>) {
+          throw Exception("Unexpected response format");
+        }
+
+        final result = fromJson(decoded);
 
         final successMessage =
-            json['message'] ?? Strings.requestCompletedSuccessfully;
+            decoded['message'] ?? Strings.requestCompletedSuccessfully;
+
         if (showSuccessSnackBar) {
           CustomSnackBar.success(
             title: Strings.success,
             message: successMessage,
           );
         }
-        if (onSuccess != null) onSuccess(result);
+
+        onSuccess?.call(result);
+
         return result;
       } else {
         _handleUnauthorized(response);

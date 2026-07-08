@@ -10,7 +10,10 @@ class SplashController extends GetxController {
   }
 
   Future<void> _init() async {
-    await Future.delayed(Duration(seconds: 5));
+    debugPrint("onboardSave: ${AppStorage.onboardSave}");
+    debugPrint("isLoggedIn: ${AppStorage.isLoggedIn}");
+
+    await Future.delayed(const Duration(seconds: 5));
 
     if (!AppStorage.onboardSave) {
       Get.offAllNamed(Routes.onboardScreen);

@@ -103,4 +103,18 @@ class AppStorage {
   static Future<void> clear() async {
     await _storage.erase();
   }
+
+  static Future<void> clearLoginData() async {
+    await _storage.remove(tokenKey);
+    await _storage.remove(temporaryTokenKey);
+    await _storage.remove(userIdKey);
+    await _storage.remove(isUserKey);
+    await _storage.remove(isLoggedInKey);
+    await _storage.remove(isEmailVerifiedKey);
+    await _storage.remove(isKycVerifiedKey);
+    await _storage.remove(isSmsVerifiedKey);
+    await _storage.remove(kycStatusKey);
+    await _storage.remove(mobileCodeKey);
+    await _storage.remove(waitTimeKey);
+  }
 }

@@ -58,12 +58,12 @@ class OnboardController extends GetxController {
   }
 
   // Complete onboarding and navigate to home/login
-  void completeOnboarding() {
+  Future<void> completeOnboarding() async {
     // Save onboarding completion status
     // Example: Get.find<StorageService>().setOnboardingCompleted(true);
 
     // Navigate to next screen (login or home)
-    AppStorage.save(onboardSave: true);
+    await AppStorage.save(onboardSave: true);
     Get.offAllNamed(Routes.loginScreen); // Update with your route
   }
 }

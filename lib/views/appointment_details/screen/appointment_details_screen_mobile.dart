@@ -56,7 +56,7 @@ class AppointmentDetailsScreenMobile
                                 title: 'Reject Request',
                                 inputController: controller.reasonController,
                                 subTitle:
-                                    'write a reason for rejecting the appointment request',
+                                    'Write a reason for rejecting the appointment request',
                                 isLoading: controller.isDeleting,
                                 buttonTex: 'Reject',
                                 action: () {

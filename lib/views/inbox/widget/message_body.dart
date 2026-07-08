@@ -105,7 +105,7 @@ class MessageBodyWidget extends GetView<InboxController> {
                                   msg.message.isNotEmpty)
                                 Space.height.v5,
                               if (msg.message.isNotEmpty)
-                                TextBubbleWidget(index: index),
+                                TextBubbleWidget(msg: msg),
                               Space.height.v5,
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 8.w),

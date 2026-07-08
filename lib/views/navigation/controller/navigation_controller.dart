@@ -9,48 +9,6 @@ import '../../find/screen/find_screen.dart';
 import '../../home/screen/home_screen.dart';
 import '../../profile/screen/profile_screen.dart';
 
-/*
-class NavigationController extends GetxController {
-  RxInt selectedIndex = 0.obs;
-  late List<Widget> bodyScreen;
-
-  @override
-  void onInit() {
-    super.onInit();
-    if (Get.arguments != null && Get.arguments is int) {
-      selectedIndex.value = Get.arguments;
-    }
-
-    if (AppStorage.isUser == 'USER') {
-      bodyScreen = [
-        HomeScreen(), // index 0
-        FindScreen(), // index 1
-        AppointmentScreen(), // index 2
-        ChatScreen(), // index 3
-        ProfileScreen(), // index 4
-      ];
-    } else {
-      bodyScreen = [
-        DoctorHomeScreen(), // index 0
-        RequestViewScreen(), // index 1
-        AppointmentScreen(), // index 2
-        ChatScreen(), // index 3
-        ProfileScreen(), // index 4
-      ];
-    }
-  }
-
-  void changeNavScreen(int index) {
-    selectedIndex.value = index;
-  }
-
-  void goToHomeNav() => changeNavScreen(0);
-  void goToSearchNav() => changeNavScreen(1);
-  void goToAppointment() => changeNavScreen(2);
-  void goToChat() => changeNavScreen(3);
-  void goToProfile() => changeNavScreen(4);
-}
-*/
 class NavigationController extends GetxController {
   static NavigationController get to => Get.find<NavigationController>();
   RxInt selectedIndex = 0.obs;

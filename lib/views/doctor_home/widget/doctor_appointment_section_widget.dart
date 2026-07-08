@@ -3,17 +3,6 @@ part of '../screen/doctor_home_screen.dart';
 class DoctorAppointmentSectionWidget extends StatelessWidget {
   const DoctorAppointmentSectionWidget({super.key});
 
-  String _formatTime(String time) {
-    if (time.isEmpty) return '';
-    final parts = time.split(':');
-    if (parts.length < 2) return time;
-    final hour = int.tryParse(parts[0]) ?? 0;
-    final minute = parts[1];
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    return '$displayHour:$minute $period';
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<DoctorHomeController>();
@@ -29,7 +18,7 @@ class DoctorAppointmentSectionWidget extends StatelessWidget {
       if (nextSchedule.contains(' - ')) {
         final parts = nextSchedule.split(' - ');
         formattedNextSchedule =
-            '${_formatTime(parts[0])} - ${_formatTime(parts[1])}';
+            '${formatTimeToAmPm(parts[0])} - ${formatTimeToAmPm(parts[1])}';
       }
 
       return Container(
@@ -151,7 +140,7 @@ class DoctorAppointmentSectionWidget extends StatelessWidget {
                                   ),
                                   SizedBox(height: 2.h),
                                   TextWidget(
-                                    _formatTime(today?.startTime ?? ''),
+                                    formatTimeToAmPm(today?.startTime ?? ''),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ],
@@ -186,7 +175,7 @@ class DoctorAppointmentSectionWidget extends StatelessWidget {
                                   ),
                                   SizedBox(height: 2.h),
                                   TextWidget(
-                                    _formatTime(today?.endTime ?? ''),
+                                    formatTimeToAmPm(today?.endTime ?? ''),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ],
@@ -237,10 +226,20 @@ class DoctorAppointmentSectionWidget extends StatelessWidget {
               RequestCard(
                 name: activeAppointment.timeRange,
                 service: activeAppointment.reasonTitle,
-                time: activeAppointment.timeRange,
+                time: formatTimeRange(activeAppointment.timeRange),
                 status: activeAppointment.status,
                 buttonTitle: 'Join',
-                onTap: () {},
+                onTap: () {
+                  // Get.toNamed(
+                  //   Routes.appointmentDetailsScreen,
+                  //   arguments: activeAppointment.id,
+                  // );
+
+                  controller.handleAppointmentAction(
+                    appId: activeAppointment.id,
+                    appStatus: activeAppointment.status,
+                  );
+                },
               ),
             ],
           ],

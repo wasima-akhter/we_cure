@@ -17,54 +17,6 @@ class AuthService {
 
   /// =============================================== ✅ Login ================================================== ///
 
-  /*
-  static Future<LoginModel> loginService({
-    required RxBool isLoading,
-    required String email,
-    required String password,
-  }) async {
-    Map<String, dynamic> inputBody = {
-      'email': email.trim(),
-      'password': password,
-    };
-
-    return await _api.post(
-      fromJson: LoginModel.fromJson,
-      endPoint: ApiEndPoints.login,
-      isLoading: isLoading,
-      body: inputBody,
-      queryParams: {},
-
-      showSuccessSnackBar: false,
-      onSuccess: (result) {
-        AppStorage.save(
-          token: result.data?.accessToken,
-          isUser: result.data?.role,
-          isLoggedIn: true,
-        );
-
-        if (Get.isRegistered<NavigationController>()) {
-          NavigationController.to.reloadScreens();
-          NavigationController.to.update();
-          NavigationController.to.selectedIndex.value = 0;
-        }
-
-        Get.offAllNamed(Routes.navigationScreen);
-        log('✅ Login successful - Token saved');
-
-        // FCM Token পাঠাও
-        NotificationService.getToken().then((fcmToken) {
-          if (fcmToken != null) {
-            log('✅ FCM Token: $fcmToken');
-            NotificationService.sendTokenToServer(fcmToken);
-            AppStorage.save(temporaryToken: fcmToken);
-          }
-        });
-      },
-    );
-  }
-*/
-
   static Future<LoginModel> loginService({
     required RxBool isLoading,
     required String email,
@@ -522,7 +474,8 @@ class AuthService {
     } catch (e) {
       log('⚠️ Logout API failed, continuing cleanup → $e');
     } finally {
-      await AppStorage.clear();
+      // await AppStorage.clear();
+      await AppStorage.clearLoginData();
 
       log("🧹 STORAGE CLEARED COMPLETELY");
       log("➡️ Raw storage role: ${GetStorage().read('isUser')}");

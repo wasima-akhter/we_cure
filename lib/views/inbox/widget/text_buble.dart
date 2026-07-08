@@ -1,15 +1,13 @@
 import '../../../core/utils/basic_import.dart';
-import '../controller/inbox_controller.dart';
+import '../model/chat_message_model.dart';
 
-class TextBubbleWidget extends GetView<InboxController> {
-  final int index;
+class TextBubbleWidget extends StatelessWidget {
+  final ChatMessageModel msg;
 
-  const TextBubbleWidget({super.key, required this.index});
+  const TextBubbleWidget({super.key, required this.msg});
 
   @override
   Widget build(BuildContext context) {
-    final msg =
-        controller.messagesList[controller.messagesList.length - 1 - index];
     final width = MediaQuery.of(context).size.width;
 
     return Align(

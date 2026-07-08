@@ -45,3 +45,25 @@ ConvertedTime convertAppointmentTime({
 
   return ConvertedTime(DateFormat('h:mm a').format(userDateTime), dayOffset);
 }
+
+String formatTimeRange(String timeRange) {
+  if (!timeRange.contains(' - ')) return timeRange;
+
+  final parts = timeRange.split(' - ');
+  return '${_formatTime(parts[0])} - ${_formatTime(parts[1])}';
+}
+
+String _formatTime(String time) {
+  if (time.isEmpty) return '';
+
+  final parts = time.split(':');
+  if (parts.length < 2) return time;
+
+  final hour = int.parse(parts[0]);
+  final minute = parts[1];
+
+  final period = hour >= 12 ? 'PM' : 'AM';
+  final displayHour = hour % 12 == 0 ? 12 : hour % 12;
+
+  return '${displayHour.toString().padLeft(2, '0')}:$minute $period';
+}
