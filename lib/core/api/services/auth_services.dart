@@ -166,6 +166,8 @@ class AuthService {
       isLoading: isLoading,
       body: inputBody,
       showSuccessSnackBar: false,
+
+      /*
       onSuccess: (result) async {
         AppStorage.save(
           isLoggedIn: true,
@@ -188,6 +190,31 @@ class AuthService {
         log('✅ OTP verified successfully');
 
         await TimezoneService.checkAndSyncTimezone(); // ✅ ADD THIS
+      },
+  */
+      onSuccess: (result) async {
+        if (result.data?.role == 'USER') {
+          // Users are immediately logged in
+          AppStorage.save(
+            isLoggedIn: true,
+            token: result.data?.accessToken,
+            isUser: result.data?.role?.toUpperCase(),
+          );
+
+          if (Get.isRegistered<NavigationController>()) {
+            NavigationController.to.reloadScreens();
+          }
+
+          Get.offAllNamed(Routes.navigationScreen);
+
+          await TimezoneService.checkAndSyncTimezone();
+        } else {
+          // Doctor
+          Get.offNamed(
+            Routes.createDoctorProfileScreen,
+            arguments: {"email": email, "token": result.data?.accessToken},
+          );
+        }
       },
     );
   }

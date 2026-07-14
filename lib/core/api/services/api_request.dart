@@ -74,6 +74,7 @@ class ApiRequest {
     Map<String, dynamic>? queryParams,
     bool showSuccessSnackBar = false,
     Function(R result)? onSuccess,
+    String? token,
   }) async {
     try {
       isLoading.value = true;
@@ -87,7 +88,11 @@ class ApiRequest {
       printBody(body);
 
       final response = await http
-          .post(uri, headers: await _bearerHeaderInfo(), body: jsonEncode(body))
+          .post(
+            uri,
+            headers: await _bearerHeaderInfo(token),
+            body: jsonEncode(body),
+          )
           .timeout(const Duration(seconds: 120));
 
       // TEMP FOR TESTING

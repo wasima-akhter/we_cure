@@ -59,6 +59,7 @@ class ProfileController extends GetxController {
       fromJson: DoctorProfileModel.fromJson,
       endPoint: ApiEndPoints.doctorProfile,
       isLoading: getDoctorProfileLoading,
+      showResponse: true,
       onSuccess: (result) {
         doctorProfileModel = result;
 

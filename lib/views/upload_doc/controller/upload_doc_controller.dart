@@ -1,6 +1,8 @@
 import 'dart:io';
+
 import 'package:glady/core/api/model/basic_success_model.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../../core/api/end_point/api_end_points.dart';
 import '../../../core/api/services/api_request.dart';
 import '../../../core/utils/basic_import.dart';
@@ -11,12 +13,22 @@ class UploadDocController extends GetxController {
   RxList<dynamic> attachmentList = [].obs;
   RxBool isLoading = false.obs;
 
+  String accessToken = '';
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    accessToken = Get.arguments?['token'] ?? '';
+  }
+
   Future<BasicSuccessModel> uploadFileDoc() async {
     return ApiRequest().multiMultipartRequest(
       reqType: 'POST',
       fromJson: BasicSuccessModel.fromJson,
       endPoint: ApiEndPoints.docUpload,
       isLoading: isLoading,
+      token: accessToken,
       body: {},
       files: {"document": File(multipleImages.first.path)},
 

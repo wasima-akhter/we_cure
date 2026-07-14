@@ -55,6 +55,11 @@ class RoutePageList {
       binding: AditionalBinding(),
     ),
     GetPage(
+      name: Routes.createDoctorProfileScreen,
+      page: () => const CreateDoctorProfileScreen(),
+      binding: CreateDoctorProfileBinding(),
+    ),
+    GetPage(
       name: Routes.doctorRegisterScreen,
       page: () => const DoctorRegisterScreen(),
       binding: DoctorRegisterBinding(),
