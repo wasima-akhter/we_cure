@@ -5,6 +5,8 @@ import 'package:glady/core/api/model/basic_success_model.dart';
 import 'package:glady/core/api/services/api_request.dart';
 import 'package:glady/core/utils/basic_import.dart';
 import 'package:glady/views/navigation/controller/navigation_controller.dart';
+
+import '../../utils/app_storage.dart';
 /*
 @pragma('vm:entry-point')
 Future<void> _firebaseBackgroundHandler(RemoteMessage message) async {
@@ -200,19 +202,18 @@ Future<void> _firebaseBackgroundHandler(RemoteMessage message) async {
 
 class NotificationService {
   static final _messaging = FirebaseMessaging.instance;
+  static String?
+  _cachedToken; // 👈 holds the token until we're allowed to send it
 
   static Future<void> init() async {
     debugPrint("🔥 [FCM] Initialization started");
 
     try {
-      debugPrint("🔥 [FCM] Requesting notification permission...");
-
       final permission = await _messaging.requestPermission(
         alert: true,
         badge: true,
         sound: true,
       );
-
       debugPrint(
         "🔥 [FCM] Permission status: ${permission.authorizationStatus}",
       );
@@ -223,99 +224,66 @@ class NotificationService {
         sound: true,
       );
 
-      debugPrint("🔥 [FCM] Foreground notification presentation configured");
-
       FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundHandler);
 
-      debugPrint("🔥 [FCM] Background handler registered");
-
       FirebaseMessaging.onMessage.listen((message) {
-        debugPrint("==============================");
-        debugPrint("🔥 [FCM] FOREGROUND MESSAGE RECEIVED");
-        debugPrint("Message ID: ${message.messageId}");
-        debugPrint("Sender: ${message.senderId}");
-        debugPrint("Data: ${message.data}");
-
-        debugPrint("Notification title: ${message.notification?.title}");
-
-        debugPrint("Notification body: ${message.notification?.body}");
-
-        debugPrint("==============================");
-
         final notification = message.notification;
-
-        if (notification == null) {
-          debugPrint("⚠️ [FCM] No notification payload found");
-          return;
-        }
-
+        if (notification == null) return;
         _showCustomNotification(message);
       });
 
       FirebaseMessaging.onMessageOpenedApp.listen((message) {
-        debugPrint("==============================");
-        debugPrint("🔥 [FCM] NOTIFICATION CLICKED");
-        debugPrint("Message ID: ${message.messageId}");
-        debugPrint("Data: ${message.data}");
-        debugPrint("==============================");
-
         _handleNavigation(message);
       });
 
-      debugPrint("🔥 [FCM] Checking terminated app message...");
-
       final initialMessage = await _messaging.getInitialMessage();
-
       if (initialMessage != null) {
-        debugPrint("==============================");
-        debugPrint("🔥 [FCM] APP OPENED FROM TERMINATED STATE");
-
-        debugPrint("Message ID: ${initialMessage.messageId}");
-
-        debugPrint("Data: ${initialMessage.data}");
-
-        debugPrint("==============================");
-
         Future.delayed(const Duration(seconds: 1), () {
           _handleNavigation(initialMessage);
         });
-      } else {
-        debugPrint("🔥 [FCM] No terminated notification found");
       }
 
-      debugPrint("🔥 [FCM] Getting device token...");
+      // fetch + cache only — do NOT send yet, we likely have no session
+      _cachedToken = await getToken();
+      if (_cachedToken != null) {
+        debugPrint("✅ [FCM] Device token cached: $_cachedToken");
 
-      final token = await getToken();
-
-      if (token != null) {
-        debugPrint("✅ [FCM] Device token received:");
-
-        debugPrint(token);
+        // if a session already exists (e.g. app restart while logged in),
+        // send immediately
+        if (AppStorage.token.isNotEmpty) {
+          await sendTokenToServer(_cachedToken!);
+        }
       } else {
         debugPrint("❌ [FCM] Device token is NULL");
       }
 
-      _messaging.onTokenRefresh.listen(
-        (token) {
-          debugPrint("🔄 [FCM] Token refreshed");
+      _messaging.onTokenRefresh.listen((token) {
+        debugPrint("🔄 [FCM] Token refreshed");
+        _cachedToken = token;
 
-          debugPrint(token);
-
+        // only push to backend if we're currently authenticated;
+        // otherwise it'll be sent by syncTokenIfPending() after login
+        if (AppStorage.token.isNotEmpty) {
           sendTokenToServer(token);
-        },
-        onError: (error) {
-          debugPrint("❌ [FCM] Token refresh error: $error");
-        },
-      );
+        }
+      }, onError: (error) => debugPrint("❌ [FCM] Token refresh error: $error"));
 
       debugPrint("✅ [FCM] Initialization completed successfully");
     } catch (e, stack) {
-      debugPrint("❌ [FCM] Initialization failed");
-
-      debugPrint("Error: $e");
-
+      debugPrint("❌ [FCM] Initialization failed: $e");
       debugPrint(stack.toString());
     }
+  }
+
+  /// Call this right after login succeeds — sends whatever token
+  /// we already have cached, now that we have a valid access token.
+  static Future<void> syncTokenAfterLogin() async {
+    final token = _cachedToken ?? await getToken();
+    if (token == null) {
+      debugPrint("❌ [FCM] No token available to sync after login");
+      return;
+    }
+    await sendTokenToServer(token);
   }
 
   static Future<String?> getToken() async {

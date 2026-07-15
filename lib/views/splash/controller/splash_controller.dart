@@ -1,3 +1,4 @@
+import '../../../core/api/services/push_notification_service.dart';
 import '../../../core/helpers/timezone_service.dart';
 import '../../../core/utils/app_storage.dart';
 import '../../../core/utils/basic_import.dart';
@@ -18,6 +19,7 @@ class SplashController extends GetxController {
     if (!AppStorage.onboardSave) {
       Get.offAllNamed(Routes.onboardScreen);
     } else if (AppStorage.isLoggedIn) {
+      await NotificationService.syncTokenAfterLogin();
       Get.offAllNamed(Routes.navigationScreen);
       await TimezoneService.checkAndSyncTimezone();
     } else {

@@ -11,6 +11,7 @@ import '../../widgets/confirmation_widget.dart';
 import '../end_point/api_end_points.dart';
 import '../model/basic_success_model.dart';
 import 'api_request.dart';
+import 'push_notification_service.dart';
 
 class AuthService {
   static final ApiRequest _api = ApiRequest();
@@ -56,6 +57,8 @@ class AuthService {
         log("💾 AFTER SAVE STORAGE");
         log("➡️ Saved Role: ${AppStorage.isUser}");
         log("➡️ Saved Token: ${AppStorage.token}");
+
+        await NotificationService.syncTokenAfterLogin();
 
         if (Get.isRegistered<NavigationController>()) {
           NavigationController.to.reloadScreens(); // ✅ Add this
@@ -195,12 +198,12 @@ class AuthService {
       onSuccess: (result) async {
         if (result.data?.role == 'USER') {
           // Users are immediately logged in
-          AppStorage.save(
+          await AppStorage.save(
             isLoggedIn: true,
             token: result.data?.accessToken,
             isUser: result.data?.role?.toUpperCase(),
           );
-
+          await NotificationService.syncTokenAfterLogin();
           if (Get.isRegistered<NavigationController>()) {
             NavigationController.to.reloadScreens();
           }
