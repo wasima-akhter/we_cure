@@ -12,6 +12,7 @@ class ConfirmationWidget extends StatelessWidget {
   final TextStyle? titleStyle;
   final TextStyle? subtitleStyle;
   final VoidCallback? onTap;
+  final String buttonText;
 
   const ConfirmationWidget({
     super.key,
@@ -22,6 +23,7 @@ class ConfirmationWidget extends StatelessWidget {
     this.titleStyle,
     this.subtitleStyle,
     this.onTap,
+    this.buttonText = "Okay",
   });
 
   @override
@@ -63,7 +65,7 @@ class ConfirmationWidget extends StatelessWidget {
               horizontal: Dimensions.defaultHorizontalSize,
               vertical: Dimensions.verticalSize,
             ),
-            title: "Okay",
+            title: buttonText,
             onPressed:
                 onTap ??
                 () {

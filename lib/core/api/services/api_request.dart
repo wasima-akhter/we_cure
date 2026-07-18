@@ -75,6 +75,7 @@ class ApiRequest {
     bool showSuccessSnackBar = false,
     Function(R result)? onSuccess,
     String? token,
+    Function(String error)? onError,
   }) async {
     try {
       isLoading.value = true;
@@ -155,21 +156,31 @@ class ApiRequest {
             final error = jsonDecode(res.body);
             errorMessage = error['message'] ?? errorMessage;
           } catch (_) {
-            errorMessage = res.body; // fallback if not JSON
+            errorMessage = res.body;
           }
         } else {
           errorMessage = 'Empty response from server (${res.statusCode})';
         }
 
         log('❌ Error: $errorMessage');
+
         CustomSnackBar.error(errorMessage);
+
+        if (onError != null) {
+          onError(errorMessage);
+        }
 
         throw Exception(errorMessage);
       }
     } catch (e) {
       debugPrint(' asfdyuafsdyasydf catch ');
       log('🐞🐞🐞 ERROR: ${e.toString()}');
-      throw Exception((e).toString());
+
+      if (onError != null) {
+        onError(e.toString());
+      }
+
+      throw Exception(e.toString());
     } finally {
       isLoading.value = false;
     }

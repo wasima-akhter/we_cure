@@ -23,6 +23,12 @@ class UploadDocController extends GetxController {
   }
 
   Future<BasicSuccessModel> uploadFileDoc() async {
+    if (multipleImages.isEmpty) {
+      CustomSnackBar.error("Please upload your document before continuing.");
+
+      throw Exception("Document is required");
+    }
+
     return ApiRequest().multiMultipartRequest(
       reqType: 'POST',
       fromJson: BasicSuccessModel.fromJson,
@@ -42,7 +48,11 @@ class UploadDocController extends GetxController {
             ),
             title: 'Awaiting Verification',
             subtitle:
-                'The authority will check your documents to verify your authenticity. 24-48 hours is the usual time for verification. You will be notified via email once the verification is complete. Thank you for your patience.',
+                'Your documents have been submitted successfully.\n\n'
+                'Please complete your bank account information before your verification process continues. '
+                'Our team usually verifies documents within 24–48 hours. '
+                'You will receive an email once your account has been verified.',
+
             onTap: () => Get.offAllNamed(Routes.loginScreen),
           ),
         );
@@ -50,3 +60,17 @@ class UploadDocController extends GetxController {
     );
   }
 }
+
+/*
+
+Doctor Signup
+      ↓
+Complete Profile
+      ↓
+Upload Documents
+      ↓
+Add Bank Account (Mandatory)
+      ↓
+Awaiting Verification
+
+*/

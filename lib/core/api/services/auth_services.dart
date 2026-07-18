@@ -4,6 +4,7 @@ import 'package:glady/views/auth/login/model/login_model.dart';
 import 'package:glady/views/navigation/controller/navigation_controller.dart';
 
 import '../../../views/auth/otp/model/otp_verify_model.dart';
+import '../../../views/bank_details/model/bank_details_model.dart';
 import '../../helpers/timezone_service.dart';
 import '../../utils/app_storage.dart';
 import '../../utils/basic_import.dart';
@@ -68,41 +69,26 @@ class AuthService {
 
         ///
 
-        log("🚀 Navigating to NavigationScreen");
-        Get.offAllNamed(Routes.navigationScreen);
+        // log("✅ Login complete");
+        log("🚀 Checking user role navigation");
+
+        if (result.data?.role?.toUpperCase() == "DOCTOR") {
+          await checkDoctorBankDetailsAndNavigate(
+            token: result.data?.accessToken ?? '',
+          );
+        } else {
+          Get.offAllNamed(Routes.navigationScreen);
+          // Wait until navigation is completed
+          Future.delayed(const Duration(milliseconds: 500), () async {
+            await TimezoneService.checkAndSyncTimezone();
+          });
+        }
 
         log("✅ Login complete");
-
-        await TimezoneService.checkAndSyncTimezone();
-
-        // add logic.
-        // if success , then    checkthe time zone from profileController
-        // AppStorage.isUser == "User"
-        //     ? ProfileController.to.getUserProfile()
-        //     : ProfileController.to.getDoctorProfile();
-
-        // after fetching, if the timezone (for both users) is different to the currnt local timezone, then show a popup to change the timezone by user.
       },
     );
   }
 
-  /// =============================================== ✅ Register ================================================== ///
-  /*
-  Usage:
-  ──────────────────────────────────────────────────────────────────────────
-  RxBool isLoading = false.obs;
-
-  registerProcess() async {
-    return await AuthService.registerService(
-      isLoading: isLoading,
-      fullName: nameController.text,
-      email: emailController.text,
-      password: passwordController.text,
-      phone: phoneController.text, // optional
-    );
-  }
-  ──────────────────────────────────────────────────────────────────────────
-  */
   static Future<BasicSuccessModel> registerService({
     required RxBool isLoading,
     required String fullName,
@@ -138,21 +124,6 @@ class AuthService {
     );
   }
 
-  /// =============================================== ✅ OTP Verification ================================================== ///
-  /*
-  Usage:
-  ──────────────────────────────────────────────────────────────────────────
-  RxBool isLoading = false.obs;
-
-  otpVerifyProcess() async {
-    return await AuthService.registerOtpVerifyService(
-      isLoading: isLoading,
-      code: otpController.text,
-      email: email,
-    );
-  }
-  ──────────────────────────────────────────────────────────────────────────
-  */
   static Future<LoginModel> registerOtpVerifyService({
     required RxBool isLoading,
     required String code,
@@ -170,31 +141,6 @@ class AuthService {
       body: inputBody,
       showSuccessSnackBar: false,
 
-      /*
-      onSuccess: (result) async {
-        AppStorage.save(
-          isLoggedIn: true,
-          token: result.data?.accessToken,
-          isUser: result.data?.role.toString().toUpperCase(),
-        );
-        print(result.data?.accessToken ?? '');
-
-        if (Get.isRegistered<NavigationController>()) {
-          NavigationController.to.reloadScreens(); // ✅ Add this
-        }
-
-        if (result.data?.role == 'USER') {
-          log('USER');
-          Get.offAllNamed(Routes.navigationScreen);
-        } else {
-          log('DOCTOR');
-          Get.toNamed(Routes.aditionalScreen);
-        }
-        log('✅ OTP verified successfully');
-
-        await TimezoneService.checkAndSyncTimezone(); // ✅ ADD THIS
-      },
-  */
       onSuccess: (result) async {
         if (result.data?.role == 'USER') {
           // Users are immediately logged in
@@ -252,20 +198,6 @@ class AuthService {
     );
   }
 
-  /// =============================================== ✅ Resend OTP ================================================== ///
-  /*
-  Usage:
-  ──────────────────────────────────────────────────────────────────────────
-  RxBool isResending = false.obs;
-
-  resendOtpProcess() async {
-    return await AuthService.resendOtpService(
-      isLoading: isResending,
-      email: email,
-    );
-  }
-  ──────────────────────────────────────────────────────────────────────────
-  */
   static Future<BasicSuccessModel> resendOtpService({
     required RxBool isLoading,
     required String email,
@@ -284,20 +216,6 @@ class AuthService {
     );
   }
 
-  /// =============================================== ✅ Forgot Password ================================================== ///
-  /*
-  Usage:
-  ──────────────────────────────────────────────────────────────────────────
-  RxBool isLoading = false.obs;
-
-  forgotPasswordProcess() async {
-    return await AuthService.forgotPasswordService(
-      isLoading: isLoading,
-      email: emailController.text,
-    );
-  }
-  ──────────────────────────────────────────────────────────────────────────
-  */
   static Future<BasicSuccessModel> forgotPasswordService({
     required RxBool isLoading,
     required String email,
@@ -317,55 +235,6 @@ class AuthService {
       },
     );
   }
-
-  /// =============================================== ✅ Reset Password ================================================== ///
-  /*
-  Usage:
-  ──────────────────────────────────────────────────────────────────────────
-  RxBool isLoading = false.obs;
-
-  resetPasswordProcess() async {
-    return await AuthService.resetPasswordService(
-      isLoading: isLoading,
-      password: passwordController.text,
-      email: email,
-    );
-  }
-  ──────────────────────────────────────────────────────────────────────────
-  */
-
-  /*
-  static resetPasswordService({
-    required RxBool isLoading,
-    required String password,
-    // required String email,
-  }) async {
-    final token = AppStorage.temporaryToken;
-
-    if (token.isEmpty) {
-      throw Exception('Reset token is missing. Please restart the process.');
-    }
-
-    Map<String, dynamic> inputBody = {
-      // 'email': email.trim(),
-      'resetToken': AppStorage.temporaryToken,
-      'newPassword': password,
-    };
-
-    return await _api.post(
-      fromJson: BasicSuccessModel.fromJson,
-      endPoint: ApiEndPoints.resetPassword,
-      isLoading: isLoading,
-      body: inputBody,
-      showSuccessSnackBar: true,
-      onSuccess: (result) {
-        Get.offAllNamed(Routes.welcomeScreen);
-        AppStorage.save(temporaryToken: '');
-        log('✅ Password reset successful - Please login with new password');
-      },
-    );
-  }
-*/
 
   static Future<BasicSuccessModel> resetPasswordService({
     required RxBool isLoading,
@@ -406,21 +275,6 @@ class AuthService {
     return result;
   }
 
-  /// =============================================== ✅ Change Password ================================================== ///
-  /*
-  Usage:
-  ──────────────────────────────────────────────────────────────────────────
-  RxBool isLoading = false.obs;
-
-  changePasswordProcess() async {
-    return await AuthService.changePasswordService(
-      isLoading: isLoading,
-      oldPassword: currentPasswordController.text,
-      newPassword: newPasswordController.text,
-    );
-  }
-  ──────────────────────────────────────────────────────────────────────────
-  */
   static Future<BasicSuccessModel> changePasswordService({
     required RxBool isLoading,
     required String oldPassword,
@@ -450,37 +304,6 @@ class AuthService {
       },
     );
   }
-
-  /// =============================================== ✅ Logout ================================================== ///
-
-  /*
-  static Future<void> logoutService({
-    RxBool? isLoading,
-    bool callApi = false,
-    bool showSuccessSnackBar = true,
-  }) async {
-    try {
-      if (callApi) {
-        await _api.post(
-          fromJson: BasicSuccessModel.fromJson,
-          endPoint: ApiEndPoints.logout,
-          isLoading: isLoading ?? false.obs,
-          body: {'token': AppStorage.temporaryToken},
-          showSuccessSnackBar: showSuccessSnackBar,
-        );
-      }
-
-      AppStorage.clear();
-      Get.offAllNamed(Routes.loginScreen);
-      log('✅ Logout successful - All data cleared');
-    } catch (e) {
-      log('⚠️ Logout API failed, but clearing local data anyway');
-      AppStorage.clear();
-      Get.offAllNamed(Routes.loginScreen);
-    }
-  }
-
-  */
 
   static Future<void> logoutService({
     RxBool? isLoading,
@@ -519,6 +342,33 @@ class AuthService {
       Get.offAllNamed(Routes.loginScreen);
 
       log("🚪 Navigated to login");
+    }
+  }
+
+  static Future<void> checkDoctorBankDetailsAndNavigate({
+    required String token,
+  }) async {
+    try {
+      final response = await _api.get(
+        fromJson: BankDetailsModel.fromJson,
+        endPoint: ApiEndPoints.addDoctorBankAccount,
+        isLoading: false.obs,
+        showResponse: false,
+      );
+
+      final accountNumber = response.data?.accountNumber;
+
+      if (accountNumber == null || accountNumber.trim().isEmpty) {
+        Get.offNamed(
+          Routes.bankDetailsScreen,
+          arguments: {"token": token, "isFirstTime": true},
+        );
+      } else {
+        Get.offAllNamed(Routes.navigationScreen);
+      }
+    } catch (e) {
+      log("Bank check error: $e");
+      Get.offAllNamed(Routes.navigationScreen);
     }
   }
 }

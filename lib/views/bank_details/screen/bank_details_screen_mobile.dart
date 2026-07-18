@@ -20,19 +20,45 @@ class BankDetailsScreenMobile extends GetView<BankDetailsController> {
                     children: [
                       Space.height.betweenInputBox,
                       PrimaryInputFieldWidget(
+                        label: "Bank Code",
+                        hintText: "Bank Code",
+                        controller: controller.bankCodeController,
+                        validatorLogic: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Bank Code is required";
+                          }
+                          return null;
+                        },
+                      ),
+                      Space.height.betweenInputBox,
+                      PrimaryInputFieldWidget(
+                        label: "Bank Name",
                         hintText: "Bank Name",
                         controller: controller.bankNameController,
+                        validatorLogic: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Bank Name is required";
+                          }
+                          return null;
+                        },
                       ),
                       Space.height.betweenInputBox,
                       PrimaryInputFieldWidget(
-                        hintText: "Account Name",
-                        controller: controller.accountNameController,
-                      ),
-                      Space.height.betweenInputBox,
-                      PrimaryInputFieldWidget(
+                        label: "Account Number",
                         keyBoardType: TextInputType.number,
                         hintText: "Account Number",
                         controller: controller.numberController,
+                        validatorLogic: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Account number is required";
+                          }
+
+                          if (value.trim().length < 6) {
+                            return "Enter a valid account number";
+                          }
+
+                          return null;
+                        },
                       ),
                       Space.height.betweenInputBox,
                       Space.height.betweenInputBox,
@@ -40,13 +66,18 @@ class BankDetailsScreenMobile extends GetView<BankDetailsController> {
                         () => PrimaryButtonWidget(
                           title: 'Save',
                           isLoading: controller.isLoading.value,
-                          onPressed: () {
-                            if (controller.formKey.currentState!.validate()) {
-                              if (AppStorage.isUser == 'USER') {
-                                controller.addUserBankAccount();
-                              } else {
-                                controller.addDoctorBankAccount();
-                              }
+                          onPressed: () async {
+                            if (!(controller.formKey.currentState?.validate() ??
+                                false)) {
+                              return;
+                            }
+
+                            FocusManager.instance.primaryFocus?.unfocus();
+
+                            if (AppStorage.isUser == 'USER') {
+                              await controller.addUserBankAccount();
+                            } else {
+                              await controller.addDoctorBankAccount();
                             }
                           },
                         ),

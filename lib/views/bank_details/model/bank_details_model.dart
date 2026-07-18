@@ -24,12 +24,22 @@ class Data {
   final String? bankName;
   final String? accountName;
   final String? accountNumber;
+  final String? bankCode;
+  final bool? hasRecipient;
 
-  Data({this.bankName, this.accountName, this.accountNumber});
+  Data({
+    this.bankName,
+    this.accountName,
+    this.accountNumber,
+    this.bankCode,
+    this.hasRecipient,
+  });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     bankName: json["bankName"] ?? '',
     accountName: json["accountName"] ?? '',
     accountNumber: json["accountNumber"] ?? '',
+    bankCode: json["bankCode"] ?? '',
+    hasRecipient: json["hasRecipient"] ?? false,
   );
 }
