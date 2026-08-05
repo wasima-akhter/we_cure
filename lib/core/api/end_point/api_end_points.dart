@@ -1,7 +1,7 @@
 class ApiEndPoints {
   // static const String base = 'http://10.10.28.196:3010';
-  static const String base = 'https://rnj64vmh-3010.inc1.devtunnels.ms';
-  // static const String base = 'https://api.wecurehealth.com';
+  // static const String base = 'https://rnj64vmh-3010.inc1.devtunnels.ms';
+  static const String base = 'https://api.wecurehealth.com';
   static const String baseUrl = '$base/api';
   // static const String baseUrl = 'https://api.wecurehealth.com/api';
 
