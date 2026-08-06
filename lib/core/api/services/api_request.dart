@@ -186,6 +186,22 @@ class ApiRequest {
     }
   }
 
+  //
+
+  Future<Map<String, dynamic>> getRaw({
+    required String url,
+
+    // required Map<String, String> headers,
+  }) async {
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode != 200) {
+      throw Exception(response.body);
+    }
+
+    return jsonDecode(response.body);
+  }
+
   /// =========================================================== ✅ HTTP GET REQUEST =========================================================== ///
   Future<R> get<R>({
     required R Function(Map<String, dynamic>) fromJson,
