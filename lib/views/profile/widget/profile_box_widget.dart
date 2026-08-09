@@ -220,7 +220,7 @@ class DoctorProfileBox extends GetView<ProfileController> {
             imageUrl:
                 controller.doctorProfileModel?.data.userId.profileImage ?? '',
 
-            size: 100,
+            size: 160,
           ),
 
           Space.height.v10,

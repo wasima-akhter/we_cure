@@ -9,7 +9,7 @@ import '../themes/token.dart';
 
 class ProfileAvatarWidget extends StatelessWidget {
   final String? imageUrl;
-  final File? imageFile; // ✅ New optional file
+  final File? imageFile;
   final double size;
 
   final bool hasBorder;
@@ -28,85 +28,75 @@ class ProfileAvatarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget imageWidget;
+    final imageSize = hasBorder ? size - (borderWidth * 2) : size;
+
+    Widget image;
 
     if (imageFile != null) {
-      // ✅ Show local file image
-      imageWidget = Image.file(
+      image = Image.file(
         imageFile!,
-        width: size,
-        height: size,
+        width: imageSize,
+        height: imageSize,
         fit: BoxFit.cover,
       );
     } else if (imageUrl != null && imageUrl!.isNotEmpty) {
-      // ✅ Show network image
-      imageWidget = CachedNetworkImage(
+      image = CachedNetworkImage(
         imageUrl: imageUrl!,
-        width: size.w,
-        height: size.w,
+        width: imageSize,
+        height: imageSize,
         fit: BoxFit.cover,
-        placeholder: (context, url) =>
-            Container(
-              width: size.w,
-              height: size.w,
-
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.grey.shade200,
-              ),
-            ).withShadifyLoading(
-              loading: true,
-              borderRadius: BorderRadius.circular(100.r),
-            ),
-        errorWidget: (context, url, error) => Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
+        placeholder: (context, url) {
+          return Container(
+            width: imageSize,
+            height: imageSize,
+            color: Colors.grey.shade200,
+          ).withShadifyLoading(
+            loading: true,
+            borderRadius: BorderRadius.circular(imageSize / 2),
+          );
+        },
+        errorWidget: (context, url, error) {
+          return Container(
+            width: imageSize,
+            height: imageSize,
             color: Colors.grey.shade300,
-          ),
-          child: Icon(
-            Icons.image_not_supported,
-            color: Colors.grey,
-            size: size.w,
-          ),
-        ),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.image_not_supported,
+              color: Colors.grey,
+              size: imageSize * 0.45,
+            ),
+          );
+        },
       );
     } else {
-      // ✅ Default placeholder if nothing provided
-      imageWidget = Container(
-        width: size.w,
-        height: size.w,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.grey.shade300,
-        ),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Icon(Icons.person, size: size.w / 2, color: Colors.white),
-        ),
+      image = Container(
+        width: imageSize,
+        height: imageSize,
+        color: Colors.grey.shade300,
+        alignment: Alignment.center,
+        child: Icon(Icons.person, size: imageSize * 0.5, color: Colors.white),
       );
     }
 
-    return Container(
-      width: size.w,
-      height: size.w,
-      alignment: Alignment.center,
-      padding: hasBorder ? EdgeInsets.all(borderWidth) : EdgeInsets.zero,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: hasBorder
-            ? Border.all(
-                color: borderColor ?? CustomColors.primary,
-                width: borderWidth,
-              )
-            : null,
-      ),
-      child: ClipOval(
-        child: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: imageWidget,
+    return SizedBox(
+      width: size,
+      height: size,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: hasBorder
+              ? Border.all(
+                  color: borderColor ?? CustomColors.primary,
+                  width: borderWidth,
+                )
+              : null,
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(hasBorder ? borderWidth : 0),
+          child: ClipOval(
+            child: SizedBox(width: imageSize, height: imageSize, child: image),
+          ),
         ),
       ),
     );

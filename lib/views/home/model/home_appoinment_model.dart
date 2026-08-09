@@ -4,20 +4,21 @@ class DoctorDashboardModel {
   final String message;
   final DashboardData data;
 
-  DoctorDashboardModel({
+  const DoctorDashboardModel({
     required this.success,
     required this.statusCode,
     required this.message,
     required this.data,
   });
 
-  factory DoctorDashboardModel.fromJson(Map<String, dynamic> json) =>
-      DoctorDashboardModel(
-        success: json['success'],
-        statusCode: json['statusCode'],
-        message: json['message'],
-        data: DashboardData.fromJson(json['data']),
-      );
+  factory DoctorDashboardModel.fromJson(Map<String, dynamic> json) {
+    return DoctorDashboardModel(
+      success: json['success'] as bool? ?? false,
+      statusCode: _parseInt(json['statusCode']),
+      message: json['message']?.toString() ?? '',
+      data: DashboardData.fromJson(_asMap(json['data'])),
+    );
+  }
 }
 
 class DashboardData {
@@ -27,7 +28,7 @@ class DashboardData {
   final DashboardStats stats;
   final List<UpcomingAppointment> upcomingAppointments;
 
-  DashboardData({
+  const DashboardData({
     required this.today,
     required this.nextSchedule,
     this.activeAppointment,
@@ -35,17 +36,28 @@ class DashboardData {
     required this.upcomingAppointments,
   });
 
-  factory DashboardData.fromJson(Map<String, dynamic> json) => DashboardData(
-    today: TodaySchedule.fromJson(json['today']),
-    nextSchedule: json['nextSchedule'] ?? '',
-    activeAppointment: json['activeAppointment'] != null
-        ? ActiveAppointment.fromJson(json['activeAppointment'])
-        : null,
-    stats: DashboardStats.fromJson(json['stats']),
-    upcomingAppointments: List<UpcomingAppointment>.from(
-      json['upcomingAppointments'].map((x) => UpcomingAppointment.fromJson(x)),
-    ),
-  );
+  factory DashboardData.fromJson(Map<String, dynamic> json) {
+    final appointments = json['upcomingAppointments'];
+
+    return DashboardData(
+      today: TodaySchedule.fromJson(_asMap(json['today'])),
+      nextSchedule: json['nextSchedule']?.toString() ?? '',
+      activeAppointment: json['activeAppointment'] != null
+          ? ActiveAppointment.fromJson(_asMap(json['activeAppointment']))
+          : null,
+      stats: DashboardStats.fromJson(_asMap(json['stats'])),
+      upcomingAppointments: appointments is List
+          ? appointments
+                .whereType<Map>()
+                .map(
+                  (item) => UpcomingAppointment.fromJson(
+                    Map<String, dynamic>.from(item),
+                  ),
+                )
+                .toList()
+          : [],
+    );
+  }
 }
 
 class TodaySchedule {
@@ -55,7 +67,7 @@ class TodaySchedule {
   final String startTime;
   final String endTime;
 
-  TodaySchedule({
+  const TodaySchedule({
     required this.date,
     required this.dayName,
     required this.slotCount,
@@ -63,13 +75,15 @@ class TodaySchedule {
     required this.endTime,
   });
 
-  factory TodaySchedule.fromJson(Map<String, dynamic> json) => TodaySchedule(
-    date: json['date'] ?? 'N/A',
-    dayName: json['dayName'] ?? 'N/A',
-    slotCount: json['slotCount'] ?? 0,
-    startTime: json['startTime'] ?? 'N/A',
-    endTime: json['endTime'] ?? 'N/A',
-  );
+  factory TodaySchedule.fromJson(Map<String, dynamic> json) {
+    return TodaySchedule(
+      date: json['date']?.toString() ?? 'N/A',
+      dayName: json['dayName']?.toString() ?? 'N/A',
+      slotCount: _parseInt(json['slotCount']),
+      startTime: json['startTime']?.toString() ?? 'N/A',
+      endTime: json['endTime']?.toString() ?? 'N/A',
+    );
+  }
 }
 
 class ActiveAppointment {
@@ -78,35 +92,38 @@ class ActiveAppointment {
   final String status;
   final String reasonTitle;
 
-  ActiveAppointment({
+  const ActiveAppointment({
     required this.id,
     required this.timeRange,
     required this.status,
     required this.reasonTitle,
   });
 
-  factory ActiveAppointment.fromJson(Map<String, dynamic> json) =>
-      ActiveAppointment(
-        id: json['_id'],
-        timeRange: json['timeRange'],
-        status: json['status'],
-        reasonTitle: json['reasonTitle'],
-      );
+  factory ActiveAppointment.fromJson(Map<String, dynamic> json) {
+    return ActiveAppointment(
+      id: json['_id']?.toString() ?? '',
+      timeRange: json['timeRange']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      reasonTitle: json['reasonTitle']?.toString() ?? '',
+    );
+  }
 }
 
 class DashboardStats {
   final int bookingRequestCount;
   final int acceptedCount;
 
-  DashboardStats({
+  const DashboardStats({
     required this.bookingRequestCount,
     required this.acceptedCount,
   });
 
-  factory DashboardStats.fromJson(Map<String, dynamic> json) => DashboardStats(
-    bookingRequestCount: json['completedCount'],
-    acceptedCount: json['cancelledCount'],
-  );
+  factory DashboardStats.fromJson(Map<String, dynamic> json) {
+    return DashboardStats(
+      bookingRequestCount: _parseInt(json['bookingRequestCount']),
+      acceptedCount: _parseInt(json['acceptedCount']),
+    );
+  }
 }
 
 class UpcomingAppointment {
@@ -118,7 +135,7 @@ class UpcomingAppointment {
   final String date;
   final String status;
 
-  UpcomingAppointment({
+  const UpcomingAppointment({
     required this.id,
     required this.patientName,
     required this.reasonTitle,
@@ -128,14 +145,35 @@ class UpcomingAppointment {
     required this.status,
   });
 
-  factory UpcomingAppointment.fromJson(Map<String, dynamic> json) =>
-      UpcomingAppointment(
-        id: json['_id'],
-        patientName: json['patientName'],
-        reasonTitle: json['reasonTitle'],
-        patientProfileImage: json['patientProfileImage'],
-        timeRange: json['timeRange'],
-        date: json['date'],
-        status: json['status'],
-      );
+  factory UpcomingAppointment.fromJson(Map<String, dynamic> json) {
+    return UpcomingAppointment(
+      id: json['_id']?.toString() ?? '',
+      patientName: json['patientName']?.toString() ?? '',
+      reasonTitle: json['reasonTitle']?.toString() ?? '',
+      patientProfileImage: json['patientProfileImage']?.toString() ?? '',
+      timeRange: json['timeRange']?.toString() ?? '',
+      date: json['date']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+    );
+  }
+}
+
+Map<String, dynamic> _asMap(dynamic value) {
+  if (value is Map<String, dynamic>) {
+    return value;
+  }
+
+  if (value is Map) {
+    return Map<String, dynamic>.from(value);
+  }
+
+  return {};
+}
+
+int _parseInt(dynamic value) {
+  if (value is int) {
+    return value;
+  }
+
+  return int.tryParse(value?.toString() ?? '') ?? 0;
 }
