@@ -18,6 +18,7 @@ class PolicyController extends GetxController {
       fromJson: TermsModel.fromJson,
       endPoint: ApiEndPoints.policy,
       isLoading: isLoading,
+      showResponse: true,
       onSuccess: (result) => privacyDescription = result.data.content,
     );
   }

@@ -18,6 +18,7 @@ class TermsController extends GetxController {
       fromJson: TermsModel.fromJson,
       endPoint: ApiEndPoints.terms,
       isLoading: isLoading,
+      showResponse: true,
       onSuccess: (result) => termsDescription = result.data.content,
     );
   }

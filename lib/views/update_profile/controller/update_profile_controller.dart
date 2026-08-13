@@ -1,12 +1,13 @@
 import 'dart:io';
 
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:glady/core/api/end_point/api_end_points.dart';
 import 'package:glady/core/api/model/basic_success_model.dart';
 import 'package:glady/core/api/services/api_request.dart';
 import 'package:glady/views/profile/controller/profile_controller.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../../core/constants/timezones.dart';
+import '../../../core/helpers/image_compressor_helper.dart';
 import '../../../core/utils/app_storage.dart';
 import '../../../core/utils/basic_import.dart';
 import '../update_profile_helper.dart';
@@ -204,57 +205,89 @@ class UpdateProfileController extends GetxController {
   }
 
   Future<BasicSuccessModel> doctorUpdateProfileProcess() async {
-    return ApiRequest().multiMultipartRequest(
-      reqType: 'PATCH',
-      fromJson: BasicSuccessModel.fromJson,
-      endPoint: ApiEndPoints.doctorUpdateProfile,
-      isLoading: isLoading,
-      body: {
-        "name": nameController.text,
-        "phone": phoneController.text,
-        "dateOfBirth": dobController.text,
-        //
-        "timezone": timezone.value,
-      },
-      showSuccessSnackBar: true,
-      onSuccess: (result) {
-        Get.find<ProfileController>().getDoctorProfile();
-        Get.close(1);
-      },
-      files: profileImage.value != null
-          ? {'image': File(profileImage.value!.path)}
-          : {},
-    );
+    File? compressedImage;
+
+    try {
+      if (profileImage.value != null) {
+        compressedImage = await compressImage(profileImage.value!);
+      }
+
+      return await ApiRequest().multiMultipartRequest(
+        reqType: 'PATCH',
+        fromJson: BasicSuccessModel.fromJson,
+        endPoint: ApiEndPoints.doctorUpdateProfile,
+        isLoading: isLoading,
+        body: {
+          "name": nameController.text,
+          "phone": phoneController.text,
+          "dateOfBirth": dobController.text,
+          "timezone": timezone.value,
+        },
+        showSuccessSnackBar: true,
+        onSuccess: (result) {
+          Get.find<ProfileController>().getDoctorProfile();
+          Get.close(1);
+        },
+        files: compressedImage != null ? {'image': compressedImage} : {},
+      );
+    } finally {
+      // Delete temporary compressed file
+      if (compressedImage != null && profileImage.value != null) {
+        try {
+          if (compressedImage.path != profileImage.value!.path) {
+            await compressedImage.delete();
+          }
+        } catch (_) {}
+      }
+    }
   }
 
   Future<BasicSuccessModel> userUpdateProfileProcess() async {
     if (!validateProfile()) {
       throw Exception('Profile validation failed');
     }
-    return ApiRequest().multiMultipartRequest(
-      reqType: 'PATCH',
-      fromJson: BasicSuccessModel.fromJson,
-      endPoint: ApiEndPoints.userUpdateProfile,
-      isLoading: isLoading,
-      body: {
-        "name": nameController.text,
-        "phone": phoneController.text,
-        "dateOfBirth": dobController.text,
-        "bloodGroup": selectedBloodGroup.value?.value,
-        for (int i = 0; i < allergiesList.length; i++)
-          "allergies[$i]": allergiesList[i],
 
-        //
-        "timezone": timezone.value,
-      },
-      showSuccessSnackBar: true,
-      onSuccess: (result) {
-        Get.find<ProfileController>().getUserProfile();
-        Get.close(1);
-      },
-      files: profileImage.value != null
-          ? {'image': File(profileImage.value!.path)}
-          : {},
-    );
+    File? compressedImage;
+
+    try {
+      if (profileImage.value != null) {
+        compressedImage = await compressImage(profileImage.value!);
+      }
+
+      return await ApiRequest().multiMultipartRequest(
+        reqType: 'PATCH',
+        fromJson: BasicSuccessModel.fromJson,
+        endPoint: ApiEndPoints.userUpdateProfile,
+        isLoading: isLoading,
+        body: {
+          "name": nameController.text,
+          "phone": phoneController.text,
+          "dateOfBirth": dobController.text,
+          "bloodGroup": selectedBloodGroup.value?.value,
+
+          for (int i = 0; i < allergiesList.length; i++)
+            "allergies[$i]": allergiesList[i],
+
+          "timezone": timezone.value,
+        },
+        showSuccessSnackBar: true,
+        onSuccess: (result) {
+          Get.find<ProfileController>().getUserProfile();
+          Get.close(1);
+        },
+        files: compressedImage != null ? {'image': compressedImage} : {},
+      );
+    } finally {
+      // Delete temporary compressed file
+      if (compressedImage != null && profileImage.value != null) {
+        try {
+          if (compressedImage.path != profileImage.value!.path) {
+            await compressedImage.delete();
+          }
+        } catch (_) {}
+      }
+    }
   }
+
+  //
 }

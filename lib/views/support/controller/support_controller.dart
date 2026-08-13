@@ -1,8 +1,11 @@
 import 'dart:io';
+
 import 'package:image_picker/image_picker.dart';
+
 import '../../../core/api/end_point/api_end_points.dart';
-import '../../../core/api/services/api_request.dart';
 import '../../../core/api/model/basic_success_model.dart';
+import '../../../core/api/services/api_request.dart';
+import '../../../core/helpers/image_compressor_helper.dart';
 import '../../../core/utils/basic_import.dart';
 import '../../../core/widgets/confirmation_widget.dart';
 
@@ -16,19 +19,32 @@ class SupportController extends GetxController {
   RxBool isLoading = false.obs;
 
   Future<BasicSuccessModel> sendSupport() async {
+    // ============================================================
+    // Compress attachment before upload
+    // ============================================================
+
+    File? compressedAttachment;
+
+    if (attachment.value != null) {
+      compressedAttachment = await compressImage(attachment.value!);
+    }
+
+    // ============================================================
+    // Send request
+    // ============================================================
+
     return ApiRequest().multiMultipartRequest(
       reqType: 'POST',
       fromJson: BasicSuccessModel.fromJson,
       endPoint: ApiEndPoints.support,
       isLoading: isLoading,
       body: {
-        'name': nameController.text,
+        'name': nameController.text.trim(),
         'email': emailController.text.trim(),
-        'message': messageController.text,
+        'message': messageController.text.trim(),
       },
-      // showSuccessSnackBar: true,
-      files: attachment.value != null
-          ? {'attachment': File(attachment.value!.path)}
+      files: compressedAttachment != null
+          ? {'attachment': compressedAttachment}
           : {},
       onSuccess: (result) {
         Get.offAll(

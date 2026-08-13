@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:glady/core/api/model/basic_success_model.dart';
+import 'package:glady/core/helpers/image_compressor_helper.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/api/end_point/api_end_points.dart';
@@ -29,6 +28,20 @@ class UploadDocController extends GetxController {
       throw Exception("Document is required");
     }
 
+    // ============================================================
+    // Compress document before upload
+    // ============================================================
+
+    final compressedDocument = await compressImage(multipleImages.first);
+
+    if (compressedDocument == null) {
+      throw Exception("Unable to process document");
+    }
+
+    // ============================================================
+    // Upload document
+    // ============================================================
+
     return ApiRequest().multiMultipartRequest(
       reqType: 'POST',
       fromJson: BasicSuccessModel.fromJson,
@@ -36,8 +49,7 @@ class UploadDocController extends GetxController {
       isLoading: isLoading,
       token: accessToken,
       body: {},
-      files: {"document": File(multipleImages.first.path)},
-
+      files: {"document": compressedDocument},
       onSuccess: (result) {
         Get.offAll(
           ConfirmationWidget(
@@ -49,10 +61,10 @@ class UploadDocController extends GetxController {
             title: 'Awaiting Verification',
             subtitle:
                 'Your documents have been submitted successfully.\n\n'
-                'Please complete your bank account information before your verification process continues. '
+                'Please complete your bank account information before your '
+                'verification process continues. '
                 'Our team usually verifies documents within 24–48 hours. '
                 'You will receive an email once your account has been verified.',
-
             onTap: () => Get.offAllNamed(Routes.loginScreen),
           ),
         );
