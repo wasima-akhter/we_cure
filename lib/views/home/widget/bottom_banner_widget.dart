@@ -14,7 +14,7 @@ class BottomBannerWidget extends StatelessWidget {
             left: 0,
             right: 0,
             height: 160.h,
-            child: Container(color: Color(0xff0386B5)),
+            child: Container(color: CustomColors.primary),
           ),
           Positioned.fill(
             child: Align(

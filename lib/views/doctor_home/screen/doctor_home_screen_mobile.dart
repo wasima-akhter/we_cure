@@ -36,6 +36,15 @@ class DoctorHomeScreenMobile extends GetView<DoctorHomeController> {
                         ),
 
                         Space.height.v20,
+                        ElevatedButton(
+                          onPressed: () {
+                            controller.testPushNotification();
+                          },
+                          child: const Text(
+                            "Test Notification by backend",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
                       ],
                       Space.height.v20,
                       const DoctorAppointmentSectionWidget(),

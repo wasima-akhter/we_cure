@@ -241,7 +241,7 @@ class AppointmentDetailsScreenMobile
                   // ),
                   InfoPairRow(
                     leftTitle: 'Reason',
-                    leftValue: data?.reasonTitle ?? '',
+                    leftValue: (data?.reasonTitle ?? '--').capitalizeSafe,
                     rightTitle: 'Booking Date',
                     rightValue: data?.appointmentDate == null
                         ? '-- --- ----'
@@ -257,22 +257,24 @@ class AppointmentDetailsScreenMobile
                                 )),
                   ),
                   Space.height.v15,
-                  TextWidget(
-                    padding: EdgeInsets.only(
-                      top: Dimensions.heightSize,
-                      bottom: Dimensions.heightSize * 0.5,
+                  if ((data?.reasonDetails ?? '').isNotEmpty) ...[
+                    TextWidget(
+                      padding: EdgeInsets.only(
+                        top: Dimensions.heightSize,
+                        bottom: Dimensions.heightSize * 0.5,
+                      ),
+                      'Details',
+                      fontSize: Dimensions.titleSmall,
+                      fontWeight: FontWeight.bold,
                     ),
-                    'Details',
-                    fontSize: Dimensions.titleSmall,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  TextWidget(
-                    textAlign: TextAlign.justify,
-                    fontSize: Dimensions.titleSmall,
-                    fontWeight: FontWeight.w400,
-                    data?.reasonDetails ?? '',
-                  ),
-                  Space.height.v15,
+                    TextWidget(
+                      textAlign: TextAlign.justify,
+                      fontSize: Dimensions.titleSmall,
+                      fontWeight: FontWeight.w400,
+                      data?.reasonDetails ?? '',
+                    ),
+                    Space.height.v15,
+                  ],
                   InfoPairRow(
                     leftTitle: 'Visiting Date',
                     leftValue: '$formattedVisitingDate\n$formattedVisitingTime',
@@ -381,22 +383,25 @@ class AppointmentDetailsScreenMobile
                     rightValue: formatDateDMY(data.appointmentDate),
                   ),
                   Space.height.v15,
-                  TextWidget(
-                    padding: EdgeInsets.only(
-                      top: Dimensions.heightSize,
-                      bottom: Dimensions.heightSize * 0.5,
+
+                  if (data.reasonDetails.isNotEmpty) ...[
+                    TextWidget(
+                      padding: EdgeInsets.only(
+                        top: Dimensions.heightSize,
+                        bottom: Dimensions.heightSize * 0.5,
+                      ),
+                      'Details',
+                      fontSize: Dimensions.titleSmall,
+                      fontWeight: FontWeight.bold,
                     ),
-                    'Details',
-                    fontSize: Dimensions.titleSmall,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  TextWidget(
-                    textAlign: TextAlign.justify,
-                    fontSize: Dimensions.titleSmall,
-                    fontWeight: FontWeight.w400,
-                    data.reasonDetails,
-                  ),
-                  Space.height.v15,
+                    TextWidget(
+                      textAlign: TextAlign.justify,
+                      fontSize: Dimensions.titleSmall,
+                      fontWeight: FontWeight.w400,
+                      data.reasonDetails,
+                    ),
+                    Space.height.v15,
+                  ],
                   InfoPairRow(
                     leftTitle: 'Visiting Date',
                     leftValue:

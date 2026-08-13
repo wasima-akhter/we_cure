@@ -50,6 +50,99 @@ class UpdateProfileController extends GetxController {
     prefillData();
   }
 
+  // ============================================================
+  // Validation
+  // ============================================================
+
+  bool validateProfile() {
+    final name = nameController.text.trim();
+    final phone = phoneController.text.trim();
+    final dob = dobController.text.trim();
+
+    if (name.isEmpty) {
+      _showValidationSnackBar('Please enter your name');
+      return false;
+    }
+
+    if (name.length < 2) {
+      _showValidationSnackBar('Name must be at least 2 characters');
+      return false;
+    }
+
+    if (phone.isEmpty) {
+      _showValidationSnackBar('Please enter your phone number');
+      return false;
+    }
+
+    if (!_isValidPhone(phone)) {
+      _showValidationSnackBar('Please enter a valid phone number');
+      return false;
+    }
+
+    if (dob.isEmpty) {
+      _showValidationSnackBar('Please select your date of birth');
+      return false;
+    }
+
+    if (!_isValidDate(dob)) {
+      _showValidationSnackBar('Please enter a valid date of birth');
+      return false;
+    }
+
+    if (_isFutureDate(dob)) {
+      _showValidationSnackBar('Date of birth cannot be in the future');
+      return false;
+    }
+
+    if (AppStorage.isUser == 'USER' && selectedBloodGroup.value == null) {
+      _showValidationSnackBar('Please select your blood group');
+      return false;
+    }
+
+    if (timezone.value.trim().isEmpty) {
+      _showValidationSnackBar('Please select your timezone');
+      return false;
+    }
+
+    return true;
+  }
+
+  bool _isValidPhone(String phone) {
+    // Allows +, digits, spaces, hyphens and parentheses.
+    // Adjust this if your backend requires a specific country format.
+    final cleaned = phone.replaceAll(RegExp(r'[\s\-()]'), '');
+
+    return RegExp(r'^\+?[0-9]{7,15}$').hasMatch(cleaned);
+  }
+
+  bool _isValidDate(String value) {
+    try {
+      final date = DateTime.parse(value);
+
+      // Make sure DateTime.parse didn't normalize an invalid date.
+      return date.toIso8601String().substring(0, 10) == value;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  bool _isFutureDate(String value) {
+    try {
+      final date = DateTime.parse(value);
+
+      final today = DateTime.now();
+      final currentDate = DateTime(today.year, today.month, today.day);
+
+      return date.isAfter(currentDate);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _showValidationSnackBar(String message) {
+    CustomSnackBar.error(title: 'Invalid information', message);
+  }
+
   void prefillData() {
     final profileController = Get.find<ProfileController>();
 
@@ -135,6 +228,9 @@ class UpdateProfileController extends GetxController {
   }
 
   Future<BasicSuccessModel> userUpdateProfileProcess() async {
+    if (!validateProfile()) {
+      throw Exception('Profile validation failed');
+    }
     return ApiRequest().multiMultipartRequest(
       reqType: 'PATCH',
       fromJson: BasicSuccessModel.fromJson,

@@ -23,7 +23,12 @@ class InfoPairRow extends StatelessWidget {
         _InfoColumn(title: leftTitle, value: leftValue, alignment: crossStart),
 
         /// Right Column (end)
-        _InfoColumn(title: rightTitle, value: rightValue, alignment: crossEnd),
+        if (rightValue.isNotEmpty)
+          _InfoColumn(
+            title: rightTitle,
+            value: rightValue,
+            alignment: crossEnd,
+          ),
       ],
     );
   }

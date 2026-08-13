@@ -18,19 +18,39 @@ class DoctorHomeController extends GetxController {
       fromJson: DoctorDashboardModel.fromJson,
       endPoint: ApiEndPoints.doctorHome,
       isLoading: isLoading,
+      showResponse: true,
       onSuccess: (result) {
         dashboardModel.value = result;
       },
     );
   }
 
+  Future<void> testPushNotification() async {
+    await ApiRequest().post(
+      fromJson: (p0) {},
+      endPoint: '/notifications/test-push',
+      body: {
+        'title': 'Hello from Backend!',
+        'body': 'This is a test push notification.',
+        'data': {'click_action': 'FLUTTER_NOTIFICATION_CLICK'},
+      },
+      isLoading: isLoading,
+      onSuccess: (_) {
+        debugPrint('Test push notification sent successfully');
+      },
+    );
+  }
+
   //
 
-  void handleAppointmentAction({required String appStatus, required String appId}) {
+  void handleAppointmentAction({
+    required String appStatus,
+    required String appId,
+  }) {
     final status = appStatus.toUpperCase() ?? '';
 
     if (status == 'ONGOING') {
-      joinVideoCall(appId );
+      joinVideoCall(appId);
     } else if (status == 'COMPLETED' ||
         status == 'CANCELLED' ||
         status == 'UPCOMING') {

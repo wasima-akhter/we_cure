@@ -37,7 +37,7 @@ class CustomSnackBar {
     });
   }
 
-  static void error(String message) {
+  static void error(String message, {String? title}) {
     final ctx = Get.overlayContext ?? Get.context;
     if (ctx == null) return;
 
@@ -54,7 +54,7 @@ class CustomSnackBar {
         padding: EdgeInsets.all(Dimensions.paddingSize * 0.45),
         borderRadius: Dimensions.radius * 1.5,
         messageText: CustomSnackbarContent(
-          title: Strings.error,
+          title: title ?? Strings.error,
           message: message,
           type: 'error',
         ),

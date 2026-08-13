@@ -19,6 +19,7 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -36,31 +37,23 @@ android {
     }
 
     packaging {
-        resources {
-            pickFirsts += setOf(
-                "lib/armeabi-v7a/libc++_shared.so",
-                "lib/arm64-v8a/libc++_shared.so",
-                "lib/x86_64/libc++_shared.so"
-            )
-            excludes += setOf(
-                "META-INF/*.kotlin_module",
-                "META-INF/DEPENDENCIES",
-                "META-INF/LICENSE",
-                "META-INF/LICENSE.txt",
-                "META-INF/NOTICE",
-                "META-INF/NOTICE.txt"
-            )
+            jniLibs {
+                pickFirsts += setOf(
+                    "lib/armeabi-v7a/libaosl.so",
+                    "lib/arm64-v8a/libaosl.so",
+                    "lib/x86/libaosl.so",
+                    "lib/x86_64/libaosl.so"
+                )
+            }
         }
-    }
-
-    signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
+        signingConfigs {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
         }
-    }
 
     buildTypes {
         release {
@@ -74,7 +67,9 @@ android {
         }
     }
 }
-
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+}
 flutter {
     source = "../.."
 }

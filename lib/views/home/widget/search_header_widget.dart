@@ -34,7 +34,7 @@ class SearchHeaderWidget extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 16.h),
               decoration: BoxDecoration(
-                color: const Color(0xFF006B8F),
+                color: CustomColors.primary,
                 borderRadius: BorderRadius.only(
                   topRight: Radius.circular(12.r),
                   bottomRight: Radius.circular(12.r),
