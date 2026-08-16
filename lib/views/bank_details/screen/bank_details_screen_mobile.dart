@@ -97,9 +97,7 @@ class BankDetailsScreenMobile extends GetView<BankDetailsController> {
 
                               initialValue: controller.selectedBank.value?.name,
 
-                              items: controller.banks
-                                  .map((e) => e.name)
-                                  .toList(),
+                              items: controller.bankNames,
 
                               onChanged: controller.selectBank,
                             ),

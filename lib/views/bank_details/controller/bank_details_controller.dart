@@ -41,6 +41,14 @@ class BankDetailsController extends GetxController {
 
   final RxBool bankApiFailed = false.obs;
 
+  List<String> get bankNames {
+    return banks
+        .map((bank) => bank.name.trim())
+        .where((name) => name.isNotEmpty)
+        .toSet()
+        .toList();
+  }
+
   Future<void> getBanks() async {
     try {
       isGetDetails.value = true;
