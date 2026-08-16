@@ -76,6 +76,7 @@ class BankDetailsController extends GetxController {
       if (banks.isEmpty) {
         bankApiFailed.value = true;
       }
+      _selectExistingBank();
     } catch (e) {
       bankApiFailed.value = true;
       CustomSnackBar.error(e.toString());
@@ -126,6 +127,31 @@ class BankDetailsController extends GetxController {
 
     // }
   };
+
+  void _selectExistingBank() {
+    final bankCode = bankCodeController.text.trim();
+    final bankName = bankNameController.text.trim();
+
+    if (bankCode.isEmpty && bankName.isEmpty) {
+      return;
+    }
+
+    BankModel? bank;
+
+    if (bankCode.isNotEmpty) {
+      bank = banks.cast<BankModel?>().firstWhere(
+        (e) => e?.code == bankCode,
+        orElse: () => null,
+      );
+    }
+
+    bank ??= banks.cast<BankModel?>().firstWhere(
+      (e) => e?.name.trim() == bankName,
+      orElse: () => null,
+    );
+
+    selectedBank.value = bank;
+  }
 
   void _assignData(BankDetailsModel result) {
     bankCodeController.text = result.data?.bankCode ?? '';
